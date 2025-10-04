@@ -56,4 +56,4 @@ This ensures stability, proper versioning, and reliable CI/CD automation across 
 ## 👨‍💻 Author
 **Milosz Markowski**  
 Wroclaw University of Science and Technology  
-Field of study: Technical Computer Science
+Field of study: Computer Engineering
