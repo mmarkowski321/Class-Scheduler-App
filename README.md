@@ -13,7 +13,7 @@ The project is based on a multi-layered architecture:
 - **Frontend:** React + JavaScript
 - **Backend:** Spring Boot (Java)
 - **Database:** PostgreSQL
-- **CI/CD & DevOps:** Github Actions, Docker, Kubernetes*
+- **CI/CD & DevOps:** Jenkins, Docker, Kubernetes*
 - **Cloud Deployment:** AWS
 
 ## 🧩 Engineering Aspects
