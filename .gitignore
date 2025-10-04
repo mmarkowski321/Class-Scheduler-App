@@ -1,0 +1,82 @@
+# ===========================
+# GLOBAL SETTINGS
+# ===========================
+.idea/
+.vscode/
+*.iml
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.pid
+*.tar
+*.zip
+*.7z
+
+# ===========================
+# MAVEN / JAVA (backend)
+# ===========================
+backend/target/
+backend/.mvn/
+backend/*.class
+backend/*.jar
+backend/*.war
+backend/*.ear
+backend/.classpath
+backend/.project
+backend/.factorypath
+backend/.settings/
+backend/mvnw
+backend/mvnw.cmd
+backend/pom.xml.tag
+backend/pom.xml.releaseBackup
+backend/pom.xml.versionsBackup
+backend/logs/
+backend/out/
+backend/HELP.md
+
+# ===========================
+# NODE / REACT (frontend)
+# ===========================
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.parcel-cache/
+frontend/.eslintcache
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.next/
+frontend/out/
+
+# ===========================
+# DOCUMENTATION (docs)
+# ===========================
+docs/*.tmp
+docs/~$*
+docs/*.bak
+docs/*.swp
+
+# ===========================
+# SYSTEM / TEMP / OTHERS
+# ===========================
+*.class
+*.cache
+*.out
+*.orig
+*.rej
+*.bak
+*.old
+*.save
+*.swo
+*.swn
+*.rej
+*.err
+*.log
