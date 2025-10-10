@@ -1,0 +1,83 @@
+{
+  "header": {
+    "logo": "📚 EduScheduler",
+    "nav": {
+      "features": "Funkcje",
+      "forStudent": "Dla ucznia",
+      "forTutor": "Dla nauczyciela",
+      "about": "O nas",
+      "contact": "Kontakt"
+    },
+    "actions": {
+      "login": "Zaloguj się",
+      "register": "Zarejestruj się"
+    }
+  },
+  "hero": {
+    "title": "Znajdź idealnego korepetytora <br/> i zaplanuj zajęcia w prosty sposób",
+    "description": "Nasza platforma łączy korepetytorów z uczniami,<br />oferując inteligentne harmonogramowanie i synchronizację kalendarzy,<br />aby nauka była przyjemna i efektywna.",
+    "actions": {
+      "startLearning": "Rozpocznij naukę",
+      "becomeTutor": "Zostań korepetytorem"
+    },
+    "stats": {
+      "tutors": "Korepetytorów",
+      "monthlyLessons": "Zajęć miesięcznie",
+      "satisfiedStudents": "Zadowolonych uczniów"
+    }
+  },
+  "features": {
+    "title": "Dlaczego wybrać EduScheduler?",
+    "description": "Nasza platforma oferuje wszystko, czego potrzebujesz do efektywnej nauki i nauczania",
+    "list": {
+      "smartScheduling": {
+        "title": "Inteligentne harmonogramowanie",
+        "description": "Automatyczne rozwiązywanie konfliktów terminów i synchronizacja kalendarzy."
+      },
+      "tutorSearch": {
+        "title": "Wyszukiwanie korepetytorów",
+        "description": "Znajdź idealnego nauczyciela na podstawie przedmiotu i ocen."
+      },
+      "ratingSystem": {
+        "title": "System ocen i opinii",
+        "description": "Przeczytaj opinie i zostaw swoją ocenę po zajęciach."
+      },
+      "notifications": {
+        "title": "Powiadomienia",
+        "description": "Otrzymuj przypomnienia o nadchodzących zajęciach i ważnych terminach."
+      },
+      "communication": {
+        "title": "Komunikacja",
+        "description": "Bezpośredni kontakt z korepetytorem przez system wiadomości."
+      },
+      "progressStats": {
+        "title": "Statystyki postępów",
+        "description": "Śledź swoje osiągnięcia i postępy w nauce."
+      }
+    }
+  },
+  "footer": {
+    "description": "Platforma do harmonogramowania korepetycji",
+    "forStudents": "Dla uczniów",
+    "forTutors": "Dla korepetytorów",
+    "company": "Firma",
+    "links": {
+      "findTutor": "Znajdź korepetytora",
+      "howItWorks": "Jak to działa",
+      "pricing": "Cennik",
+      "help": "Pomoc",
+      "becomeTutor": "Zostań korepetytorem",
+      "manageSchedule": "Zarządzaj harmonogramem",
+      "earnings": "Zarobki",
+      "support": "Wsparcie",
+      "about": "O nas",
+      "contact": "Kontakt"
+    },
+    "copyright": "© 2024 EduScheduler. Wszystkie prawa zastrzeżone.",
+    "legal": {
+      "privacy": "Polityka prywatności",
+      "terms": "Regulamin",
+      "cookies": "Cookies"
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "header": {
+    "logo": "📚 EduScheduler",
+    "nav": {
+      "features": "Features",
+      "forStudent": "For Student",
+      "forTutor": "For Tutor",
+      "about": "About Us",
+      "contact": "Contact"
+    },
+    "actions": {
+      "login": "Log In",
+      "register": "Sign Up"
+    }
+  },
+  "hero": {
+    "title": "Find the perfect tutor<br/>and schedule classes easily",
+    "description": "Our platform connects tutors with students,<br />offering intelligent scheduling,<br />calendar synchronization and automatic conflict resolution,<br />making learning enjoyable, efficient and always on time.",
+    "actions": {
+      "startLearning": "Start Learning",
+      "becomeTutor": "Become a Tutor"
+    },
+    "stats": {
+      "tutors": "Tutors",
+      "monthlyLessons": "Monthly Lessons",
+      "satisfiedStudents": "Satisfied Students"
+    }
+  },
+  "features": {
+    "title": "Why choose EduScheduler?",
+    "description": "Our platform offers everything you need for effective learning and teaching",
+    "list": {
+      "smartScheduling": {
+        "title": "Smart Scheduling",
+        "description": "Automatic resolution of time conflicts and synchronization with Google, Outlook and Apple calendars."
+      },
+      "tutorSearch": {
+        "title": "Tutor Search",
+        "description": "Find the perfect teacher based on subject, location, ratings and availability."
+      },
+      "ratingSystem": {
+        "title": "Rating & Review System",
+        "description": "Read reviews from other students and leave your rating after completed classes."
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Receive reminders about upcoming classes and important deadlines."
+      },
+      "communication": {
+        "title": "Communication",
+        "description": "Direct contact with the tutor through the built-in messaging system."
+      },
+      "progressStats": {
+        "title": "Progress Statistics",
+        "description": "Track your achievements and learning progress with detailed reports."
+      }
+    }
+  },
+  "footer": {
+    "description": "Tutoring scheduling platform",
+    "forStudents": "For Students",
+    "forTutors": "For Tutors",
+    "company": "Company",
+    "links": {
+      "findTutor": "Find Tutor",
+      "howItWorks": "How it Works",
+      "pricing": "Pricing",
+      "help": "Help",
+      "becomeTutor": "Become Tutor",
+      "manageSchedule": "Manage Schedule",
+      "earnings": "Earnings",
+      "support": "Support",
+      "about": "About Us",
+      "contact": "Contact"
+    },
+    "copyright": "© 2024 EduScheduler. All rights reserved.",
+    "legal": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookies"
+    }
+  }
+}
