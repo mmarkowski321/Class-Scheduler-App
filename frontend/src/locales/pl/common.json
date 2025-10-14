@@ -79,5 +79,111 @@
       "terms": "Regulamin",
       "cookies": "Cookies"
     }
+  },
+  "register": {
+    "title": "Zarejestruj się",
+    "firstName": "Imię",
+    "firstNamePlaceholder": "Wpisz imię",
+    "lastName": "Nazwisko",
+    "lastNamePlaceholder": "Wpisz nazwisko",
+    "birthDate": "Data urodzenia",
+    "email": "Adres e-mail",
+    "emailPlaceholder": "Wpisz email jan@example.com",
+    "password": "Hasło",
+    "passwordPlaceholder": "Wpisz hasło",
+    "confirmPassword": "Powtórz hasło",
+    "confirmPasswordPlaceholder": "Wpisz hasło ponownie",
+    "button": "Zarejestruj się",
+    "submitting": "Rejestracja...",
+    "haveAccount": "Masz już konto?",
+    "loginLink": "Zaloguj się",
+    "success": "Rejestracja zakończona pomyślnie!",
+    "birthDatePlaceholder": "dd.mm.rrrr",
+    "role": "Rejestruj się jako",
+    "rolePlaceholder": "Wybierz rolę",
+    "roleStudent": "Uczeń",
+    "roleTutor": "Korepetytor",
+    "errors": {
+      "firstName": "Imię jest wymagane",
+      "lastName": "Nazwisko jest wymagane",
+      "birthDate": "Data urodzenia jest wymagana",
+      "age": "Musisz mieć co najmniej 13 lat, aby się zarejestrować",
+      "email": "Adres e-mail jest wymagany",
+      "emailInvalid": "Niepoprawny format adresu e-mail",
+      "password": "Hasło jest wymagane",
+      "passwordShort": "Hasło musi mieć co najmniej 8 znaków",
+      "confirmPassword": "Powtórz hasło",
+      "passwordsMismatch": "Hasła nie są zgodne",
+      "role": "Wybierz rolę użytkownika",
+      "server": "Wystąpił błąd serwera. Spróbuj ponownie później."
+    }
+  },
+  "login": {
+    "title": "Zaloguj się",
+    "email": "Adres e-mail",
+    "password": "Hasło",
+    "button": "Zaloguj się",
+    "noAccount": "Nie masz konta?",
+    "registerLink": "Zarejestruj się",
+    "forgotPassword": "Zapomniałeś hasła?",
+    "submitting": "Logowanie...",
+    "errors": {
+      "email": "Adres e-mail jest wymagany",
+      "emailInvalid": "Niepoprawny adres e-mail",
+      "password": "Hasło jest wymagane",
+      "server": "Nie udało się zalogować. Sprawdź dane i spróbuj ponownie."
+    }
+  },
+  "about": {
+    "title": "O nas",
+    "lead": "Pomagamy łączyć uczniów z najlepszymi korepetytorami – szybko i bez stresu.",
+    "blocks": {
+      "mission": {
+        "title": "Nasza misja",
+        "text": "Ułatwiać planowanie zajęć i współpracę poprzez inteligentne narzędzia i przejrzysty interfejs."
+      },
+      "how": {
+        "title": "Jak działamy?",
+        "text": "Wyszukujesz korepetytora, rezerwujesz termin, a nasz system synchronizuje kalendarze i przypomina o lekcjach."
+      },
+      "values": {
+        "title": "Wartości",
+        "items": ["Transparentność", "Jakość nauczania", "Szacunek do czasu"]
+      }
+    }
+  },
+  "contact": {
+    "title": "Kontakt",
+    "lead": "Masz pytanie lub sugestię? Napisz do nas – odpiszemy najszybciej jak to możliwe.",
+    "form": {
+      "name": "Imię i nazwisko",
+      "email": "Adres e-mail",
+      "topic": "Temat (opcjonalnie)",
+      "message": "Wiadomość",
+      "send": "Wyślij"
+    },
+    "placeholders": {
+      "name": "Wpisz swoje imię i nazwisko",
+      "topic": "Czego dotyczy wiadomość?",
+      "message": "Opisz krótko swój temat…"
+    },
+    "errors": {
+      "name": "Podaj imię i nazwisko",
+      "email": "Podaj adres e-mail",
+      "emailInvalid": "Nieprawidłowy format adresu e-mail",
+      "message": "Wpisz treść wiadomości"
+    },
+    "success": "Dziękujemy! Twoja wiadomość została wysłana.",
+    "info": {
+      "title": "Jak jeszcze możemy pomóc?",
+      "desc": "Zanim napiszesz, sprawdź najczęstsze tematy:",
+      "items": [
+        "Problemy z logowaniem lub rejestracją",
+        "Sugestie nowych funkcji",
+        "Współpraca lub partnerstwo"
+      ]
+    }
   }
 }
+
+

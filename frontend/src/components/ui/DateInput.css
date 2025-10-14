@@ -1,0 +1,51 @@
+/* === Styl DatePicker, dopasowany do reszty pól === */
+.custom-datepicker-field .MuiOutlinedInput-root {
+  border-radius: 6px !important;
+  background: #fff !important;
+  border: none !important;
+  color: #222 !important;
+  height: 44px !important; /* identyczna wysokość jak inne pola */
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.custom-datepicker-field .MuiOutlinedInput-root:hover {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.custom-datepicker-field .MuiOutlinedInput-input {
+  padding: 10px 14px !important;
+  font-size: 1rem !important;
+  color: #222 !important;
+}
+
+/* === Placeholder (wodny napis) === */
+.custom-datepicker-field input::placeholder {
+  color: rgba(0, 0, 0, 0.4) !important; /* taki sam jak w innych polach */
+  opacity: 1 !important;
+}
+
+/* === Ukrycie domyślnej ramki === */
+.custom-datepicker-field fieldset {
+  border: none !important;
+}
+
+/* === Label "Date of Birth" === */
+.custom-datepicker-field .MuiInputLabel-root {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 0.9rem;
+}
+
+/* === Popup kalendarza === */
+.MuiPickersPopper-root {
+  z-index: 9999 !important;
+}
+
+.MuiPaper-root.MuiPickersPopper-paper {
+  border-radius: 10px;
+  background: #fff !important;
+  color: #222 !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
