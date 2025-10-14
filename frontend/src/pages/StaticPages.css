@@ -1,0 +1,126 @@
+/* pełne tło i układ jak na auth */
+.page-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .static-main {
+    flex: 1;
+    background: linear-gradient(145deg, #6a70e8 0%, #764ba2 100%);
+    padding: 5rem 1rem 6rem;
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  .static-hero {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 2rem;
+  }
+  
+  .static-hero h1 {
+    font-size: clamp(1.8rem, 3.3vw, 2.4rem);
+    font-weight: 800;
+    margin: 0 0 .6rem 0;
+    text-shadow: 0 3px 8px rgba(0,0,0,.25);
+  }
+  
+  .static-hero .lead {
+    color: rgba(255,255,255,.95);
+    font-size: clamp(1rem, 1.6vw, 1.15rem);
+  }
+  
+  /* trzy karty na About */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+    margin-top: 1rem;
+  }
+  
+  .card {
+    background: rgba(255,255,255,.08);
+    backdrop-filter: blur(8px);
+    border-radius: 14px;
+    padding: 1.4rem;
+    color: #fff;
+    box-shadow: 0 10px 26px rgba(0,0,0,.25);
+  }
+  
+  .card h3 { margin: 0 0 .5rem; font-size: 1.15rem; }
+  .card p { margin: 0; line-height: 1.6; }
+  .bullets { margin: .4rem 0 0; padding-left: 1.1rem; }
+  .bullets li { margin: .2rem 0; }
+  
+  /* Contact: siatka formularz + panel info */
+  .contact-grid {
+    margin-top: 1.2rem;
+    display: grid;
+    grid-template-columns: 1.2fr .8fr;
+    gap: 1.2rem;
+  }
+  
+  .contact-form,
+  .info-card {
+    background: rgba(255,255,255,.08);
+    backdrop-filter: blur(8px);
+    border-radius: 14px;
+    padding: 1.4rem;
+    color: #fff;
+    box-shadow: 0 10px 26px rgba(0,0,0,.25);
+  }
+  
+  .field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: .9rem;
+  }
+  
+  .field label {
+    font-size: .9rem;
+    color: rgba(255,255,255,.95);
+    margin-bottom: .35rem;
+  }
+  
+  .field input,
+  .field textarea {
+    width: 100%;
+    background: rgba(255,255,255,.96);
+    color: #222;
+    border: none;
+    outline: none;
+    border-radius: 10px;
+    padding: .8rem .95rem;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+  
+  .field textarea { resize: vertical; }
+  
+  .field-error {
+    color: #ffd0ce;
+    margin-top: .35rem;
+    font-size: .9rem;
+  }
+  
+  .form-success {
+    margin-top: .8rem;
+    color: #eaffd1;
+    font-weight: 600;
+  }
+  
+  /* responsive */
+  @media (max-width: 992px) {
+    .cards { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+  }
+  
+  @media (max-width: 640px) {
+    .static-main { padding: 4rem 1rem 5rem; }
+  }
+  
+  .team-grid.one {
+    max-width: 380px;
+    margin: 0 auto;
+  }

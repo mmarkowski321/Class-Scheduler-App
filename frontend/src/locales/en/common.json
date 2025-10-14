@@ -79,5 +79,127 @@
       "terms": "Terms of Service",
       "cookies": "Cookies"
     }
+  },
+  "register": {
+    "title": "Create an Account",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "Enter your first name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Enter your last name",
+    "birthDate": "Date of Birth",
+    "email": "Email Address",
+    "emailPlaceholder": "Enter your email@example.com",
+    "password": "Password",
+    "passwordPlaceholder": "Enter password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Re-enter password",
+    "button": "Sign Up",
+    "submitting": "Registering...",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Log in",
+    "success": "Registration successful!",
+    "birthDatePlaceholder": "dd.mm.yyyy",
+    "role": "Register as",
+    "rolePlaceholder": "Select role",
+    "roleStudent": "Student",
+    "roleTutor": "Tutor",
+    "errors": {
+      "firstName": "First name is required",
+      "lastName": "Last name is required",
+      "birthDate": "Date of birth is required",
+      "age": "You must be at least 13 years old to register",
+      "email": "Email address is required",
+      "emailInvalid": "Invalid email format",
+      "password": "Password is required",
+      "passwordShort": "Password must be at least 8 characters",
+      "confirmPassword": "Please confirm your password",
+      "passwordsMismatch": "Passwords do not match",
+      "server": "Server error. Please try again later."
+    }
+  },
+  "login": {
+    "title": "Sign In",
+    "email": "Email Address",
+    "password": "Password",
+    "button": "Log In",
+    "noAccount": "Don't have an account?",
+    "registerLink": "Sign Up",
+    "forgotPassword": "Forgot your password?",
+    "submitting": "Logging in...",
+    "errors": {
+      "email": "Email is required",
+      "emailInvalid": "Invalid email address",
+      "password": "Password is required",
+      "server": "Login failed. Please check your credentials and try again.",
+      "role": "Please select a role"
+    }
+  },
+"about": {
+  "title": "About Us",
+  "subtitle": "We connect students with top tutors—fast, stress-free, with full control over your schedule.",
+  "cards": {
+    "mission": {
+      "title": "Our Mission",
+      "desc": "Make scheduling and collaboration easy with smart tools, calendar sync and a clean interface."
+    },
+    "how": {
+      "title": "How It Works",
+      "desc": "Find a tutor, book a slot, and our system auto-syncs calendars and sends reminders."
+    },
+    "values": {
+      "title": "Values",
+      "items": ["Transparency", "Teaching quality", "Respect for time"]
+    }
+  },
+  "benefitsTitle": "Why choose EduScheduler?",
+  "benefits": {
+    "smartScheduling": {
+      "title": "Smart Scheduling",
+      "desc": "We detect conflicts and suggest the nearest available time."
+    },
+    "sharedCalendar": {
+      "title": "Shared Calendar",
+      "desc": "Integrations with Google/Outlook/Apple—never miss a lesson."
+    },
+    "paymentsSecurity": {
+      "title": "Payments & Security",
+      "desc": "Secure payments and GDPR-compliant data protection."
+    },
+    "verifiedTutors": {
+      "title": "Verified Tutors",
+      "desc": "Profiles with ratings and reviews you can trust."
+    }
+  },
+  "timeline": {
+    "title": "What the journey looks like",
+    "steps": [
+      "Create an account and set your needs (subject, level, goals).",
+      "Browse verified profiles and choose your tutor.",
+      "Book a time—calendars sync automatically.",
+      "Receive notifications and lesson materials afterwards."
+    ]
+  },
+  "team": {
+    "roles": {
+      "owner": "Project author / product owner"
+    }
+  },
+  "stats": {
+    "tutors": "Tutors",
+    "monthlyLessons": "Monthly lessons",
+    "satisfaction": "Satisfied students"
+  },
+  "faq": {
+    "title": "Frequently Asked",
+    "q1": { "q": "How do you vet tutors?", "a": "We verify profiles, experience and reviews. Our algorithm also suggests top matches." },
+    "q2": { "q": "Can I reschedule?", "a": "Yes, up to 24h before the lesson—one click in the calendar." },
+    "q3": { "q": "How do payments work?", "a": "Secure online payments; invoices and history are available in your account." }
+  },
+  "cta": {
+    "title": "Sound good?",
+    "desc": "Join EduScheduler and learn more effectively today.",
+    "button": "Create an account"
   }
+}
+
 }
