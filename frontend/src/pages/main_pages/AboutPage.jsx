@@ -1,6 +1,6 @@
-import Navbar from '../components/layout/Navbar';
-import Footer from '../components/layout/Footer';
-import Container from '../components/ui/Container';
+import Navbar from '../../components/layout/Navbar';
+import Footer from '../../components/layout/Footer';
+import Container from '../../components/ui/Container';
 import { useTranslation } from 'react-i18next';
 import './StaticPages.css';
 
@@ -33,6 +33,21 @@ export default function AboutPage() {
                 <li>{t('about.blocks.values.items.1')}</li>
                 <li>{t('about.blocks.values.items.2')}</li>
               </ul>
+            </article>
+            <article className="card">
+              <h3>{t('about.ageNotice.title')}</h3>
+              <ul className="bullets">
+                <li>{t('about.ageNotice.student')}</li>
+                <li>{t('about.ageNotice.tutor')}</li>
+              </ul>
+            </article>
+            <article className="card">
+              <h3>{t('about.payments.title')}</h3>
+              <p>{t('about.payments.desc')}</p>
+            </article>
+            <article className="card">
+              <h3>{t('about.thesis.title')}</h3>
+              <p>{t('about.thesis.desc')}</p>
             </article>
           </section>
         </Container>
