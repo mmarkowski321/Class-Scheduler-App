@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import Navbar from '../components/layout/Navbar';
-import Footer from '../components/layout/Footer';
-import Container from '../components/ui/Container';
-import Button from '../components/ui/Button';
+import Navbar from '../../components/layout/Navbar';
+import Footer from '../../components/layout/Footer';
+import Container from '../../components/ui/Container';
+import Button from '../../components/ui/Button';
 import { useTranslation } from 'react-i18next';
 import './StaticPages.css';
 

@@ -11,7 +11,6 @@ function Navbar() {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
 
-  // przewijanie wyłącznie dla "Features"
   const goTo = (anchor) => {
     navigate("/", { state: { scrollTo: anchor } });
     setMenuOpen(false);
@@ -36,19 +35,26 @@ function Navbar() {
             {t("header.nav.features")}
           </button>
 
-          {/* Te dwie zostawiamy jako „kotwice” jak dotąd
-              (jeśli kiedyś będą osobnymi stronami, podmień na navigate('/student') itd.) */}
+          {/* Dla ucznia -> osobna strona */}
           <button
             type="button"
             className="nav-linklike"
-            onClick={() => goTo("student")}
+            onClick={() => {
+              navigate("/student");
+              setMenuOpen(false);
+            }}
           >
             {t("header.nav.forStudent")}
           </button>
+
+          {/* Dla nauczyciela (tutor) -> osobna strona */}
           <button
             type="button"
             className="nav-linklike"
-            onClick={() => goTo("teacher")}
+            onClick={() => {
+              navigate("/tutor");
+              setMenuOpen(false);
+            }}
           >
             {t("header.nav.forTutor")}
           </button>

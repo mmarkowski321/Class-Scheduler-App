@@ -6,7 +6,7 @@ import { pl, enUS } from "date-fns/locale";
 import TextField from "@mui/material/TextField";
 import "./DateInput.css";
 
-function DateInput({ label, value, onChange, error, lang }) {
+function DateInput({ label, value, onChange, error, lang, maxDate }) {
   return (
     <div className="field">
       <label htmlFor="birthDate">{label}</label>
@@ -25,7 +25,7 @@ function DateInput({ label, value, onChange, error, lang }) {
               },
             });
           }}
-          maxDate={new Date()}
+          maxDate={maxDate || new Date()}   
           format="dd.MM.yyyy"
           enableAccessibleFieldDOMStructure={false}
           slotProps={{
@@ -37,13 +37,13 @@ function DateInput({ label, value, onChange, error, lang }) {
               placeholder: lang === "pl" ? "dd.mm.rrrr" : "dd.mm.yyyy",
             },
           }}
-          slots={{
-            textField: TextField,
-          }}
+          slots={{ textField: TextField }}
         />
       </LocalizationProvider>
     </div>
   );
 }
+
+
 
 export default DateInput;

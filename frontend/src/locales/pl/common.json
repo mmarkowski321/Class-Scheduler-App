@@ -115,7 +115,21 @@
       "confirmPassword": "Powtórz hasło",
       "passwordsMismatch": "Hasła nie są zgodne",
       "role": "Wybierz rolę użytkownika",
+      "ageStudent": "Musisz mieć co najmniej 13 lat, aby zarejestrować się jako uczeń.",
+      "ageTutor": "Musisz mieć co najmniej 18 lat, aby zarejestrować się jako korepetytor.",
       "server": "Wystąpił błąd serwera. Spróbuj ponownie później."
+    },
+    "hints": {
+      "role": {
+        "general": "Uczeń: 13+ • Korepetytor: 18+",
+        "student": "Aby zarejestrować się jako uczeń, musisz mieć ukończone 13 lat.",
+        "tutor": "Aby zarejestrować się jako korepetytor, musisz mieć ukończone 18 lat."
+      },
+      "birthDate": {
+        "general": "Wybierz datę urodzenia. Wymagania zależą od roli.",
+        "student": "Wymagane: co najmniej 13 lat.",
+        "tutor": "Wymagane: co najmniej 18 lat."
+      }
     }
   },
   "login": {
@@ -150,6 +164,19 @@
         "title": "Wartości",
         "items": ["Transparentność", "Jakość nauczania", "Szacunek do czasu"]
       }
+    },
+    "thesis": {
+    "title": "Projekt inżynierski",
+    "desc": "Aplikacja EduScheduler jest częścią pracy inżynierskiej Miłosza Markowskiego."
+    },
+    "ageNotice": {
+      "title": "Wymagania wiekowe przy rejestracji:",
+      "student": "Uczeń — wymagane ukończone 13 lat.",
+      "tutor": "Korepetytor — wymagane ukończone 18 lat."
+    },
+    "payments": {
+      "title": "Płatności",
+      "desc": "Płatności online w serwisie nie są jeszcze dostępne. Obecnie rozliczenia odbywają się poza platformą (bezpośrednio z korepetytorem). W niedalekiej przyszłości planujemy dodać bezpieczne płatności online."
     }
   },
   "contact": {
@@ -182,6 +209,93 @@
         "Sugestie nowych funkcji",
         "Współpraca lub partnerstwo"
       ]
+    }
+  },
+  "student": {
+    "title": "Dla ucznia",
+    "lead": "Jeśli masz ukończone 13 lat, możesz korzystać z platformy i umawiać się na zajęcia z najlepszymi korepetytorami.",
+    "blocks": {
+      "age": {
+        "title": "Warunek wiekowy",
+        "rule": "Aby korzystać z serwisu jako uczeń, musisz mieć ukończone 13 lat."
+      },
+      "profile": {
+        "title": "Profil ucznia",
+        "desc": "Po rejestracji uzupełnij podstawowe informacje, aby dopasować korepetytorów i materiały.",
+        "school": "Gdzie się uczysz (szkoła/miasto).",
+        "class": "W której jesteś klasie/poziomie nauczania.",
+        "track": "Profil/rozszerzenia (np. mat-fiz, biol-chem).",
+        "goals": "Cele nauki (np. poprawa ocen, przygotowanie do egzaminu)."
+      },
+      "booking": {
+        "title": "Rezerwacje i przypomnienia",
+        "email": "Po zapisaniu się na zajęcia otrzymasz e-mail z datą, godziną i szczegółami.",
+        "calendar": "Po potwierdzeniu przez korepetytora zobaczysz lekcję w kalendarzu oraz aktywny link do spotkania.",
+        "reschedule": "Możesz zmienić godzinę najpóźniej 24 godziny przed spotkaniem.",
+        "cancel": "Anulowanie później może skutkować oznaczeniem jako nieobecność."
+      },
+      "reviews": {
+        "title": "Opinie",
+        "afterLesson": "Po zajęciach możesz wystawić opinię i ocenę korepetytorowi.",
+        "editWindow": "Masz krótki czas na edycję opinii po jej dodaniu.",
+        "guidelines": "Pisz merytorycznie i z szacunkiem – pomagamy weryfikować nadużycia."
+      },
+      "extras": {
+        "title": "Dodatkowe możliwości",
+        "favourites": "Ulubieni korepetytorzy i szybkie ponowne rezerwacje.",
+        "materials": "Wspólne pliki i notatki do lekcji w jednym miejscu.",
+        "progress": "Statystyki postępów i cele semestralne.",
+        "reminders": "Powiadomienia e-mail o zbliżających się lekcjach."
+      }
+    },
+    "cta": {
+      "title": "Gotowy, żeby zacząć?",
+      "desc": "Załóż konto i umów pierwszą lekcję w kilka kliknięć.",
+      "button": "Zarejestruj się"
+    }
+  },
+  "tutor": {
+    "title": "Dla korepetytora",
+    "lead": "Buduj profesjonalny profil, zarządzaj dostępnością i wygodnie potwierdzaj rezerwacje uczniów.",
+    "blocks": {
+      "profile": {
+        "title": "Profil korepetytora",
+        "desc": "Uzupełnij profil, aby uczniowie mogli Cię łatwo znaleźć.",
+        "education": "Wykształcenie / ukończona szkoła lub kierunek.",
+        "exams": "Wyniki egzaminów (np. matura) – opcjonalnie.",
+        "subjects": "Przedmioty i poziomy, których uczysz.",
+        "methods": "Twoja technika nauczania (np. praca na zadaniach, przygotowanie do egzaminów).",
+        "photo": "Zdjęcie profilowe – mile widziane, ale niewymagane."
+      },
+      "availability": {
+        "title": "Dostępność",
+        "calendarSync": "Synchronizacja z kalendarzem (Google/Outlook/Apple).",
+        "slots": "Ustal stałe okienka godzinowe i maksymalną liczbę lekcji dziennie.",
+        "buffer": "Bufor czasowy między zajęciami (np. 10–15 min)."
+      },
+      "booking": {
+        "title": "Potwierdzanie rezerwacji",
+        "requests": "Otrzymuj zgłoszenia od uczniów i weryfikuj szczegóły.",
+        "confirmation": "Po potwierdzeniu wysyłamy e-mail do ucznia i wpis do kalendarza.",
+        "link": "Link do spotkania generowany automatycznie i dostępny na karcie lekcji.",
+        "policy": "Zasada 24h: zmiany/anulacje po tym czasie mogą być oznaczone jako nieobecność."
+      },
+      "payments": {
+        "title": "Płatności",
+        "desc": "Płatności online w serwisie jeszcze niedostępne — rozliczenia odbywają się poza platformą. Planujemy dodać bezpieczne płatności wkrótce."
+      },
+      "extras": {
+        "title": "Dodatki",
+        "materials": "Udostępniaj materiały i zadania domowe.",
+        "homework": "Przypisuj prace domowe z terminami.",
+        "reviews": "Buduj wiarygodność dzięki opiniom uczniów.",
+        "analytics": "Podsumowania tygodnia i obłożenia kalendarza."
+      }
+    },
+    "cta": {
+      "title": "Chcesz dołączyć jako korepetytor?",
+      "desc": "Załóż konto, uzupełnij profil i zacznij przyjmować rezerwacje od uczniów.",
+      "button": "Zarejestruj się"
     }
   }
 }

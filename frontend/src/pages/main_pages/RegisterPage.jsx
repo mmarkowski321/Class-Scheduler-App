@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import Navbar from "../components/layout/Navbar";
-import Footer from "../components/layout/Footer";
-import Container from "../components/ui/Container";
-import Button from "../components/ui/Button";
+import Navbar from "../../components/layout/Navbar";
+import Footer from "../../components/layout/Footer";
+import Container from "../../components/ui/Container";
+import Button from "../../components/ui/Button";
 import { useTranslation } from "react-i18next";
 import "./Auth.css";
-import DateInput from "../components/ui/DateInput";
+import DateInput from "../../components/ui/DateInput";
 
 function RegisterPage() {
   const { t, i18n } = useTranslation("common");
@@ -46,28 +46,54 @@ function RegisterPage() {
     const err = {};
     if (!form.firstName.trim()) err.firstName = t("register.errors.firstName");
     if (!form.lastName.trim()) err.lastName = t("register.errors.lastName");
-    if (!form.birthDate) err.birthDate = t("register.errors.birthDate");
-    else if (calculateAge(form.birthDate) < 13)
-      err.birthDate = t("register.errors.age");
-    if (!form.role) err.role = t("register.errors.role"); // nowość
-
+    if (!form.role) err.role = t("register.errors.role");
+  
     if (!form.email) err.email = t("register.errors.email");
     else {
       const re = /\S+@\S+\.\S+/;
       if (!re.test(form.email)) err.email = t("register.errors.emailInvalid");
     }
-
+  
     if (!form.password) err.password = t("register.errors.password");
     else if (form.password.length < 8)
       err.password = t("register.errors.passwordShort");
-
+  
     if (!form.confirmPassword)
       err.confirmPassword = t("register.errors.confirmPassword");
     else if (form.password !== form.confirmPassword)
       err.form = t("register.errors.passwordsMismatch");
-
+  
+    // role-based age check
+    if (!form.birthDate) {
+      err.birthDate = t("register.errors.birthDate");
+    } else {
+      const age = calculateAge(form.birthDate);
+      if (form.role === "tutor" && age < 18) {
+        err.birthDate = t("register.errors.ageTutor");    // e.g. "You must be at least 18 to register as a tutor."
+      } else if (form.role === "student" && age < 13) {
+        err.birthDate = t("register.errors.ageStudent");  // e.g. "You must be at least 13 to register as a student."
+      }
+    }
+  
     return err;
   };
+  const today = new Date();
+  const yearsAgo = (n) => new Date(today.getFullYear() - n, today.getMonth(), today.getDate());
+  const roleMinAge = form.role === "tutor" ? 18 : 13;
+
+  const roleHintKey =
+    form.role === "tutor"
+      ? "register.hints.role.tutor"
+      : form.role === "student"
+      ? "register.hints.role.student"
+      : "register.hints.role.general";
+
+  const birthDateHintKey =
+    form.role === "tutor"
+      ? "register.hints.birthDate.tutor"
+      : form.role === "student"
+      ? "register.hints.birthDate.student"
+      : "register.hints.birthDate.general";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,7 +124,7 @@ function RegisterPage() {
           <div className="auth-box auth-register">
             <h2>{t("register.title")}</h2>
             <form onSubmit={!submitting ? handleSubmit : undefined} className="auth-form" noValidate>
-              <div className="row two-cols">
+              <div className="row ">
                 <div className="field">
                   <label htmlFor="firstName">{t("register.firstName")}</label>
                   <input
@@ -130,13 +156,15 @@ function RegisterPage() {
                   )}
                 </div>
               </div>
-
+              
               <DateInput
                 label={t("register.birthDate")}
                 value={form.birthDate}
                 onChange={handleChange}
                 error={errors.birthDate}
                 lang={i18n.language}
+                maxDate={yearsAgo(roleMinAge)}   
+                hint={t(birthDateHintKey)}
               />
 
               <div className="field">

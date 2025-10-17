@@ -15,7 +15,7 @@
   },
   "hero": {
     "title": "Find the perfect tutor<br/>and schedule classes easily",
-    "description": "Our platform connects tutors with students,<br />offering intelligent scheduling,<br />calendar synchronization and automatic conflict resolution,<br />making learning enjoyable, efficient and always on time.",
+    "description": "Our platform connects tutors with students,<br />offering intelligent scheduling and calendar synchronization<br />to make learning enjoyable and effective.",
     "actions": {
       "startLearning": "Start Learning",
       "becomeTutor": "Become a Tutor"
@@ -32,27 +32,27 @@
     "list": {
       "smartScheduling": {
         "title": "Smart Scheduling",
-        "description": "Automatic resolution of time conflicts and synchronization with Google, Outlook and Apple calendars."
+        "description": "Automatic conflict resolution and calendar sync."
       },
       "tutorSearch": {
         "title": "Tutor Search",
-        "description": "Find the perfect teacher based on subject, location, ratings and availability."
+        "description": "Find the right teacher by subject and ratings."
       },
       "ratingSystem": {
-        "title": "Rating & Review System",
-        "description": "Read reviews from other students and leave your rating after completed classes."
+        "title": "Ratings & Reviews",
+        "description": "Read reviews and leave your rating after lessons."
       },
       "notifications": {
         "title": "Notifications",
-        "description": "Receive reminders about upcoming classes and important deadlines."
+        "description": "Get reminders about upcoming classes and deadlines."
       },
       "communication": {
         "title": "Communication",
-        "description": "Direct contact with the tutor through the built-in messaging system."
+        "description": "Direct messaging with your tutor."
       },
       "progressStats": {
         "title": "Progress Statistics",
-        "description": "Track your achievements and learning progress with detailed reports."
+        "description": "Track your achievements and learning progress."
       }
     }
   },
@@ -66,7 +66,7 @@
       "howItWorks": "How it Works",
       "pricing": "Pricing",
       "help": "Help",
-      "becomeTutor": "Become Tutor",
+      "becomeTutor": "Become a Tutor",
       "manageSchedule": "Manage Schedule",
       "earnings": "Earnings",
       "support": "Support",
@@ -83,12 +83,12 @@
   "register": {
     "title": "Create an Account",
     "firstName": "First Name",
-    "firstNamePlaceholder": "Enter your first name",
+    "firstNamePlaceholder": "Enter first name",
     "lastName": "Last Name",
-    "lastNamePlaceholder": "Enter your last name",
+    "lastNamePlaceholder": "Enter last name",
     "birthDate": "Date of Birth",
     "email": "Email Address",
-    "emailPlaceholder": "Enter your email@example.com",
+    "emailPlaceholder": "Enter email jan@example.com",
     "password": "Password",
     "passwordPlaceholder": "Enter password",
     "confirmPassword": "Confirm Password",
@@ -114,7 +114,22 @@
       "passwordShort": "Password must be at least 8 characters",
       "confirmPassword": "Please confirm your password",
       "passwordsMismatch": "Passwords do not match",
+      "role": "Please select a role",
+      "ageStudent": "You must be at least 13 to register as a student.",
+      "ageTutor": "You must be at least 18 to register as a tutor.",
       "server": "Server error. Please try again later."
+    },
+    "hints": {
+      "role": {
+        "general": "Student: 13+ • Tutor: 18+",
+        "student": "To register as a student, you must be at least 13 years old.",
+        "tutor": "To register as a tutor, you must be at least 18 years old."
+      },
+      "birthDate": {
+        "general": "Pick your birth date. Requirements depend on role.",
+        "student": "Required: at least 13 years old.",
+        "tutor": "Required: at least 18 years old."
+      }
     }
   },
   "login": {
@@ -130,76 +145,157 @@
       "email": "Email is required",
       "emailInvalid": "Invalid email address",
       "password": "Password is required",
-      "server": "Login failed. Please check your credentials and try again.",
-      "role": "Please select a role"
+      "server": "Login failed. Please check your credentials and try again."
     }
   },
-"about": {
-  "title": "About Us",
-  "subtitle": "We connect students with top tutors—fast, stress-free, with full control over your schedule.",
-  "cards": {
-    "mission": {
-      "title": "Our Mission",
-      "desc": "Make scheduling and collaboration easy with smart tools, calendar sync and a clean interface."
+  "about": {
+    "title": "About Us",
+    "lead": "We help connect students with the best tutors—quickly and without stress.",
+    "blocks": {
+      "mission": {
+        "title": "Our Mission",
+        "text": "Make scheduling and collaboration easy with smart tools and a clean interface."
+      },
+      "how": {
+        "title": "How We Work",
+        "text": "Find a tutor, book a time, and our system syncs calendars and reminds you of lessons."
+      },
+      "values": {
+        "title": "Values",
+        "items": ["Transparency", "Teaching quality", "Respect for time"]
+      }
     },
-    "how": {
-      "title": "How It Works",
-      "desc": "Find a tutor, book a slot, and our system auto-syncs calendars and sends reminders."
+    "thesis": {
+      "title": "Engineering Thesis",
+      "desc": "The EduScheduler application is part of Miłosz Markowski’s engineering thesis."
     },
-    "values": {
-      "title": "Values",
-      "items": ["Transparency", "Teaching quality", "Respect for time"]
+    "ageNotice": {
+      "title": "Age requirements for registration:",
+      "student": "Student — must be at least 13 years old.",
+      "tutor": "Tutor — must be at least 18 years old."
+    },
+    "payments": {
+      "title": "Payments",
+      "desc": "Online payments on the site are not available yet. For now, settlements are handled outside the platform (directly with the tutor). We plan to add secure online payments soon."
     }
   },
-  "benefitsTitle": "Why choose EduScheduler?",
-  "benefits": {
-    "smartScheduling": {
-      "title": "Smart Scheduling",
-      "desc": "We detect conflicts and suggest the nearest available time."
+  "contact": {
+    "title": "Contact",
+    "lead": "Have a question or suggestion? Write to us—we’ll reply as soon as possible.",
+    "form": {
+      "name": "Full name",
+      "email": "Email address",
+      "topic": "Topic (optional)",
+      "message": "Message",
+      "send": "Send"
     },
-    "sharedCalendar": {
-      "title": "Shared Calendar",
-      "desc": "Integrations with Google/Outlook/Apple—never miss a lesson."
+    "placeholders": {
+      "name": "Enter your full name",
+      "topic": "What is your message about?",
+      "message": "Briefly describe your topic…"
     },
-    "paymentsSecurity": {
-      "title": "Payments & Security",
-      "desc": "Secure payments and GDPR-compliant data protection."
+    "errors": {
+      "name": "Please provide your name",
+      "email": "Please provide your email",
+      "emailInvalid": "Invalid email format",
+      "message": "Please enter a message"
     },
-    "verifiedTutors": {
-      "title": "Verified Tutors",
-      "desc": "Profiles with ratings and reviews you can trust."
+    "success": "Thank you! Your message has been sent.",
+    "info": {
+      "title": "How else can we help?",
+      "desc": "Before writing, check these common topics:",
+      "items": [
+        "Problems with logging in or registration",
+        "Suggestions for new features",
+        "Cooperation or partnership"
+      ]
     }
   },
-  "timeline": {
-    "title": "What the journey looks like",
-    "steps": [
-      "Create an account and set your needs (subject, level, goals).",
-      "Browse verified profiles and choose your tutor.",
-      "Book a time—calendars sync automatically.",
-      "Receive notifications and lesson materials afterwards."
-    ]
-  },
-  "team": {
-    "roles": {
-      "owner": "Project author / product owner"
+  "student": {
+    "title": "For Students",
+    "lead": "If you are at least 13, you can use the platform and book lessons with top tutors.",
+    "blocks": {
+      "age": {
+        "title": "Age requirement",
+        "rule": "To use the service as a student, you must be at least 13 years old."
+      },
+      "profile": {
+        "title": "Student profile",
+        "desc": "After registration, complete basic info to match tutors and materials.",
+        "school": "Where you study (school/city).",
+        "class": "Your class/grade or education level.",
+        "track": "Track/advanced subjects (e.g., math-physics, biology-chemistry).",
+        "goals": "Learning goals (e.g., better grades, exam prep)."
+      },
+      "booking": {
+        "title": "Booking & reminders",
+        "email": "When you book, you’ll get an email with date, time and details.",
+        "calendar": "After the tutor confirms, the lesson appears in your calendar with a ready-to-join link.",
+        "reschedule": "You can reschedule up to 24 hours before the lesson.",
+        "cancel": "Late cancellations may be marked as no-show."
+      },
+      "reviews": {
+        "title": "Reviews",
+        "afterLesson": "After each lesson you can leave a rating and review.",
+        "editWindow": "You have a short window to edit the review after posting.",
+        "guidelines": "Be constructive and respectful — we help filter misuse."
+      },
+      "extras": {
+        "title": "Extras",
+        "favourites": "Favorite tutors and quick rebooking.",
+        "materials": "Shared lesson files and notes in one place.",
+        "progress": "Progress stats and term goals.",
+        "reminders": "Email reminders for upcoming lessons."
+      }
+    },
+    "cta": {
+      "title": "Ready to start?",
+      "desc": "Create your account and book your first lesson in a few clicks.",
+      "button": "Sign Up"
     }
   },
-  "stats": {
-    "tutors": "Tutors",
-    "monthlyLessons": "Monthly lessons",
-    "satisfaction": "Satisfied students"
-  },
-  "faq": {
-    "title": "Frequently Asked",
-    "q1": { "q": "How do you vet tutors?", "a": "We verify profiles, experience and reviews. Our algorithm also suggests top matches." },
-    "q2": { "q": "Can I reschedule?", "a": "Yes, up to 24h before the lesson—one click in the calendar." },
-    "q3": { "q": "How do payments work?", "a": "Secure online payments; invoices and history are available in your account." }
-  },
-  "cta": {
-    "title": "Sound good?",
-    "desc": "Join EduScheduler and learn more effectively today.",
-    "button": "Create an account"
+  "tutor": {
+    "title": "For Tutors",
+    "lead": "Build a professional profile, manage availability and confirm student bookings easily.",
+    "blocks": {
+      "profile": {
+        "title": "Tutor profile",
+        "desc": "Complete your profile so students can find you.",
+        "education": "Education / graduated school or major.",
+        "exams": "Exam results (e.g., high-school finals) — optional.",
+        "subjects": "Subjects and levels you teach.",
+        "methods": "Your teaching approach (e.g., problem-solving, exam prep).",
+        "photo": "Profile photo — welcome but not required."
+      },
+      "availability": {
+        "title": "Availability",
+        "calendarSync": "Calendar sync (Google/Outlook/Apple).",
+        "slots": "Define time slots and max lessons per day.",
+        "buffer": "Buffer time between lessons (e.g., 10–15 min)."
+      },
+      "booking": {
+        "title": "Booking flow",
+        "requests": "Receive booking requests and verify details.",
+        "confirmation": "Upon confirmation we send an email to the student and add it to the calendar.",
+        "link": "Meeting link is auto-generated and visible on the lesson card.",
+        "policy": "24-hour rule: changes/cancellations after that may be marked as no-show."
+      },
+      "payments": {
+        "title": "Payments",
+        "desc": "Online payments are not available yet — settlements are handled outside the platform. We plan to add secure payments soon."
+      },
+      "extras": {
+        "title": "Extras",
+        "materials": "Share materials and assignments.",
+        "homework": "Assign homework with due dates.",
+        "reviews": "Build credibility with student reviews.",
+        "analytics": "Weekly summaries and calendar load analytics."
+      }
+    },
+    "cta": {
+      "title": "Join as a tutor?",
+      "desc": "Create an account, complete your profile and start accepting bookings.",
+      "button": "Sign Up"
+    }
   }
-}
-
 }
