@@ -1,0 +1,149 @@
+/* Karta filtrów */
+.tutors-card {
+    background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+    border: 1px solid rgba(255,255,255,.18);
+    box-shadow: 0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.1);
+    border-radius: 18px;
+    padding: 20px;
+  }
+  
+  /* Siatka pól */
+  .filters-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 1100px){ .filters-grid{ grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 740px){ .filters-grid{ grid-template-columns: 1fr; } }
+  
+  /* Pojedyncze pole */
+  .field {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  /* Ikona w polu */
+  .field .icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 16px;
+    opacity: .7;
+  }
+  
+  /* Szklane inputy / selecty */
+  .input, .select, .textarea {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.2);
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    padding: 12px 14px 12px 36px; /* miejsce na ikonę */
+    outline: none;
+    transition: all .18s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .select { padding-right: 36px; }
+  .textarea { min-height: 90px; resize: vertical; }
+  
+  .input::placeholder,
+  .textarea::placeholder { color: rgba(255,255,255,.65); }
+  
+  .input:focus, .select:focus, .textarea:focus {
+    border-color: rgba(255,255,255,.45);
+    background: rgba(255,255,255,.12);
+    box-shadow: 0 0 0 4px rgba(106,112,232,.25);
+  }
+  
+  /* Range – szyna i kółko */
+  .range-wrap { display: flex; align-items: center; gap: 14px; }
+  .range {
+    -webkit-appearance: none; appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.18);
+    outline: none;
+  }
+  .range::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; border: 2px solid #6a70e8;
+    box-shadow: 0 0 0 6px rgba(106,112,232,.25);
+    cursor: pointer;
+  }
+  .range::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; border: 2px solid #6a70e8;
+    box-shadow: 0 0 0 6px rgba(106,112,232,.25);
+    cursor: pointer;
+  }
+  
+  /* Akordeony dni – kapsułki */
+  .day-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.18);
+    background: rgba(255,255,255,.06);
+  }
+  .day-item input[type="checkbox"] {
+    width: 18px; height: 18px;
+    accent-color: #6a70e8;
+  }
+  
+  /* Pasek akcji */
+  .filters-actions {
+    margin-top: 16px;
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+  .btn-reset {
+    background: transparent; color: #fff;
+    border: 1px solid rgba(255,255,255,.35);
+    padding: 10px 14px; border-radius: 12px; cursor: pointer;
+    transition: .18s;
+  }
+  .btn-reset:hover { background: rgba(255,255,255,.12); }
+  
+  /* --- pole z ikonką --- */
+.field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field .icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0.9;
+  pointer-events: none; /* żeby klik trafiał w input */
+}
+
+/* input z miejscem na ikonkę */
+.field .input {
+  width: 100%;
+  padding: 10px 12px;
+  padding-left: 36px;     /* <<< ważne: miejsce na ikonkę */
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  outline: none;
+}
+
+/* focus/placeholder – opcjonalnie */
+.field .input:focus {
+  border-color: rgba(255,255,255,.35);
+  box-shadow: 0 0 0 3px rgba(255,255,255,.08) inset;
+}
+
+.field .input::placeholder {
+  color: rgba(255,255,255,.7);
+}

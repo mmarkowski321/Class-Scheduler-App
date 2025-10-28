@@ -1,0 +1,25 @@
+.calpro .fc-theme-standard .fc-scrollgrid,
+.calpro .fc-theme-standard td,
+.calpro .fc-theme-standard th {
+  border-color: rgba(255,255,255,.18);
+}
+.calpro .fc .fc-toolbar-title { color:#fff; font-weight:800; text-shadow:0 2px 8px rgba(0,0,0,.25); }
+.calpro .fc .fc-button-primary {
+  background:#5b6ee1; border:none; border-radius:10px;
+}
+.calpro .fc .fc-button-primary:not(:disabled):hover { background:#4858bf; }
+.calpro .fc .fc-timegrid-slot { height: 32px; }
+.calpro .fc .fc-timegrid-axis-cushion { color:#eee; opacity:.9; }
+.calpro .fc .fc-col-header-cell-cushion { color:#fff; font-weight:700; }
+.calpro .fc .fc-bg-event { border-radius:10px; }
+.calpro .fc .fc-event.fc-lesson {
+  background: linear-gradient(180deg,#8b5cf6,#6d28d9);
+  border:none; border-radius:12px; color:#fff; box-shadow:0 10px 26px rgba(0,0,0,.25);
+  padding:4px 6px;
+}
+.calpro__legend { display:flex; gap:12px; justify-content:flex-end; margin-top:8px; color:#fff; opacity:.9; }
+.lg { display:inline-flex; align-items:center; gap:6px; }
+.lg::before { content:""; width:14px; height:14px; border-radius:4px; display:inline-block; }
+.lg--lesson::before { background:linear-gradient(180deg,#8b5cf6,#6d28d9); }
+.lg--avail::before { background:linear-gradient(180deg,#22c55e,#16a34a); }
+.calpro--student .lg--avail::before { background:linear-gradient(180deg,#06b6d4,#0ea5e9); }

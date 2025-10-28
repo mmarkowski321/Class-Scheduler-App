@@ -12,7 +12,7 @@ function Footer() {
           <div className="footer-section">
             <div className="footer-logo">
               <h3>{t('footer.description')}</h3>
-              <p>Platforma do harmonogramowania korepetycji</p>
+              <p>{t('footer.subtitle')}</p>
             </div>
           </div>
           

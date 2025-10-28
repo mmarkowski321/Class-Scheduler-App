@@ -1,0 +1,31 @@
+.topbar {
+    position: sticky; top: 0; z-index: 30;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 16px; backdrop-filter:blur(8px);
+    background: rgba(20,20,40,.35);
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .topbar-left { display:flex; align-items:center; gap:10px; }
+  .brand-dot { width:10px; height:10px; border-radius:50%; background:#60a5fa; box-shadow:0 0 12px #60a5fa; }
+  .brand { font-weight:700; letter-spacing:.2px; }
+  .topbar-right { display:flex; align-items:center; gap:12px; }
+  .role-badge { padding:6px 10px; border-radius:999px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.12); font-size:12px; }
+  
+  .user-chip { position:relative; display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; cursor:pointer; }
+  .user-chip:hover { background:rgba(255,255,255,.08); }
+  .user-chip .avatar { width:32px; height:32px; border-radius:50%; background:#4f46e5; display:grid; place-items:center; font-weight:700; }
+  .user-chip .user-meta { display:flex; flex-direction:column; line-height:1.1; }
+  .user-chip .user-meta small { opacity:.75; }
+  
+  .user-chip:hover .user-menu { opacity:1; transform:translateY(6px); pointer-events:auto; }
+  .user-menu {
+    position:absolute; right:0; top:100%; width:220px; padding:8px;
+    background:rgba(18,18,36,.95); border:1px solid rgba(255,255,255,.12);
+    border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.35);
+    transform:translateY(16px); opacity:0; pointer-events:none; transition:.18s ease;
+  }
+  .user-menu button { width:100%; text-align:left; padding:10px 12px; border-radius:8px; border:none; background:transparent; color:inherit; cursor:pointer; }
+  .user-menu button:hover { background:rgba(255,255,255,.08); }
+  .user-menu .danger { color:#fca5a5; }
+  .user-menu hr { border:0; height:1px; background:rgba(255,255,255,.08); margin:6px 0; }
+  

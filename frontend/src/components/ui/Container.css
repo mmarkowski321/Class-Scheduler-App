@@ -19,6 +19,10 @@
   max-width: 1400px;
 }
 
+.container-xxl {
+  max-width: 1800px;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 0 1rem;

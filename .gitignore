@@ -20,6 +20,7 @@ ehthumbs.db
 # ===========================
 backend/target/
 backend/.mvn/
+backend/.env
 backend/*.class
 backend/*.jar
 backend/*.war

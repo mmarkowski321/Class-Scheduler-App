@@ -105,14 +105,48 @@ function RegisterPage() {
 
     setSubmitting(true);
     try {
-      console.log("Form data:", form);
-      setTimeout(() => {
+      // Send registration data to backend
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+          firstName: form.firstName,
+          lastName: form.lastName,
+          birthDate: form.birthDate,
+          role: form.role.toUpperCase(), // STUDENT or TUTOR
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrors({ form: errorData.message || t("register.errors.server") });
         setSubmitting(false);
+        return;
+      }
+
+      const data = await response.json();
+      
+      // Store token and user info in localStorage
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", data.userId);
+      localStorage.setItem("role", data.role);
+      
+      // Redirect to appropriate dashboard
+      if (data.role === "STUDENT") {
+        navigate("/app/student");
+      } else if (data.role === "TUTOR") {
+        navigate("/app/tutor");
+      } else {
         navigate("/login");
-      }, 700);
-    } catch {
-      setSubmitting(false);
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
       setErrors({ form: t("register.errors.server") });
+      setSubmitting(false);
     }
   };
 

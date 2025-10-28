@@ -1,0 +1,66 @@
+/* Karta i nagłówek */
+.sp-card {
+    border: 1px solid rgba(255,255,255,.18);
+    background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.10));
+    box-shadow: 0 20px 45px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.1);
+  }
+  
+  .sp-header { margin-bottom: 12px; }
+  .sp-title { font-size: 1.25rem; font-weight: 800; color: #fff; }
+  .sp-subtitle { color: rgba(255,255,255,.9); }
+  
+  /* Sekcje */
+  .sp-section { padding: 14px; border-radius: 12px; background: rgba(255,255,255,.06); margin-top: 12px; }
+  .sp-section-title {
+    font-weight: 700; margin: 0 0 10px 0; color: #fff;
+    text-shadow: 0 1px 6px rgba(0,0,0,.15);
+  }
+  
+  /* Grid */
+  .sp-grid { display: grid; gap: 12px; }
+  .sp-grid.two { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 820px){ .sp-grid.two { grid-template-columns: 1fr; } }
+  
+  /* Pola */
+  .sp-field { display: flex; flex-direction: column; gap: 6px; }
+  .sp-field > span { color: rgba(255,255,255,.96); font-size: .95rem; }
+  .sp-field input,
+  .sp-field select,
+  .sp-field textarea {
+    width: 100%;
+    background: rgba(255,255,255,.97);
+    color: #1d2330;
+    border: none; outline: none;
+    border-radius: 12px;
+    padding: .8rem .95rem;
+    box-shadow: 0 4px 14px rgba(0,0,0,.12);
+  }
+  .sp-field textarea { resize: vertical; }
+  
+  .sp-input-inline {
+    margin-top: 8px;
+    width: 320px; max-width: 100%;
+    background: rgba(255,255,255,.97);
+    border-radius: 10px; border: none; outline: none;
+    padding: .6rem .8rem;
+  }
+  
+  /* Chips */
+  .sp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sp-chip {
+    padding: 4px 10px; border-radius: 999px;
+    background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.28);
+    color: #fff; font-size: .85rem;
+    backdrop-filter: blur(6px);
+  }
+  
+  /* Checkboxes */
+  .sp-check { display: inline-flex; align-items: center; gap: 8px; }
+  .sp-check input { width: 18px; height: 18px; }
+  .sp-checks { display: flex; flex-wrap: wrap; gap: 10px; }
+  
+  /* Errors & actions */
+  .sp-error { color: #ffd6d6; font-size: .9rem; }
+  .sp-actions { margin-top: 14px; display: flex; justify-content: flex-end; }
+  
