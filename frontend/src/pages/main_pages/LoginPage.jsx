@@ -5,10 +5,11 @@ import Button from "../../components/ui/Button";
 import "./Auth.css";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function LoginPage() {
   const { t } = useTranslation("common");
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
@@ -32,7 +33,7 @@ function LoginPage() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validation = validate();
     if (Object.keys(validation).length > 0) {
@@ -41,12 +42,46 @@ function LoginPage() {
     }
 
     setSubmitting(true);
-    console.log("Login:", formData);
+    try {
+      // Send login data to backend
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
-    setTimeout(() => {
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrors({ form: errorData.message || t("login.errors.invalid") });
+        setSubmitting(false);
+        return;
+      }
+
+      const data = await response.json();
+      
+      // Store token and user info in localStorage
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", data.userId);
+      localStorage.setItem("role", data.role);
+      
+      // Redirect to appropriate dashboard
+      if (data.role === "STUDENT") {
+        navigate("/app/student");
+      } else if (data.role === "TUTOR") {
+        navigate("/app/tutor");
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrors({ form: t("login.errors.server") });
       setSubmitting(false);
-      alert(t("login.success") || "Login successful!");
-    }, 700);
+    }
   };
 
   return (
@@ -96,6 +131,8 @@ function LoginPage() {
                   <div className="field-error">{errors.password}</div>
                 )}
               </div>
+
+              {errors.form && <div className="form-error">{errors.form}</div>}
 
               <div className="auth-actions">
                 <Button
