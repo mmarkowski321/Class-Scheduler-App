@@ -1,4 +1,8 @@
 {
+  "actions": {
+    "edit": "Edytuj",
+    "cancel": "Anuluj"
+  },
   "header": {
     "logo": "📚 EduScheduler",
     "nav": {
@@ -725,6 +729,7 @@
         "title": "Profil ucznia",
         "subtitle": "Uzupełnij informacje, by lepiej dopasować korepetytorów i terminy.",
         "savedDemo": "Profil zapisany (demo).",
+        "save": "Zapisz profil",
         "sections": {
           "basic": "Podstawowe",
           "about": "O mnie",

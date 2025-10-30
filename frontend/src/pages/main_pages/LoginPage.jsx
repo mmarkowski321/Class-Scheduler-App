@@ -63,12 +63,34 @@ function LoginPage() {
       }
 
       const data = await response.json();
-      
+
+      // Require token to proceed
+      if (!data || !data.token) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("role");
+        setErrors({ form: data?.message || t("login.errors.invalid") });
+        setSubmitting(false);
+        return;
+      }
+
       // Store token and user info in localStorage
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.userId);
       localStorage.setItem("role", data.role);
-      
+
+      // Fetch profile to get first/last name (for sidebar display)
+      try {
+        const profRes = await fetch(`/api/profile/${data.userId}`, {
+          headers: { Authorization: `Bearer ${data.token}` }
+        });
+        if (profRes.ok) {
+          const prof = await profRes.json();
+          if (prof?.firstName) localStorage.setItem("firstName", prof.firstName);
+          if (prof?.lastName) localStorage.setItem("lastName", prof.lastName);
+        }
+      } catch {}
+
       // Redirect to appropriate dashboard
       if (data.role === "STUDENT") {
         navigate("/app/student");

@@ -77,10 +77,8 @@ public class AuthService {
         // Send verification email
         emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken);
         
-        // Generate JWT token
-        String token = jwtUtil.generateToken(savedUser.getId(), request.getRole(), savedUser.getEmail());
-        
-        return new AuthResponse(token, request.getRole(), savedUser.getId(), "Registration successful. Please check your email to verify your account.");
+        // Do NOT log in on registration – require email verification first
+        return new AuthResponse(null, request.getRole(), savedUser.getId(), "Registration successful. Please check your email to verify your account.");
     }
     
     public AuthResponse login(LoginRequest request) {
@@ -90,6 +88,11 @@ public class AuthService {
         // Verify password using BCrypt
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid email or password");
+        }
+        
+        // Block login if email not verified yet
+        if (Boolean.FALSE.equals(user.getEmailVerified())) {
+            throw new RuntimeException("Email not verified. Please check your inbox for the verification link.");
         }
         
         // Determine role based on class type

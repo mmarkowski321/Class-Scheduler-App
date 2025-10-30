@@ -14,16 +14,23 @@ export default function Leftbar({
   const navigate = useNavigate();
   const { t, i18n } = useTranslation("common");
 
-  const userName = user?.name || "Użytkownik";
+  // Prefer data from localStorage when available
+  const storedFirst = (typeof window !== 'undefined' && window.localStorage) ? localStorage.getItem("firstName") : null;
+  const storedLast = (typeof window !== 'undefined' && window.localStorage) ? localStorage.getItem("lastName") : null;
+  const storedRole = (typeof window !== 'undefined' && window.localStorage) ? localStorage.getItem("role") : null;
+
+  const userName = (storedFirst || storedLast)
+    ? `${storedFirst || ""} ${storedLast || ""}`.trim()
+    : (user?.name || "Użytkownik");
   const avatar = (userName[0] || "U").toUpperCase();
 
   // Mapowanie roleLabel z URL-a na klucz tłumaczenia
   const roleDisplay =
     roleLabel
       ? t(roleLabel === "korepetytor" ? "sidebar.user.role.tutor" : "sidebar.user.role.student")
-      : (user?.role === "tutor"
+      : (storedRole === "TUTOR" || user?.role === "tutor"
           ? t("sidebar.user.role.tutor")
-          : user?.role === "student"
+          : (storedRole === "STUDENT" || user?.role === "student")
             ? t("sidebar.user.role.student")
             : "");
 
@@ -52,7 +59,17 @@ export default function Leftbar({
         {/* Brand */}
         <div
           className="leftbar__brand"
-          onClick={() => { navigate("/"); onClose?.(); }}
+          onClick={() => {
+            try {
+              const role = localStorage.getItem("role");
+              if (role === "STUDENT") navigate("/app/student");
+              else if (role === "TUTOR") navigate("/app/tutor");
+              else navigate("/");
+            } catch {
+              navigate("/");
+            }
+            onClose?.();
+          }}
           aria-label={t("sidebar.brand")}
           title={t("sidebar.brand")}
         >
