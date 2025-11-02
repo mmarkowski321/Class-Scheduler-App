@@ -27,12 +27,16 @@ export default function Leftbar({
   // Mapowanie roleLabel z URL-a na klucz tłumaczenia
   const roleDisplay =
     roleLabel
-      ? t(roleLabel === "korepetytor" ? "sidebar.user.role.tutor" : "sidebar.user.role.student")
-      : (storedRole === "TUTOR" || user?.role === "tutor"
-          ? t("sidebar.user.role.tutor")
-          : (storedRole === "STUDENT" || user?.role === "student")
-            ? t("sidebar.user.role.student")
-            : "");
+      ? (roleLabel === "korepetytor" ? t("sidebar.user.role.tutor") 
+        : roleLabel === "administrator" ? "Administrator"
+        : t("sidebar.user.role.student"))
+      : (storedRole === "ADMIN" || user?.role === "admin"
+          ? "Administrator"
+          : (storedRole === "TUTOR" || user?.role === "tutor"
+            ? t("sidebar.user.role.tutor")
+            : (storedRole === "STUDENT" || user?.role === "student")
+              ? t("sidebar.user.role.student")
+              : ""));
 
   // przełączanie języka + zapamiętanie
   const setLang = (lng) => {
@@ -64,6 +68,7 @@ export default function Leftbar({
               const role = localStorage.getItem("role");
               if (role === "STUDENT") navigate("/app/student");
               else if (role === "TUTOR") navigate("/app/tutor");
+              else if (role === "ADMIN") navigate("/app/admin");
               else navigate("/");
             } catch {
               navigate("/");

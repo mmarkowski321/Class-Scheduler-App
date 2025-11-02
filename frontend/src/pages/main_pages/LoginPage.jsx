@@ -96,6 +96,8 @@ function LoginPage() {
         navigate("/app/student");
       } else if (data.role === "TUTOR") {
         navigate("/app/tutor");
+      } else if (data.role === "ADMIN") {
+        navigate("/app/admin");
       } else {
         navigate("/");
       }
@@ -177,9 +179,9 @@ function LoginPage() {
             </p>
 
             <p className="auth-forgot">
-              <a href="#" className="link">
+              <Link to="/forgot-password" className="link">
                 {t("login.forgotPassword")}
-              </a>
+              </Link>
             </p>
           </div>
         </Container>

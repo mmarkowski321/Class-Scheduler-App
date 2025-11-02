@@ -169,6 +169,37 @@
     },
     "errorText": "Link weryfikacyjny jest nieprawidłowy lub wygasł."
   },
+  "forgotPassword": {
+    "title": "Resetowanie hasła",
+    "subtitle": "Wprowadź swój adres e-mail, a wyślemy Ci link do resetowania hasła.",
+    "sendLink": "Wyślij link resetujący",
+    "submitting": "Wysyłanie...",
+    "success": "Jeśli konto z tym adresem e-mail istnieje, link do resetowania hasła został wysłany.",
+    "backToLogin": "Powrót do logowania",
+    "remember": "Pamiętasz hasło?",
+    "loginLink": "Powrót do logowania"
+  },
+  "resetPassword": {
+    "title": "Resetowanie hasła",
+    "subtitle": "Wprowadź nowe hasło poniżej.",
+    "newPassword": "Nowe hasło",
+    "confirmPassword": "Potwierdź hasło",
+    "reset": "Resetuj hasło",
+    "submitting": "Resetowanie...",
+    "loading": "Weryfikowanie linku resetującego...",
+    "invalidToken": "Nieprawidłowy lub wygasły link resetujący. Proszę poprosić o nowy link resetujący.",
+    "requestNew": "Poproś o nowy link resetujący",
+    "success": "Twoje hasło zostało pomyślnie zresetowane. Przekierowywanie do logowania...",
+    "goToLogin": "Przejdź do logowania",
+    "remember": "Pamiętasz hasło?",
+    "loginLink": "Powrót do logowania",
+    "errors": {
+      "password": "Hasło jest wymagane",
+      "passwordShort": "Hasło musi mieć co najmniej 8 znaków",
+      "confirmPassword": "Proszę potwierdzić hasło",
+      "mismatch": "Hasła nie są zgodne"
+    }
+  },
   "about": {
     "title": "O nas",
     "lead": "Pomagamy szybko i bez stresu łączyć uczniów z najlepszymi korepetytorami.",
@@ -223,7 +254,8 @@
       "name": "Podaj imię i nazwisko",
       "email": "Podaj adres e-mail",
       "emailInvalid": "Nieprawidłowy format e-maila",
-      "message": "Wpisz treść wiadomości"
+      "message": "Wpisz treść wiadomości",
+      "server": "Wystąpił błąd podczas wysyłania wiadomości. Spróbuj ponownie."
     },
     "success": "Dziękujemy! Twoja wiadomość została wysłana.",
     "info": {
@@ -697,6 +729,68 @@
         "saved": "Ustawienia dostępności zapisane pomyślnie"
       }
     },
+    "admin": {
+      "title": "Panel administratora",
+      "nav": {
+        "users": "Użytkownicy",
+        "messages": "Wiadomości",
+        "reviews": "Opinie"
+      },
+      "overview": {
+        "title": "Dashboard",
+        "totalUsers": "Wszyscy użytkownicy",
+        "tutors": "Korepetytorzy",
+        "students": "Uczniowie",
+        "totalLessons": "Wszystkie zajęcia",
+        "totalReviews": "Wszystkie opinie",
+        "loading": "Ładowanie statystyk..."
+      },
+      "users": {
+        "title": "Zarządzanie użytkownikami",
+        "tutorsTitle": "Korepetytorzy",
+        "studentsTitle": "Uczniowie",
+        "banUser": "Ban",
+        "banConfirm": "Czy na pewno chcesz zbanować tego użytkownika?",
+        "noTutors": "Brak korepetytorów.",
+        "noStudents": "Brak uczniów.",
+        "userDetails": "Szczegóły użytkownika",
+        "lessonsCount": "Liczba zajęć",
+        "reviewsCount": "Liczba opinii",
+        "email": "E-mail",
+        "firstName": "Imię",
+        "lastName": "Nazwisko",
+        "registered": "Zarejestrowany",
+        "emailVerified": "E-mail zweryfikowany",
+        "viewLessons": "Zobacz zajęcia",
+        "viewReviews": "Zobacz opinie",
+        "close": "Zamknij"
+      },
+      "messages": {
+        "title": "Wiadomości kontaktowe",
+        "noMessages": "Brak wiadomości.",
+        "reply": "Odpowiedz",
+        "replied": "Odpowiedziano",
+        "replyTo": "Odpowiedz:",
+        "replyPlaceholder": "Wpisz swoją odpowiedź...",
+        "sendReply": "Wyślij odpowiedź",
+        "cancel": "Anuluj",
+        "subject": "Temat",
+        "message": "Wiadomość",
+        "replySent": "Odpowiedź wysłana pomyślnie",
+        "replyFailed": "Nie udało się wysłać odpowiedzi"
+      },
+      "reviews": {
+        "title": "Wszystkie opinie",
+        "noReviews": "Brak opinii.",
+        "student": "Uczeń",
+        "tutor": "Korepetytor",
+        "tutorRating": "Ocena korepetytora",
+        "platformRating": "Ocena platformy",
+        "studentBehaviorRating": "Ocena zachowania ucznia",
+        "comment": "Komentarz",
+        "created": "Utworzono"
+      }
+    },
     "student": {
       "title": "Panel ucznia",
       "overview": {
@@ -923,8 +1017,10 @@
       "question": "Jak oceniasz lekcję z {{tutorName}}?",
       "date": "Data",
       "meetingLink": "Dołącz do spotkania",
-      "ratingLabel": "Twoja ocena",
+      "ratingLabel": "Twoja ocena korepetytora",
       "ratingText": "{{rating}} z 5",
+      "platformRatingLabel": "Twoja ocena platformy EduScheduler",
+      "platformRatingText": "{{rating}} z 5",
       "commentLabel": "Twoja opinia",
       "commentPlaceholder": "Podziel się wrażeniami z tej lekcji...",
       "characters": "znaków",
@@ -932,8 +1028,12 @@
       "submit": "Wyślij opinię",
       "errors": {
         "rating": "Wybierz ocenę",
+        "platformRating": "Wybierz ocenę platformy",
         "commentLength": "Komentarz musi mieć co najmniej 10 znaków"
       }
     }
+  },
+  "errors": {
+    "server": "Wystąpił błąd. Spróbuj ponownie później."
   }
 }

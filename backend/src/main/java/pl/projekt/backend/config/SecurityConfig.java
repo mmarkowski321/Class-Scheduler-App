@@ -39,6 +39,8 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // Allow public access to auth endpoints
+                .requestMatchers("/api/stats/**").permitAll() // Allow public access to stats
+                .requestMatchers("/api/contact").permitAll() // Allow public access to contact form (POST)
                 .requestMatchers("/api/test/**").permitAll() // Allow test endpoint
                 .requestMatchers("/h2-console/**").permitAll() // Allow H2 console
                 .anyRequest().authenticated() // All other requests need authentication

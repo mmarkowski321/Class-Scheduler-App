@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.projekt.backend.dto.AuthResponse;
 import pl.projekt.backend.dto.LoginRequest;
 import pl.projekt.backend.dto.RegisterRequest;
+import pl.projekt.backend.model.Admin;
 import pl.projekt.backend.model.Student;
 import pl.projekt.backend.model.Tutor;
 import pl.projekt.backend.model.User;
@@ -90,13 +91,20 @@ public class AuthService {
             throw new RuntimeException("Invalid email or password");
         }
         
-        // Block login if email not verified yet
-        if (Boolean.FALSE.equals(user.getEmailVerified())) {
+        // Block login if email not verified yet (admins are always verified)
+        if (!(user instanceof Admin) && Boolean.FALSE.equals(user.getEmailVerified())) {
             throw new RuntimeException("Email not verified. Please check your inbox for the verification link.");
         }
         
         // Determine role based on class type
-        String role = user instanceof Student ? "STUDENT" : "TUTOR";
+        String role;
+        if (user instanceof Admin) {
+            role = "ADMIN";
+        } else if (user instanceof Student) {
+            role = "STUDENT";
+        } else {
+            role = "TUTOR";
+        }
         
         // Generate JWT token
         String token = jwtUtil.generateToken(user.getId(), role, user.getEmail());
@@ -154,6 +162,74 @@ public class AuthService {
         
         // Send verification email
         emailService.sendVerificationEmail(user.getEmail(), verificationToken);
+    }
+
+    public java.util.Optional<User> validateResetToken(String resetToken) {
+        java.util.Optional<User> userOpt = userRepository.findByResetPasswordToken(resetToken);
+        
+        if (userOpt.isEmpty()) {
+            return java.util.Optional.empty();
+        }
+
+        User user = userOpt.get();
+        
+        // Check expiry
+        if (user.getResetPasswordTokenExpiry() != null) {
+            LocalDateTime expiry = LocalDateTime.parse(user.getResetPasswordTokenExpiry());
+            if (LocalDateTime.now().isAfter(expiry)) {
+                return java.util.Optional.empty();
+            }
+        }
+
+        return userOpt;
+    }
+
+    @Transactional
+    public void requestPasswordReset(String email) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Email not found"));
+
+        // Generate reset token (UUID)
+        String resetToken = java.util.UUID.randomUUID().toString();
+        user.setResetPasswordToken(resetToken);
+        
+        // Set expiry (1 hour from now)
+        LocalDateTime expiry = LocalDateTime.now().plusHours(1);
+        user.setResetPasswordTokenExpiry(expiry.toString());
+        
+        userRepository.save(user);
+        
+        // Send reset email
+        emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
+    }
+
+    @Transactional
+    public void resetPassword(String resetToken, String newPassword) {
+        User user = userRepository.findByResetPasswordToken(resetToken)
+            .orElse(null);
+
+        if (user == null) {
+            throw new RuntimeException("Invalid or expired reset token");
+        }
+
+        // Check expiry
+        if (user.getResetPasswordTokenExpiry() != null) {
+            LocalDateTime expiry = LocalDateTime.parse(user.getResetPasswordTokenExpiry());
+            if (LocalDateTime.now().isAfter(expiry)) {
+                user.clearResetToken();
+                userRepository.save(user);
+                throw new RuntimeException("Reset token has expired");
+            }
+        }
+
+        // Update password
+        String hashedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(hashedPassword);
+        user.clearResetToken();
+        userRepository.save(user);
+
+        // Send confirmation email
+        emailService.sendPasswordChangedEmail(user.getEmail(), user.getFirstName());
     }
 }
 

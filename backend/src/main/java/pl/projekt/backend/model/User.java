@@ -37,10 +37,19 @@ public abstract class User {
     private Boolean emailVerified = false;
     
     private String verificationToken;
+
+    // Password reset fields
+    private String resetPasswordToken;
+    private String resetPasswordTokenExpiry; // ISO string timestamp
     
     public void verifyEmail() {
         this.emailVerified = true;
         this.verificationToken = null;
+    }
+
+    public void clearResetToken() {
+        this.resetPasswordToken = null;
+        this.resetPasswordTokenExpiry = null;
     }
 }
 

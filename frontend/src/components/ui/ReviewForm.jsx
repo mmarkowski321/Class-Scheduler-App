@@ -29,6 +29,8 @@ export default function ReviewForm({ tutorName, lessonDate, onClose, onSubmit })
   const { t } = useTranslation("common");
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
+  const [platformRating, setPlatformRating] = useState(0);
+  const [hoveredPlatformRating, setHoveredPlatformRating] = useState(0);
   const [comment, setComment] = useState("");
   const [errors, setErrors] = useState({});
 
@@ -39,6 +41,9 @@ export default function ReviewForm({ tutorName, lessonDate, onClose, onSubmit })
     if (rating === 0) {
       newErrors.rating = t("components.reviewForm.errors.rating");
     }
+    if (platformRating === 0) {
+      newErrors.platformRating = t("components.reviewForm.errors.platformRating");
+    }
     if (comment.trim().length < 10) {
       newErrors.comment = t("components.reviewForm.errors.commentLength");
     }
@@ -48,18 +53,18 @@ export default function ReviewForm({ tutorName, lessonDate, onClose, onSubmit })
       return;
     }
 
-    onSubmit({ rating, comment });
+    onSubmit({ rating, platformRating, comment });
   };
 
-  const renderStars = () => {
+  const renderStars = (currentRating, hovered, onRatingChange, onHoverEnter, onHoverLeave) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`star ${i < (hoveredRating || rating) ? 'filled' : ''}`}
+        className={`star ${i < (hovered || currentRating) ? 'filled' : ''}`}
         size={32}
-        onClick={() => setRating(i + 1)}
-        onMouseEnter={() => setHoveredRating(i + 1)}
-        onMouseLeave={() => setHoveredRating(0)}
+        onClick={() => onRatingChange(i + 1)}
+        onMouseEnter={() => onHoverEnter(i + 1)}
+        onMouseLeave={() => onHoverLeave(0)}
       />
     ));
   };
@@ -81,12 +86,23 @@ export default function ReviewForm({ tutorName, lessonDate, onClose, onSubmit })
           <div className="form-group">
             <label>{t("components.reviewForm.ratingLabel")} *</label>
             <div className="stars-container">
-              {renderStars()}
+              {renderStars(rating, hoveredRating, setRating, setHoveredRating, () => setHoveredRating(0))}
               {rating > 0 && (
                 <span className="rating-text">{t("components.reviewForm.ratingText").replace("{{rating}}", rating)}</span>
               )}
             </div>
             {errors.rating && <div className="error-message">{errors.rating}</div>}
+          </div>
+
+          <div className="form-group">
+            <label>{t("components.reviewForm.platformRatingLabel")} *</label>
+            <div className="stars-container">
+              {renderStars(platformRating, hoveredPlatformRating, setPlatformRating, setHoveredPlatformRating, () => setHoveredPlatformRating(0))}
+              {platformRating > 0 && (
+                <span className="rating-text">{t("components.reviewForm.platformRatingText").replace("{{rating}}", platformRating)}</span>
+              )}
+            </div>
+            {errors.platformRating && <div className="error-message">{errors.platformRating}</div>}
           </div>
 
           <div className="form-group">
