@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "../../../components/ui/Button";
 import "./tutor-profile.css";
@@ -37,6 +37,7 @@ export default function TutorProfile() {
   });
 
   const [errors, setErrors] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef(null);
 
   const onChange = (e) =>
@@ -82,6 +83,38 @@ export default function TutorProfile() {
     setForm((f) => ({ ...f, photoFile: null, photoPreview: "" }));
 
   // ---- Zapis (multipart/form-data) ----
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    if (!token || !userId) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/profile/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return;
+        const p = await res.json();
+        setForm((f) => ({
+          ...f,
+          education: p.education || "",
+          experienceYears: p.experienceYears ?? "",
+          subjects: p.subjects || "",
+          exams: p.examResults || "",
+          hourlyRate: p.hourlyRate ?? "",
+          lessonDuration: p.lessonDuration ?? "60",
+          modes: p.lessonModes ? JSON.parse(p.lessonModes) : f.modes,
+          city: p.city || "",
+          travelRadiusKm: p.travelRadius ?? "",
+          languages: p.teachingLanguages || f.languages,
+          methods: p.teachingMethods || "",
+          bio: p.bio || "",
+          certificates: p.certificates || "",
+          website: p.website || "",
+          linkedin: p.linkedIn || "",
+          // preferredDays etc. są w Tutor modelu, ale nie ma UI tutaj – pomijamy
+        }));
+      } catch {}
+    })();
+  }, []);
+
   const onSave = async () => {
     const eMap = {};
     if (!form.education.trim()) eMap.education = t("app.tutor.profile.validation.education");
@@ -91,40 +124,56 @@ export default function TutorProfile() {
     }
 
     try {
-      const fd = new FormData();
-      // tekstowe
-      fd.append("education", form.education);
-      fd.append("experienceYears", form.experienceYears);
-      fd.append("subjects", form.subjects);
-      fd.append("exams", form.exams);
-      fd.append("hourlyRate", form.hourlyRate);
-      fd.append("lessonDuration", form.lessonDuration);
-      fd.append("city", form.city);
-      fd.append("travelRadiusKm", form.travelRadiusKm);
-      fd.append("languages", form.languages);
-      fd.append("methods", form.methods);
-      fd.append("bio", form.bio);
-      fd.append("certificates", form.certificates);
-      fd.append("website", form.website);
-      fd.append("linkedin", form.linkedin);
-      fd.append("maxLessonsPerDay", form.maxLessonsPerDay);
-      fd.append("bufferMin", form.bufferMin);
-
-      // checkboxy
-      fd.append("modes", JSON.stringify(form.modes));
-      fd.append("preferredDays", JSON.stringify(form.preferredDays));
-
-      // plik
-      if (form.photoFile) fd.append("photo", form.photoFile);
-
-      // TODO: podłącz backend
-      // await fetch('/api/tutor/profile', { method: 'POST', body: fd });
-
-      console.log("FORM-DATA WYSŁANE:", {
-        ...form,
-        photoFile: form.photoFile ? form.photoFile.name : null,
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+      if (!token || !userId) return;
+      const payload = {
+        education: form.education,
+        experienceYears: form.experienceYears ? parseInt(form.experienceYears, 10) : null,
+        subjects: form.subjects,
+        examResults: form.exams,
+        hourlyRate: form.hourlyRate ? parseFloat(form.hourlyRate) : null,
+        lessonDuration: form.lessonDuration ? parseInt(form.lessonDuration, 10) : null,
+        teachingLanguages: form.languages,
+        lessonModes: JSON.stringify(form.modes),
+        city: form.city,
+        travelRadius: form.travelRadiusKm ? parseInt(form.travelRadiusKm, 10) : null,
+        teachingMethods: form.methods,
+        bio: form.bio,
+        certificates: form.certificates,
+        website: form.website,
+        linkedIn: form.linkedin,
+      };
+      const res = await fetch(`/api/profile/tutor/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload),
       });
-      alert(t("app.tutor.profile.savedDemo")); // "Zapisano (demo). Zobacz konsolę."
+      if (!res.ok) throw new Error("save failed");
+      setIsEditing(false);
+      // reload
+      const r2 = await fetch(`/api/profile/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (r2.ok) {
+        const p = await r2.json();
+        setForm((f) => ({
+          ...f,
+          education: p.education || "",
+          experienceYears: p.experienceYears ?? "",
+          subjects: p.subjects || "",
+          exams: p.examResults || "",
+          hourlyRate: p.hourlyRate ?? "",
+          lessonDuration: p.lessonDuration ?? "60",
+          modes: p.lessonModes ? JSON.parse(p.lessonModes) : f.modes,
+          city: p.city || "",
+          travelRadiusKm: p.travelRadius ?? "",
+          languages: p.teachingLanguages || f.languages,
+          methods: p.teachingMethods || "",
+          bio: p.bio || "",
+          certificates: p.certificates || "",
+          website: p.website || "",
+          linkedin: p.linkedIn || "",
+        }));
+      }
     } catch (err) {
       console.error(err);
       alert(t("app.tutor.profile.saveError"));
@@ -156,9 +205,26 @@ export default function TutorProfile() {
           <h3>{t("app.tutor.profile.title")}</h3>
           <p>{t("app.tutor.profile.basic")}</p>
         </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+          {!isEditing ? (
+            <button type="button" className="btn-secondary" onClick={() => setIsEditing(true)}>
+              {t("common:edit", { defaultValue: "Edit" })}
+            </button>
+          ) : (
+            <>
+              <button type="button" className="btn-ghost" onClick={() => setIsEditing(false)}>
+                {t("common:cancel", { defaultValue: "Cancel" })}
+              </button>
+              <Button variant="primary" onClick={onSave}>
+                {t("app.tutor.profile.save")}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* PODSTAWOWE */}
+      <fieldset disabled={!isEditing} className="tutor-fieldset">
       <div className="tutor-section">
         <h4 className="title">{t("app.tutor.profile.basic")}</h4>
         <div className="form-single-column">
@@ -423,12 +489,24 @@ export default function TutorProfile() {
           </div>
         </div>
       </div>
+      </fieldset>
 
-      {/* Akcja */}
-      <div className="tutor-actions">
-        <Button variant="primary" onClick={onSave}>
-          {t("app.tutor.profile.save")}
-        </Button>
+      {/* Floating action buttons bottom-right */}
+      <div className="tutor-fab">
+        {!isEditing ? (
+          <Button variant="primary" onClick={() => setIsEditing(true)}>
+            {t("actions.edit")}
+          </Button>
+        ) : (
+          <>
+            <Button variant="ghost" onClick={() => setIsEditing(false)}>
+              {t("actions.cancel")}
+            </Button>
+            <Button variant="primary" onClick={onSave}>
+              {t("app.tutor.profile.save")}
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );

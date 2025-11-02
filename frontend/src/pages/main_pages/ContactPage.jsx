@@ -33,14 +33,36 @@ export default function ContactPage() {
     return e;
   };
 
-  const onSubmit = e => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     const eMap = validate();
     if (Object.keys(eMap).length) return setErrors(eMap);
-    // tu podepniesz backend / email
-    console.log('Contact form:', data);
-    setSent(true);
-    setData({ name: '', email: '', topic: '', message: '' });
+    
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          subject: data.topic, // Backend expects "subject"
+          message: data.message,
+        }),
+      });
+
+      if (response.ok) {
+        setSent(true);
+        setData({ name: '', email: '', topic: '', message: '' });
+      } else {
+        const errorData = await response.json();
+        setErrors({ form: errorData.error || t('contact.errors.server') });
+      }
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      setErrors({ form: t('contact.errors.server') });
+    }
   };
 
   return (
@@ -106,6 +128,8 @@ export default function ContactPage() {
                 />
                 {errors.message && <div className="field-error">{errors.message}</div>}
               </div>
+
+              {errors.form && <div className="form-error">{errors.form}</div>}
 
               <Button type="submit" variant="primary" size="large" className="auth-submit">
                 {t('contact.form.send')}

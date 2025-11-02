@@ -1,6 +1,6 @@
 /* Karta i nagłówek */
 .sp-card {
-    border: 1px solid rgba(255,255,255,.18);
+    border: none; /* usunięcie białej ramki */
     background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.10));
     box-shadow: 0 20px 45px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.1);
   }
@@ -11,6 +11,10 @@
   
   /* Sekcje */
   .sp-section { padding: 14px; border-radius: 12px; background: rgba(255,255,255,.06); margin-top: 12px; }
+  .sp-section.sp-consent { position: relative; }
+  /* Fieldset wrapper (read-only vs edit) */
+  .sp-fieldset { border: none; padding: 0; margin: 0; }
+  .sp-fieldset:disabled { opacity: 1; }
   .sp-section-title {
     font-weight: 700; margin: 0 0 10px 0; color: #fff;
     text-shadow: 0 1px 6px rgba(0,0,0,.15);
@@ -63,4 +67,14 @@
   /* Errors & actions */
   .sp-error { color: #ffd6d6; font-size: .9rem; }
   .sp-actions { margin-top: 14px; display: flex; justify-content: flex-end; }
+
+/* Consent section actions aligned to the right inside the section */
+.sp-consent-actions {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 8px;
+}
   

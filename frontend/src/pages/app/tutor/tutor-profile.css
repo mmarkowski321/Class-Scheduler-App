@@ -17,10 +17,12 @@
   .tutor-card {
     background: var(--bg-card);
     backdrop-filter: blur(8px);
-    border: 1px solid var(--brd);
+    border: none; /* usunięcie białej ramki */
     box-shadow: var(--shadow);
     border-radius: var(--radius-lg);
     padding: 24px;
+    padding-bottom: 88px; /* miejsce na przycisk */
+    position: relative;  /* pozwala pozycjonować przycisk w obrębie karty */
     color: var(--white);
     width: 100%;
     max-width: 1600px;
@@ -37,6 +39,9 @@
   }
   .tutor-header h3{ margin:0; font-size: 22px; font-weight: 800; }
   .tutor-header p{ margin:4px 0 0; color: var(--muted); }
+  /* Fieldset wrapper */
+  .tutor-fieldset { border: none; padding: 0; margin: 0; }
+  .tutor-fieldset:disabled { opacity: 1; }
   
   /* Sekcja */
   .tutor-section{ margin-top: 24px; }
@@ -246,6 +251,16 @@
     display: flex; 
     justify-content: flex-end; 
   }
+
+/* Floating action buttons bottom-right */
+.tutor-fab {
+  position: absolute; /* wewnątrz karty, nie przyklejony do okna */
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 20;
+}
   
   /* Responsywka */
   @media (max-width: 640px){

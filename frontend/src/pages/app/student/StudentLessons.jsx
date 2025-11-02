@@ -23,11 +23,49 @@ export default function StudentLessons() {
     { id:1, title:"Matematyka", start:"2025-10-25T17:00:00Z", tutor:"Jan Kowalski", joinUrl:"#", completed: true}
   ]); // TODO: fetch
 
-  const handleReviewSubmit = (reviewData) => {
-    console.log("Review submitted:", reviewData);
-    // TODO: Send to API
-    setShowReviewForm(null);
-    // Optionally remove the lesson from the list or mark as reviewed
+  const handleReviewSubmit = async (reviewData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+      
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          lessonId: showReviewForm.lessonId,
+          studentId: userId,
+          tutorRating: reviewData.rating,
+          platformRating: reviewData.platformRating,
+          comment: reviewData.comment,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Failed to submit review:", errorData);
+        alert("Failed to submit review. Please try again.");
+        return;
+      }
+
+      const savedReview = await response.json();
+      console.log("Review submitted:", savedReview);
+      setShowReviewForm(null);
+      
+      // Update lessons state to mark as reviewed
+      setLessons((prevLessons) =>
+        prevLessons.map((lesson) =>
+          lesson.id === showReviewForm.lessonId
+            ? { ...lesson, reviewed: true }
+            : lesson
+        )
+      );
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      alert("An error occurred. Please try again.");
+    }
   };
 
   const formatDate = (dateString) => {

@@ -1,38 +1,22 @@
-# Konfiguracja zmiennych środowiskowych
+# Konfiguracja zmiennych środowiskowych (bez pliku .env)
 
-## Opcja 1: Plik .env (Najłatwiejsze)
+Backend korzysta z domyślnej konfiguracji SMTP (Resend). Przed uruchomieniem ustaw TYLKO hasło i opcjonalnie nadawcę jako zmienne środowiskowe.
 
-1. **Utwórz plik `.env` w folderze `backend/`**
-
-2. **Dodaj zmienne:**
-```env
-RESEND_API_KEY=re_twoj_klucz_api
-APP_BASE_URL=http://localhost:5173
-```
-
-3. **Uruchom aplikację** - Spring Boot automatycznie odczyta plik `.env`
-
-## Opcja 2: Zmienne środowiskowe systemu
-
-### Windows (PowerShell):
+## Windows (PowerShell)
 ```powershell
-$env:RESEND_API_KEY="re_twoj_klucz_api"
-$env:APP_BASE_URL="http://localhost:5173"
+$env:SPRING_MAIL_PASSWORD="re_twoj_klucz_api"
+$env:MAIL_FROM="onboarding@resend.dev"  # opcjonalnie własny adres po weryfikacji domeny
+
+cd "C:\Users\Acer\Desktop\Class-Scheduler-App\backend"
+.\mvnw.cmd spring-boot:run
 ```
 
-### Linux/Mac:
+## Linux/Mac
 ```bash
-export RESEND_API_KEY="re_twoj_klucz_api"
-export APP_BASE_URL="http://localhost:5173"
+export SPRING_MAIL_PASSWORD="re_twoj_klucz_api"
+export MAIL_FROM="onboarding@resend.dev" # opcjonalnie
+./mvnw spring-boot:run
 ```
 
-## Opcja 3: Przekazanie przy uruchomieniu
-
-```bash
-RESEND_API_KEY=re_twoj_klucz_api ./mvnw spring-boot:run
-```
-
----
-
-**Ważne:** Plik `.env` jest w `.gitignore` - NIE BĘDZIE SIĘ COMMITOWAĆ do Git!
+Nie używamy pliku `.env`.
 

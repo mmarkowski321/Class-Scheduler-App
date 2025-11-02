@@ -129,13 +129,22 @@ function RegisterPage() {
       }
 
       const data = await response.json();
-      
-      // Store token and user info in localStorage
+
+      // If no token returned -> require email verification first
+      if (!data || !data.token) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("role");
+        setErrors({ form: data?.message || t("register.verifyInfo", { defaultValue: "Registration successful. Please check your email to verify your account." }) });
+        setSubmitting(false);
+        return;
+      }
+
+      // Token present -> proceed to app
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.userId);
       localStorage.setItem("role", data.role);
       
-      // Redirect to appropriate dashboard
       if (data.role === "STUDENT") {
         navigate("/app/student");
       } else if (data.role === "TUTOR") {

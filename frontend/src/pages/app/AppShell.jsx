@@ -14,6 +14,7 @@ export default function AppShell({ sidebar, children, title, titleKey }) {
   const roleLabel = useMemo(() => {
     if (pathname.startsWith("/app/tutor")) return "korepetytor";
     if (pathname.startsWith("/app/student")) return "uczeń";
+    if (pathname.startsWith("/app/admin")) return "administrator";
     return "";
   }, [pathname]);
 

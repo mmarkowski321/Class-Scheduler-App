@@ -1,4 +1,8 @@
 {
+  "actions": {
+    "edit": "Edit",
+    "cancel": "Cancel"
+  },
   "header": {
     "logo": "📚 EduScheduler",
     "nav": {
@@ -165,6 +169,37 @@
     },
     "errorText": "The verification link is invalid or has expired."
   },
+  "forgotPassword": {
+    "title": "Reset Password",
+    "subtitle": "Enter your email address and we'll send you a link to reset your password.",
+    "sendLink": "Send Reset Link",
+    "submitting": "Sending...",
+    "success": "If an account exists with this email, a password reset link has been sent.",
+    "backToLogin": "Back to Login",
+    "remember": "Remember your password?",
+    "loginLink": "Back to Login"
+  },
+  "resetPassword": {
+    "title": "Reset Password",
+    "subtitle": "Enter your new password below.",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "reset": "Reset Password",
+    "submitting": "Resetting...",
+    "loading": "Validating reset link...",
+    "invalidToken": "Invalid or expired reset link. Please request a new password reset.",
+    "requestNew": "Request New Reset Link",
+    "success": "Your password has been reset successfully. Redirecting to login...",
+    "goToLogin": "Go to Login",
+    "remember": "Remember your password?",
+    "loginLink": "Back to Login",
+    "errors": {
+      "password": "Password is required",
+      "passwordShort": "Password must be at least 8 characters",
+      "confirmPassword": "Please confirm your password",
+      "mismatch": "Passwords do not match"
+    }
+  },
   "about": {
     "title": "About Us",
     "lead": "We help connect students with the best tutors—quickly and without stress.",
@@ -215,7 +250,8 @@
       "name": "Please provide your name",
       "email": "Please provide your email",
       "emailInvalid": "Invalid email format",
-      "message": "Please enter a message"
+      "message": "Please enter a message",
+      "server": "An error occurred while sending the message. Please try again."
     },
     "success": "Thank you! Your message has been sent.",
     "info": {
@@ -604,6 +640,7 @@
         "title": "Student profile",
         "subtitle": "Fill in your info to match tutors and time slots better.",
         "savedDemo": "Profile saved (demo).",
+        "save": "Save profile",
         "sections": {
           "basic": "Basic",
           "about": "About me",
@@ -789,6 +826,68 @@
         "saved": "Availability settings saved successfully"
       }
       }
+    },
+    "admin": {
+      "title": "Admin Dashboard",
+      "nav": {
+        "users": "Users",
+        "messages": "Messages",
+        "reviews": "Reviews"
+      },
+      "overview": {
+        "title": "Dashboard",
+        "totalUsers": "Total Users",
+        "tutors": "Tutors",
+        "students": "Students",
+        "totalLessons": "Total Lessons",
+        "totalReviews": "Total Reviews",
+        "loading": "Loading statistics..."
+      },
+      "users": {
+        "title": "User Management",
+        "tutorsTitle": "Tutors",
+        "studentsTitle": "Students",
+        "banUser": "Ban",
+        "banConfirm": "Are you sure you want to ban this user?",
+        "noTutors": "No tutors found.",
+        "noStudents": "No students found.",
+        "userDetails": "User Details",
+        "lessonsCount": "Lessons Count",
+        "reviewsCount": "Reviews Count",
+        "email": "Email",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "registered": "Registered",
+        "emailVerified": "Email Verified",
+        "viewLessons": "View Lessons",
+        "viewReviews": "View Reviews",
+        "close": "Close"
+      },
+      "messages": {
+        "title": "Contact Messages",
+        "noMessages": "No messages found.",
+        "reply": "Reply",
+        "replied": "Replied",
+        "replyTo": "Reply to:",
+        "replyPlaceholder": "Enter your reply message...",
+        "sendReply": "Send Reply",
+        "cancel": "Cancel",
+        "subject": "Subject",
+        "message": "Message",
+        "replySent": "Reply sent successfully",
+        "replyFailed": "Failed to send reply"
+      },
+      "reviews": {
+        "title": "All Reviews",
+        "noReviews": "No reviews found.",
+        "student": "Student",
+        "tutor": "Tutor",
+        "tutorRating": "Tutor Rating",
+        "platformRating": "Platform Rating",
+        "studentBehaviorRating": "Student Behavior Rating",
+        "comment": "Comment",
+        "created": "Created"
+      }
     }
   },
   "components": {
@@ -797,8 +896,10 @@
       "question": "How was your lesson with {{tutorName}}?",
       "date": "Date",
       "meetingLink": "Join meeting",
-      "ratingLabel": "Your Rating",
+      "ratingLabel": "Your Rating for Tutor",
       "ratingText": "{{rating}} out of 5",
+      "platformRatingLabel": "Your Rating for EduScheduler Platform",
+      "platformRatingText": "{{rating}} out of 5",
       "commentLabel": "Your Review",
       "commentPlaceholder": "Share your experience with this tutor...",
       "characters": "characters",
@@ -806,8 +907,12 @@
       "submit": "Submit Review",
       "errors": {
         "rating": "Please select a rating",
+        "platformRating": "Please select a platform rating",
         "commentLength": "Comment must be at least 10 characters"
       }
     }
+  },
+  "errors": {
+    "server": "An error occurred. Please try again later."
   }
 }

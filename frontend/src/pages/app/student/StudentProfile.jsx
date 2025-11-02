@@ -1,5 +1,5 @@
 // pages/app/student/StudentProfile.jsx
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "../../../components/ui/Button";
 import "./student-profile.css";
@@ -41,6 +41,8 @@ export default function StudentProfile() {
   });
 
   const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   const onToggle = (group, key) =>
     setForm((f) => ({ ...f, [group]: { ...f[group], [key]: !f[group][key] } }));
@@ -64,11 +66,90 @@ export default function StudentProfile() {
     return e;
   };
 
-  const onSave = () => {
+  const loadProfile = async () => {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    if (!token || !userId) return;
+    try {
+      const res = await fetch(`/api/profile/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) return;
+      const p = await res.json();
+      setForm((f) => ({
+        ...f,
+        school: p.school || "",
+        grade: p.grade || "",
+        track: p.track || "",
+        languages: p.languages || f.languages,
+        phone: p.phone || "",
+        timezone: p.timezone || f.timezone,
+        aboutMe: p.aboutMe || "",
+        goals: p.goals || "",
+        strengths: p.strengths || "",
+        difficulties: p.difficulties || "",
+        preferredSubjects: p.preferredSubjects || "",
+        avoidSubjects: p.avoidSubjects || "",
+        learningStyle: p.learningStyle || f.learningStyle,
+        city: p.city || "",
+        meetingMode: p.meetingMode ? JSON.parse(p.meetingMode) : f.meetingMode,
+        preferredTools: p.preferredTools ? JSON.parse(p.preferredTools) : f.preferredTools,
+        otherTool: p.otherTool || "",
+        preferredDays: p.preferredDays ? JSON.parse(p.preferredDays) : f.preferredDays,
+        availabilityNote: p.availabilityNote || "",
+        guardianName: p.guardianName || "",
+        guardianEmail: p.guardianEmail || "",
+        shareProfile: typeof p.shareProfile === "boolean" ? p.shareProfile : f.shareProfile,
+      }));
+    } catch {}
+  };
+
+  useEffect(() => { loadProfile(); }, []);
+
+  const onSave = async () => {
     const e = validate();
     if (Object.keys(e).length) return setErrors(e);
-    console.log("student.profile.save", form);
-    alert(t("app.student.profile.savedDemo"));
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    if (!token || !userId) return;
+    setSaving(true);
+    try {
+      const payload = {
+        school: form.school,
+        grade: form.grade,
+        track: form.track,
+        phone: form.phone,
+        languages: form.languages,
+        timezone: form.timezone,
+        aboutMe: form.aboutMe,
+        goals: form.goals,
+        strengths: form.strengths,
+        difficulties: form.difficulties,
+        preferredSubjects: form.preferredSubjects,
+        avoidSubjects: form.avoidSubjects,
+        learningStyle: form.learningStyle,
+        city: form.city,
+        meetingMode: JSON.stringify(form.meetingMode),
+        preferredTools: JSON.stringify(form.preferredTools),
+        otherTool: form.otherTool,
+        preferredDays: JSON.stringify(form.preferredDays),
+        availabilityNote: form.availabilityNote,
+        guardianName: form.guardianName,
+        guardianEmail: form.guardianEmail,
+        shareProfile: form.shareProfile,
+      };
+      const res = await fetch(`/api/profile/student/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("save failed");
+      setIsEditing(false);
+      await loadProfile();
+    } catch (err) {
+      console.error(err);
+      alert(t("app.student.profile.errors.server"));
+    } finally {
+      setSaving(false);
+    }
   };
 
   const L = t("app.student.profile.learningStyleOptions", { returnObjects: true });
@@ -85,6 +166,7 @@ export default function StudentProfile() {
       </div>
 
       {/* BASIC */}
+      <fieldset disabled={!isEditing} className="sp-fieldset">
       <section className="sp-section">
         <h4 className="sp-section-title">{t("app.student.profile.sections.basic")}</h4>
         <div className="sp-grid two">
@@ -314,24 +396,38 @@ export default function StudentProfile() {
         </div>
       </section>
 
+      </fieldset>
       {/* CONSENT */}
-      <section className="sp-section">
+      <section className="sp-section sp-consent">
         <h4 className="sp-section-title">{t("app.student.profile.sections.consent")}</h4>
-        <div className="sp-checks">
-          <Check
-            label={t("app.student.profile.fields.shareProfile")}
-            name="shareProfile"
-            checked={form.shareProfile}
-            onChange={() => setForm((f) => ({ ...f, shareProfile: !f.shareProfile }))}
-          />
+        <fieldset disabled={!isEditing} className="sp-fieldset">
+          <div className="sp-checks">
+            <Check
+              label={t("app.student.profile.fields.shareProfile")}
+              name="shareProfile"
+              checked={form.shareProfile}
+              onChange={() => setForm((f) => ({ ...f, shareProfile: !f.shareProfile }))}
+            />
+          </div>
+        </fieldset>
+        <div className="sp-consent-actions">
+          {!isEditing ? (
+            <Button variant="primary" onClick={() => setIsEditing(true)}>
+              {t("actions.edit")}
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" onClick={() => { setIsEditing(false); loadProfile(); }}>
+                {t("actions.cancel")}
+              </Button>
+              <Button variant="primary" onClick={onSave} disabled={saving}>
+                {t("app.student.profile.save")}
+              </Button>
+            </>
+          )}
         </div>
       </section>
-
-      <div className="sp-actions">
-        <Button variant="primary" onClick={onSave}>
-          {t("app.student.profile.save")}
-        </Button>
-      </div>
+      
     </div>
   );
 }
