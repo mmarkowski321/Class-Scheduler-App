@@ -21,7 +21,6 @@ export default function StudentProfile() {
     grade: "",
     track: "",
     languages: "polski",
-    phone: "",
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Warsaw",
     aboutMe: "",
     goals: "",
@@ -80,7 +79,6 @@ export default function StudentProfile() {
         grade: p.grade || "",
         track: p.track || "",
         languages: p.languages || f.languages,
-        phone: p.phone || "",
         timezone: p.timezone || f.timezone,
         aboutMe: p.aboutMe || "",
         goals: p.goals || "",
@@ -116,7 +114,6 @@ export default function StudentProfile() {
         school: form.school,
         grade: form.grade,
         track: form.track,
-        phone: form.phone,
         languages: form.languages,
         timezone: form.timezone,
         aboutMe: form.aboutMe,
@@ -183,10 +180,6 @@ export default function StudentProfile() {
           <label className="sp-field">
             <span>{t("app.student.profile.fields.track")}</span>
             <input name="track" value={form.track} onChange={onChange} placeholder={P.track} />
-          </label>
-          <label className="sp-field">
-            <span>{t("app.student.profile.fields.phone")}</span>
-            <input name="phone" value={form.phone} onChange={onChange} placeholder={P.phone} />
           </label>
           <label className="sp-field">
             <span>{t("app.student.profile.fields.languages")}</span>

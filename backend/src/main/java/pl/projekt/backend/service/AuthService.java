@@ -34,7 +34,13 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         // Check if email already exists
-        if (userRepository.existsByEmail(request.getEmail())) {
+        var existingUserOpt = userRepository.findByEmail(request.getEmail());
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+            // Check if user is banned
+            if (Boolean.TRUE.equals(existingUser.getBanned())) {
+                throw new RuntimeException("This email is banned and cannot be used to create an account");
+            }
             throw new RuntimeException("Email already exists");
         }
         
@@ -75,8 +81,9 @@ public class AuthService {
         
         User savedUser = userRepository.save(user);
         
-        // Send verification email
-        emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken);
+        // Send verification email (use user's email language preference, default to "pl")
+        String emailLang = savedUser.getEmailLanguage() != null ? savedUser.getEmailLanguage() : "pl";
+        emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken, emailLang);
         
         // Do NOT log in on registration – require email verification first
         return new AuthResponse(null, request.getRole(), savedUser.getId(), "Registration successful. Please check your email to verify your account.");
@@ -89,6 +96,11 @@ public class AuthService {
         // Verify password using BCrypt
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid email or password");
+        }
+        
+        // Block login if user is banned
+        if (Boolean.TRUE.equals(user.getBanned())) {
+            throw new RuntimeException("This account has been banned");
         }
         
         // Block login if email not verified yet (admins are always verified)
@@ -122,8 +134,9 @@ public class AuthService {
             user.verifyEmail(); // Set emailVerified = true, verificationToken = null
             userRepository.save(user);
             
-            // Send welcome email
-            emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName());
+            // Send welcome email (use user's email language preference)
+            String emailLang = user.getEmailLanguage() != null ? user.getEmailLanguage() : "pl";
+            emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName(), emailLang);
             
             return true;
         }
@@ -160,8 +173,9 @@ public class AuthService {
         user.setVerificationToken(verificationToken);
         userRepository.save(user);
         
-        // Send verification email
-        emailService.sendVerificationEmail(user.getEmail(), verificationToken);
+        // Send verification email (use user's email language preference)
+        String emailLang = user.getEmailLanguage() != null ? user.getEmailLanguage() : "pl";
+        emailService.sendVerificationEmail(user.getEmail(), verificationToken, emailLang);
     }
 
     public java.util.Optional<User> validateResetToken(String resetToken) {
@@ -199,8 +213,9 @@ public class AuthService {
         
         userRepository.save(user);
         
-        // Send reset email
-        emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
+        // Send reset email (use user's email language preference)
+        String emailLang = user.getEmailLanguage() != null ? user.getEmailLanguage() : "pl";
+        emailService.sendPasswordResetEmail(user.getEmail(), resetToken, emailLang);
     }
 
     @Transactional
@@ -228,8 +243,9 @@ public class AuthService {
         user.clearResetToken();
         userRepository.save(user);
 
-        // Send confirmation email
-        emailService.sendPasswordChangedEmail(user.getEmail(), user.getFirstName());
+        // Send confirmation email (use user's email language preference)
+        String emailLang = user.getEmailLanguage() != null ? user.getEmailLanguage() : "pl";
+        emailService.sendPasswordChangedEmail(user.getEmail(), user.getFirstName(), emailLang);
     }
 }
 

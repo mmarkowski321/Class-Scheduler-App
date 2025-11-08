@@ -29,7 +29,7 @@ public class Lesson {
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private LessonStatus status = LessonStatus.SCHEDULED;
+    private LessonStatus status = LessonStatus.REQUESTED;
     
     private String meetingLink; // Meeting link (Google Meet, Zoom, Teams, etc.)
     

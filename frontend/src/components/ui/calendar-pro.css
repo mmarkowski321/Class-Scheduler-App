@@ -1,6 +1,11 @@
-.calpro .fc-theme-standard .fc-scrollgrid,
+.calpro .fc-theme-standard .fc-scrollgrid {
+  background: transparent;
+  border-color: rgba(255,255,255,.18);
+}
+
 .calpro .fc-theme-standard td,
 .calpro .fc-theme-standard th {
+  background: transparent;
   border-color: rgba(255,255,255,.18);
 }
 .calpro .fc .fc-toolbar-title { color:#fff; font-weight:800; text-shadow:0 2px 8px rgba(0,0,0,.25); }
@@ -13,13 +18,149 @@
 .calpro .fc .fc-col-header-cell-cushion { color:#fff; font-weight:700; }
 .calpro .fc .fc-bg-event { border-radius:10px; }
 .calpro .fc .fc-event.fc-lesson {
-  background: linear-gradient(180deg,#8b5cf6,#6d28d9);
-  border:none; border-radius:12px; color:#fff; box-shadow:0 10px 26px rgba(0,0,0,.25);
-  padding:4px 6px;
+  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #6d28d9 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(147, 51, 234, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.calpro .fc .fc-event.fc-lesson:hover {
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 50%, #7c3aed 100%);
+  box-shadow: 0 6px 20px rgba(147, 51, 234, 0.6), 0 0 0 2px rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.calpro .fc .fc-event.fc-busy {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.calpro .fc .fc-event.fc-busy:hover {
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 50%, #dc2626 100%);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6), 0 0 0 2px rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
 }
 .calpro__legend { display:flex; gap:12px; justify-content:flex-end; margin-top:8px; color:#fff; opacity:.9; }
 .lg { display:inline-flex; align-items:center; gap:6px; }
 .lg::before { content:""; width:14px; height:14px; border-radius:4px; display:inline-block; }
-.lg--lesson::before { background:linear-gradient(180deg,#8b5cf6,#6d28d9); }
+.lg--lesson::before { background:linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #6d28d9 100%); border: 1px solid rgba(255, 255, 255, 0.3); }
 .lg--avail::before { background:linear-gradient(180deg,#22c55e,#16a34a); }
 .calpro--student .lg--avail::before { background:linear-gradient(180deg,#06b6d4,#0ea5e9); }
+
+/* Month view (dayGrid) styles - more visible and expressive */
+.calpro .fc-daygrid-day {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.calpro .fc-daygrid-day:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.calpro .fc-daygrid-day-frame {
+  min-height: 80px;
+}
+
+/* Day numbers - more visible */
+.calpro .fc-daygrid-day-number {
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 8px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  opacity: 0.95;
+}
+
+.calpro .fc-daygrid-day-number:hover {
+  color: #e0e7ff !important;
+  opacity: 1;
+}
+
+/* Today's date - highlight */
+.calpro .fc-day-today {
+  background: rgba(147, 51, 234, 0.15) !important;
+  border: 2px solid rgba(147, 51, 234, 0.4) !important;
+}
+
+.calpro .fc-day-today .fc-daygrid-day-number {
+  color: #c4b5fd !important;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+/* Day headers (Monday, Tuesday, etc.) - match page background */
+.calpro .fc-col-header-cell {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.calpro .fc-col-header-cell-cushion {
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  padding: 14px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Past days - slightly dimmed */
+.calpro .fc-day-past .fc-daygrid-day-number {
+  opacity: 0.7;
+}
+
+/* Future days - normal */
+.calpro .fc-day-future .fc-daygrid-day-number {
+  opacity: 0.95;
+}
+
+/* Other month days (outside current month) */
+.calpro .fc-day-other {
+  background: transparent;
+}
+
+.calpro .fc-day-other .fc-daygrid-day-number {
+  opacity: 0.3;
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Events in month view */
+.calpro .fc-daygrid-event {
+  margin: 2px 4px;
+  border-radius: 6px;
+}
+
+.calpro .fc-daygrid-event-dot {
+  display: none;
+}
+
+/* Month view event text */
+.calpro .fc-daygrid-event-title {
+  font-weight: 600;
+  font-size: 12px;
+  padding: 2px 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ensure red busy events stay red and visible */
+.calpro .fc-daygrid-event.fc-event-busy,
+.calpro .fc-event.fc-busy {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%) !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  color: #fff !important;
+}

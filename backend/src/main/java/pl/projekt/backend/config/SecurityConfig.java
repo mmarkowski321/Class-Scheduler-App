@@ -2,6 +2,7 @@ package pl.projekt.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -41,7 +42,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll() // Allow public access to auth endpoints
                 .requestMatchers("/api/stats/**").permitAll() // Allow public access to stats
                 .requestMatchers("/api/contact").permitAll() // Allow public access to contact form (POST)
+                .requestMatchers(HttpMethod.GET, "/api/tutors/**").permitAll() // Allow public tutor search
                 .requestMatchers("/api/test/**").permitAll() // Allow test endpoint
+                .requestMatchers("/api/calendar/public/**").permitAll() // Allow public access to public calendar (busy times only)
                 .requestMatchers("/h2-console/**").permitAll() // Allow H2 console
                 .anyRequest().authenticated() // All other requests need authentication
             )

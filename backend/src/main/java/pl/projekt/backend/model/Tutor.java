@@ -34,6 +34,5 @@ public class Tutor extends User {
     private Integer maxLessonsPerDay;
     private Integer bufferTime;
     private String preferredDays;
-    private String calendarUrl; // Google Calendar integration
 }
 
