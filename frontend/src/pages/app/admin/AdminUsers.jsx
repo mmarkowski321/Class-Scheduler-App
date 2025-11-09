@@ -80,7 +80,9 @@ export default function AdminUsers() {
       });
       if (response.ok) {
         fetchUsers();
-        setSelectedUser(null);
+        if (selectedUser && selectedUser.id === userId) {
+          fetchUserDetails(userId); // Refresh selected user details
+        }
         alert("User banned successfully");
       } else {
         const error = await response.json();
@@ -89,6 +91,32 @@ export default function AdminUsers() {
     } catch (error) {
       console.error("Failed to ban user:", error);
       alert("Failed to ban user");
+    }
+  };
+
+  const handleUnban = async (userId) => {
+    if (!confirm(t("app.admin.users.unbanConfirm"))) return;
+
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/unban`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        fetchUsers();
+        if (selectedUser && selectedUser.id === userId) {
+          fetchUserDetails(userId); // Refresh selected user details
+        }
+        alert("User unbanned successfully");
+      } else {
+        const error = await response.json();
+        alert(error.error || "Failed to unban user");
+      }
+    } catch (error) {
+      console.error("Failed to unban user:", error);
+      alert("Failed to unban user");
     }
   };
 
@@ -113,6 +141,11 @@ export default function AdminUsers() {
               >
                 <div style={{ flex: 1 }}>
                   <strong>{user.firstName} {user.lastName}</strong> - {user.email}
+                  {user.banned && (
+                    <span style={{ marginLeft: "8px", padding: "2px 8px", background: "#ef4444", borderRadius: "4px", fontSize: "12px" }}>
+                      BANNED
+                    </span>
+                  )}
                 </div>
                 <div style={{ display: "flex", gap: "8px" }}>
                   <Button
@@ -122,14 +155,25 @@ export default function AdminUsers() {
                   >
                     {t("app.admin.users.userDetails")}
                   </Button>
-                  <Button
-                    size="small"
-                    variant="primary"
-                    onClick={() => handleBan(user.id)}
-                    style={{ background: "#ef4444" }}
-                  >
-                    {t("app.admin.users.banUser")}
-                  </Button>
+                  {!user.banned ? (
+                    <Button
+                      size="small"
+                      variant="primary"
+                      onClick={() => handleBan(user.id)}
+                      style={{ background: "#ef4444" }}
+                    >
+                      {t("app.admin.users.banUser")}
+                    </Button>
+                  ) : (
+                    <Button
+                      size="small"
+                      variant="primary"
+                      onClick={() => handleUnban(user.id)}
+                      style={{ background: "#10b981" }}
+                    >
+                      {t("app.admin.users.unbanUser")}
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
@@ -156,6 +200,11 @@ export default function AdminUsers() {
               >
                 <div style={{ flex: 1 }}>
                   <strong>{user.firstName} {user.lastName}</strong> - {user.email}
+                  {user.banned && (
+                    <span style={{ marginLeft: "8px", padding: "2px 8px", background: "#ef4444", borderRadius: "4px", fontSize: "12px" }}>
+                      BANNED
+                    </span>
+                  )}
                 </div>
                 <div style={{ display: "flex", gap: "8px" }}>
                   <Button
@@ -165,14 +214,25 @@ export default function AdminUsers() {
                   >
                     {t("app.admin.users.userDetails")}
                   </Button>
-                  <Button
-                    size="small"
-                    variant="primary"
-                    onClick={() => handleBan(user.id)}
-                    style={{ background: "#ef4444" }}
-                  >
-                    {t("app.admin.users.banUser")}
-                  </Button>
+                  {!user.banned ? (
+                    <Button
+                      size="small"
+                      variant="primary"
+                      onClick={() => handleBan(user.id)}
+                      style={{ background: "#ef4444" }}
+                    >
+                      {t("app.admin.users.banUser")}
+                    </Button>
+                  ) : (
+                    <Button
+                      size="small"
+                      variant="primary"
+                      onClick={() => handleUnban(user.id)}
+                      style={{ background: "#10b981" }}
+                    >
+                      {t("app.admin.users.unbanUser")}
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
@@ -208,6 +268,17 @@ export default function AdminUsers() {
             </div>
             <div>
               <strong>{t("app.admin.users.emailVerified")}:</strong> {selectedUser.emailVerified ? "✅" : "❌"}
+            </div>
+            <div>
+              <strong>Status:</strong> {selectedUser.banned ? (
+                <span style={{ padding: "2px 8px", background: "#ef4444", borderRadius: "4px", fontSize: "12px" }}>
+                  BANNED
+                </span>
+              ) : (
+                <span style={{ padding: "2px 8px", background: "#10b981", borderRadius: "4px", fontSize: "12px" }}>
+                  ACTIVE
+                </span>
+              )}
             </div>
           </div>
 
@@ -276,13 +347,23 @@ export default function AdminUsers() {
           )}
 
           <div style={{ marginTop: "20px" }}>
-            <Button
-              variant="primary"
-              onClick={() => handleBan(selectedUser.id)}
-              style={{ background: "#ef4444" }}
-            >
-              {t("app.admin.users.banUser")} {selectedUser.firstName} {selectedUser.lastName}
-            </Button>
+            {!selectedUser.banned ? (
+              <Button
+                variant="primary"
+                onClick={() => handleBan(selectedUser.id)}
+                style={{ background: "#ef4444" }}
+              >
+                {t("app.admin.users.banUser")} {selectedUser.firstName} {selectedUser.lastName}
+              </Button>
+            ) : (
+              <Button
+                variant="primary"
+                onClick={() => handleUnban(selectedUser.id)}
+                style={{ background: "#10b981" }}
+              >
+                {t("app.admin.users.unbanUser")} {selectedUser.firstName} {selectedUser.lastName}
+              </Button>
+            )}
           </div>
         </div>
       )}

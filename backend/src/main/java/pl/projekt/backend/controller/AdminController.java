@@ -52,6 +52,7 @@ public class AdminController {
         
         List<User> allUsers = userRepository.findAll();
         
+        // Filter out banned users (or show them with a flag - showing them for now so admin can see who was banned)
         List<User> tutors = allUsers.stream()
             .filter(user -> user instanceof Tutor)
             .collect(Collectors.toList());
@@ -156,8 +157,37 @@ public class AdminController {
                     .body(Map.of("error", "Cannot ban admin users"));
             }
             
-            userRepository.delete(user);
+            // Soft delete - mark as banned instead of deleting
+            // This prevents the email from being used again for registration
+            user.ban();
+            userRepository.save(user);
+            
             return ResponseEntity.ok(Map.of("message", "User banned successfully"));
+            
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @PostMapping("/users/{id}/unban")
+    public ResponseEntity<?> unbanUser(@PathVariable Long id) {
+        ResponseEntity<?> adminCheck = checkAdminAccess();
+        if (adminCheck != null) return adminCheck;
+        
+        try {
+            User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            if (!Boolean.TRUE.equals(user.getBanned())) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "User is not banned"));
+            }
+            
+            // Unban user
+            user.unban();
+            userRepository.save(user);
+            
+            return ResponseEntity.ok(Map.of("message", "User unbanned successfully"));
             
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

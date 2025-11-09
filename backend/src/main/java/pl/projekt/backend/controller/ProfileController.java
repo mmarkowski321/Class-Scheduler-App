@@ -3,13 +3,18 @@ package pl.projekt.backend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.projekt.backend.model.Calendar;
 import pl.projekt.backend.model.Student;
 import pl.projekt.backend.model.Tutor;
 import pl.projekt.backend.model.User;
+import pl.projekt.backend.repository.CalendarRepository;
 import pl.projekt.backend.repository.UserRepository;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -18,6 +23,9 @@ public class ProfileController {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private CalendarRepository calendarRepository;
     
     @GetMapping("/{id}")
     public ResponseEntity<?> getProfile(@PathVariable Long id) {
@@ -100,10 +108,103 @@ public class ProfileController {
         if (tutorData.getMaxLessonsPerDay() != null) tutor.setMaxLessonsPerDay(tutorData.getMaxLessonsPerDay());
         if (tutorData.getBufferTime() != null) tutor.setBufferTime(tutorData.getBufferTime());
         if (tutorData.getPreferredDays() != null) tutor.setPreferredDays(tutorData.getPreferredDays());
-        if (tutorData.getCalendarUrl() != null) tutor.setCalendarUrl(tutorData.getCalendarUrl());
         
         Tutor updated = userRepository.save(tutor);
         return ResponseEntity.ok(updated);
+    }
+    
+    /**
+     * Get all calendars for a user
+     */
+    @GetMapping("/{userId}/calendars")
+    public ResponseEntity<?> getUserCalendars(@PathVariable Long userId) {
+        try {
+            Optional<User> userOpt = userRepository.findById(userId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Invalid user ID"));
+            }
+            
+            List<Calendar> calendars = calendarRepository.findByUserIdAndActiveTrue(userId);
+            List<Map<String, Object>> calendarsJson = calendars.stream()
+                .map(cal -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", cal.getId());
+                    map.put("calendarUrl", cal.getCalendarUrl());
+                    map.put("name", cal.getName());
+                    map.put("active", cal.getActive());
+                    return map;
+                })
+                .collect(Collectors.toList());
+            
+            return ResponseEntity.ok(Map.of("calendars", calendarsJson));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    /**
+     * Add a new calendar for a user
+     */
+    @PostMapping("/{userId}/calendars")
+    public ResponseEntity<?> addCalendar(
+            @PathVariable Long userId,
+            @RequestBody Map<String, String> request) {
+        try {
+            Optional<User> userOpt = userRepository.findById(userId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Invalid user ID"));
+            }
+            
+            String calendarUrl = request.get("calendarUrl");
+            String name = request.get("name");
+            
+            if (calendarUrl == null || calendarUrl.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Calendar URL is required"));
+            }
+            
+            Calendar calendar = new Calendar();
+            calendar.setUser(userOpt.get());
+            calendar.setCalendarUrl(calendarUrl.trim());
+            calendar.setName(name != null ? name.trim() : null);
+            calendar.setActive(true);
+            
+            Calendar saved = calendarRepository.save(calendar);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", saved.getId());
+            response.put("calendarUrl", saved.getCalendarUrl());
+            response.put("name", saved.getName());
+            response.put("active", saved.getActive());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    /**
+     * Delete a calendar
+     */
+    @DeleteMapping("/{userId}/calendars/{calendarId}")
+    public ResponseEntity<?> deleteCalendar(
+            @PathVariable Long userId,
+            @PathVariable Long calendarId) {
+        try {
+            Optional<User> userOpt = userRepository.findById(userId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Invalid user ID"));
+            }
+            
+            Optional<Calendar> calendarOpt = calendarRepository.findByIdAndUserId(calendarId, userId);
+            if (calendarOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Calendar not found"));
+            }
+            
+            calendarRepository.delete(calendarOpt.get());
+            return ResponseEntity.ok(Map.of("message", "Calendar deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 }
 

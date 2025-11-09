@@ -1,9 +1,10 @@
-import React, { useMemo, useRef } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import plLocale from "@fullcalendar/core/locales/pl";
+import EventModal from "./EventModal";
 import "./calendar-pro.css";
 
 function CalendarPro({
@@ -13,8 +14,10 @@ function CalendarPro({
   locale = "pl",
   weekStart = 1,
   businessHours = { start: "07:00", end: "22:00" },
+  readOnly = false,
 }) {
   const calRef = useRef(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const fcEvents = useMemo(() => {
     return events.map(ev => {
@@ -26,11 +29,39 @@ function CalendarPro({
           color: role === "tutor" ? "rgba(34,197,94,.35)" : "rgba(59,130,246,.30)",
         };
       }
+      if (ev.type === "busy") {
+        return {
+          id: ev.id,
+          title: ev.title || (locale === "pl" ? "Zajęte (Google Calendar)" : "Busy (Google Calendar)"),
+          start: ev.start,
+          end: ev.end,
+          display: "auto", // Changed from "background" to show title
+          overlap: false,
+          color: "#ef4444", // Red color
+          classNames: ["fc-busy"],
+          extendedProps: {
+            type: ev.type,
+            description: ev.description,
+          },
+        };
+      }
       return {
-        ...ev,
+        id: ev.id,
+        title: ev.title || (locale === "pl" ? "Lekcja" : "Lesson"),
+        start: ev.start,
+        end: ev.end,
         display: "auto",
         editable: false,
+        color: "#9333ea", // Fallback color
         classNames: ["fc-lesson"],
+        extendedProps: {
+          type: ev.type,
+          status: ev.status,
+          meetingLink: ev.meetingLink,
+          notes: ev.notes,
+          studentId: ev.studentId,
+          tutorId: ev.tutorId,
+        },
       };
     });
   }, [events, role]);
@@ -51,6 +82,29 @@ function CalendarPro({
   const handleEventResize = handleEventDrop;
 
   const handleSelect = (sel) => {
+    if (readOnly) {
+      return;
+    }
+    // Check if selected time overlaps with any busy times
+    const selectedStart = new Date(sel.startStr).getTime();
+    const selectedEnd = new Date(sel.endStr).getTime();
+    
+    const overlapsBusy = events.some(ev => {
+      if (ev.type === "busy") {
+        const busyStart = new Date(ev.start).getTime();
+        const busyEnd = new Date(ev.end).getTime();
+        return selectedStart < busyEnd && selectedEnd > busyStart;
+      }
+      return false;
+    });
+    
+    if (overlapsBusy) {
+      alert(locale === "pl" 
+        ? "Ten termin jest zajęty w Twoim kalendarzu Google. Wybierz inny termin." 
+        : "This time slot is busy in your Google Calendar. Please select another time.");
+      return;
+    }
+    
     onChange?.([...events, {
       id: `tmp-${Date.now()}`,
       type: role === "tutor" ? "availability" : "free",
@@ -61,11 +115,27 @@ function CalendarPro({
   };
 
   const handleEventClick = (info) => {
+    if (readOnly) {
+      return;
+    }
     const ev = info.event.extendedProps;
     if (ev?.type === "availability" || ev?.type === "free") {
       if (confirm(locale === "pl" ? "Usunąć ten blok?" : "Remove this block?")) {
         onChange?.(events.filter(e => e.id !== info.event.id));
       }
+    } else if (ev?.type === "lesson" || ev?.type === "busy") {
+      // Show modal with event details
+      const eventData = {
+        type: ev.type,
+        title: info.event.title || "",
+        start: info.event.start ? info.event.start.toISOString() : "",
+        end: info.event.end ? info.event.end.toISOString() : "",
+        status: ev.status,
+        meetingLink: ev.meetingLink,
+        notes: ev.notes,
+        description: ev.description,
+      };
+      setSelectedEvent(eventData);
     }
   };
 
@@ -83,15 +153,15 @@ function CalendarPro({
         allDaySlot={false}
         height="auto"
         nowIndicator
-        selectable
-        selectMirror
-        selectOverlap
-        select={handleSelect}
-        editable
-        eventAllow={eventAllow}
-        eventDrop={handleEventDrop}
-        eventResize={handleEventResize}
-        eventClick={handleEventClick}
+        selectable={!readOnly}
+        selectMirror={!readOnly}
+        selectOverlap={!readOnly}
+        select={readOnly ? undefined : handleSelect}
+        editable={!readOnly}
+        eventAllow={readOnly ? undefined : eventAllow}
+        eventDrop={readOnly ? undefined : handleEventDrop}
+        eventResize={readOnly ? undefined : handleEventResize}
+        eventClick={readOnly ? undefined : handleEventClick}
         events={fcEvents}
         headerToolbar={{
           left: "prev,next today",
@@ -109,7 +179,19 @@ function CalendarPro({
           {role === "tutor" ? (locale === "pl" ? "Dostępność" : "Availability")
                             : (locale === "pl" ? "Wolny czas" : "Free time")}
         </span>
+        {events.some(ev => ev.type === "busy") && (
+          <span className="lg" style={{color: "#ef4444"}}>
+            {locale === "pl" ? "Zajęte (Google Calendar)" : "Busy (Google Calendar)"}
+          </span>
+        )}
       </div>
+      
+      {selectedEvent && (
+        <EventModal 
+          event={selectedEvent} 
+          onClose={() => setSelectedEvent(null)} 
+        />
+      )}
     </div>
   );
 }

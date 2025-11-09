@@ -178,6 +178,63 @@
     transform: translateY(-1px);
 }
 
+/* ========== Calendar list ========== */
+.calendars-list {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--brd);
+}
+
+.calendars-list h4 {
+    color: var(--white);
+    margin: 0 0 16px 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.calendar-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    background: rgba(255,255,255,.08);
+    border: 1px solid var(--brd);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+}
+
+.calendar-item:hover {
+    background: rgba(255,255,255,.12);
+}
+
+.calendar-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.calendar-name {
+    color: var(--white);
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.calendar-url {
+    color: var(--muted);
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.loading {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 8px;
+    font-style: italic;
+}
+
 /* ========== Responsywność ========== */
 @media (max-width: 768px) {
     .tutor-availability {
@@ -194,5 +251,11 @@
     
     .availability-header h2 {
         font-size: 20px;
+    }
+
+    .calendar-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
     }
 }

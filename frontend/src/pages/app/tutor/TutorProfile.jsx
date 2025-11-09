@@ -197,6 +197,7 @@ export default function TutorProfile() {
   };
 
   return (
+    <div className="tutor-profile-wrap">
     <div className="tutor-card">
       {/* Header */}
       <div className="tutor-header">
@@ -204,22 +205,6 @@ export default function TutorProfile() {
         <div>
           <h3>{t("app.tutor.profile.title")}</h3>
           <p>{t("app.tutor.profile.basic")}</p>
-        </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
-          {!isEditing ? (
-            <button type="button" className="btn-secondary" onClick={() => setIsEditing(true)}>
-              {t("common:edit", { defaultValue: "Edit" })}
-            </button>
-          ) : (
-            <>
-              <button type="button" className="btn-ghost" onClick={() => setIsEditing(false)}>
-                {t("common:cancel", { defaultValue: "Cancel" })}
-              </button>
-              <Button variant="primary" onClick={onSave}>
-                {t("app.tutor.profile.save")}
-              </Button>
-            </>
-          )}
         </div>
       </div>
 
@@ -508,6 +493,7 @@ export default function TutorProfile() {
           </>
         )}
       </div>
+    </div>
     </div>
   );
 }

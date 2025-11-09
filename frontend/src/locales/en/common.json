@@ -3,6 +3,19 @@
     "edit": "Edit",
     "cancel": "Cancel"
   },
+  "loading": "Loading…",
+  "auth": {
+    "required": "You must be logged in to continue.",
+    "tutorOnly": "This section is available for tutors only."
+  },
+  "status": {
+    "requested": "Requested",
+    "scheduled": "Scheduled",
+    "rescheduled": "Rescheduled",
+    "in_progress": "In progress",
+    "cancelled": "Cancelled",
+    "completed": "Completed"
+  },
   "header": {
     "logo": "📚 EduScheduler",
     "nav": {
@@ -352,7 +365,15 @@
     },
     "overview": {
       "upcomingTitle": "Upcoming lessons",
-      "empty": "No confirmed lessons."
+      "noUpcoming": "Nothing in the near future.",
+      "requestsTitle": "Booking requests",
+      "noRequests": "No pending requests.",
+      "reviewsTitle": "Latest reviews",
+      "noReviews": "No reviews yet.",
+      "newTutorsTitle": "New tutors",
+      "noNewTutors": "No new tutors at the moment.",
+      "viewAll": "View all",
+      "anonymous": "Anonymous"
     }
   },
   "sidebar": {
@@ -395,6 +416,7 @@
         "confirmedTitle": "Confirmed lessons",
         "joinLink": "Join link",
         "empty": "None.",
+        "lessonLength": "Duration",
         "actions": {
           "confirm": "Confirm",
           "decline": "Decline",
@@ -583,14 +605,19 @@
           "calendarUrl": "Calendar Embed URL"
         },
         "placeholders": {
-          "calendarUrl": "https://calendar.google.com/calendar/embed?src=..."
+          "calendarUrl": "https://calendar.google.com/calendar/embed?src=...",
+          "calendarName": "Calendar name (optional)"
         },
         "hints": {
           "calendarUrl": "Supported calendars: Google Calendar, Outlook Calendar, Apple iCal, or any calendar with public embed URL. To get Google Calendar URL: Settings → Integrate calendar → Copy embed URL. For Outlook: Calendar → Share → Get a link → Embed code."
         },
         "calendarPreview": "Calendar Preview",
+        "calendarsList": "Your Calendars",
         "actions": {
-          "save": "Save Availability"
+          "save": "Save Availability",
+          "addCalendar": "Add Calendar",
+          "remove": "Remove",
+          "syncAll": "Sync All Calendars"
         },
         "errors": {
           "maxLessonsRequired": "Maximum lessons per day is required",
@@ -599,8 +626,10 @@
           "bufferInvalid": "Please enter a valid number (minimum 0)"
         },
         "success": {
-          "saved": "Availability settings saved successfully"
-        }
+          "saved": "Availability settings saved successfully",
+          "calendarSynced": "Calendar synchronized successfully. Found {{count}} events."
+        },
+        "calendarSynced": "Calendar synchronized successfully. Found {{count}} events."
       },
       "reviews": {
         "title": "Reviews",
@@ -634,7 +663,60 @@
         "apply": "Show tutors",
         "viewProfile": "View profile",
         "book": "Book",
-        "empty": "No tutors match your filters."
+        "empty": "No tutors match your filters.",
+        "results": {
+          "title": "Available tutors",
+          "meta": "{{count}} tutor{{count, plural, one {} other {s}}} found",
+          "days": "Day filter: {{count}}"
+        },
+        "loading": "Loading…",
+        "errors": {
+          "list": "Could not load tutor list.",
+          "profile": "Could not load tutor profile.",
+          "schedule": "Could not load tutor schedule.",
+          "booking": "Booking failed."
+        },
+        "card": {
+          "price": "{{value}} PLN / h",
+          "duration": "{{value}} min"
+        },
+        "detail": {
+          "busySlot": "Tutor busy",
+          "hourlyRate": "Hourly rate",
+          "lessonDuration": "Lesson length",
+          "experience": "Experience",
+          "experienceUnit": "{{count, plural, one {year} other {years}}}",
+          "subjects": "Subjects",
+          "languages": "Teaching languages",
+          "lessonModes": "Lesson mode",
+          "lessonModeLabels": {
+            "online": "Online",
+            "onsite": "On-site",
+            "hybrid": "Hybrid"
+          },
+          "preferredDays": "Preferred days",
+          "teachingMethods": "Teaching methods",
+          "bookingTitle": "Book a lesson",
+          "bookingSubtitle": "Pick the date and time that suits you. The tutor will confirm it shortly.",
+          "date": "Date",
+          "time": "Time",
+          "notes": "Message for tutor (optional)",
+          "notesPlaceholder": "Describe what you want to focus on or any important details…",
+          "duration": "Duration: {{value}} min",
+          "formRequired": "Please select date and time.",
+          "bookSuccess": "Booking request sent! The tutor will confirm soon.",
+          "bookError": "Failed to send booking request. {{error}}",
+          "requiresLogin": "You must be logged in as a student to book lessons.",
+          "bookingSubmitting": "Sending booking…",
+          "bookingWaiting": "Sending…",
+          "bookCta": "Send booking request",
+          "close": "Close",
+          "loadingProfile": "Loading profile…",
+          "scheduleTitle": "Busy slots",
+          "scheduleEmpty": "No busy slots – lots of free time!",
+          "busyLoading": "Loading schedule…",
+          "busyError": "Failed to load calendar."
+        }
       },
       "profile": {
         "title": "Student profile",
@@ -813,18 +895,26 @@
           "calendarUrl": "Calendar Embed URL"
         },
         "placeholders": {
-          "calendarUrl": "https://calendar.google.com/calendar/embed?src=..."
+          "calendarUrl": "https://calendar.google.com/calendar/embed?src=...",
+          "calendarName": "Calendar name (optional)"
         },
         "hints": {
           "calendarUrl": "Supported calendars: Google Calendar, Outlook Calendar, Apple iCal, or any calendar with public embed URL. To get Google Calendar URL: Settings → Integrate calendar → Copy embed URL. For Outlook: Calendar → Share → Get a link → Embed code."
         },
         "calendarPreview": "Calendar Preview",
+        "calendarsList": "Your Calendars",
+        "noCalendars": "No calendars added yet. Add one above to sync your busy times.",
         "actions": {
-          "save": "Save Availability"
+          "save": "Save Availability",
+          "addCalendar": "Add Calendar",
+          "remove": "Remove",
+          "syncAll": "Sync All Calendars"
         },
         "success": {
-        "saved": "Availability settings saved successfully"
-      }
+          "saved": "Availability settings saved successfully",
+          "calendarSynced": "Calendar synchronized successfully. Found {{count}} events."
+        },
+        "calendarSynced": "Calendar synchronized successfully. Found {{count}} events."
       }
     },
     "admin": {
@@ -849,6 +939,8 @@
         "studentsTitle": "Students",
         "banUser": "Ban",
         "banConfirm": "Are you sure you want to ban this user?",
+        "unbanUser": "Unban",
+        "unbanConfirm": "Are you sure you want to unban this user?",
         "noTutors": "No tutors found.",
         "noStudents": "No students found.",
         "userDetails": "User Details",

@@ -14,47 +14,107 @@
   }
   
   /* ========== Karta ========== */
+  .tutor-profile-wrap{
+    display: flex;
+    justify-content: center;
+  }
   .tutor-card {
     background: var(--bg-card);
     backdrop-filter: blur(8px);
     border: none; /* usunięcie białej ramki */
     box-shadow: var(--shadow);
     border-radius: var(--radius-lg);
-    padding: 24px;
-    padding-bottom: 88px; /* miejsce na przycisk */
+    padding: 110px min(24px, 8vw) 88px;
     position: relative;  /* pozwala pozycjonować przycisk w obrębie karty */
     color: var(--white);
     width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
+    max-width: min(1160px, 100%);
+    margin: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   
   /* Header */
   .tutor-header{
-    display:flex; gap:16px; align-items:center; margin-bottom: 12px;
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    display:flex;
+    gap:16px;
+    align-items:center;
   }
   .tutor-header .avatar{
-    width:70px; height:70px; border-radius:50%;
+    width:70px;
+    height:70px;
+    border-radius:50%;
     border: 2px solid var(--brd);
   }
   .tutor-header h3{ margin:0; font-size: 22px; font-weight: 800; }
   .tutor-header p{ margin:4px 0 0; color: var(--muted); }
+/* Floating action buttons bottom-right */
+.tutor-fab {
+  position: absolute; /* wewnątrz karty, nie przyklejony do okna */
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 20;
+}
+
   /* Fieldset wrapper */
-  .tutor-fieldset { border: none; padding: 0; margin: 0; }
+  .tutor-fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+  }
   .tutor-fieldset:disabled { opacity: 1; }
   
   /* Sekcja */
-  .tutor-section{ margin-top: 24px; }
+  .tutor-section{
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
   .tutor-section .title{
-    margin: 0 0 16px; font-size: 16px; letter-spacing:.4px; 
-    opacity:.95; text-transform: uppercase;
+    width: min(560px, 100%);
+    margin: 0 0 16px;
+    font-size: 16px;
+    letter-spacing:.4px; 
+    opacity:.95;
+    text-transform: uppercase;
+    align-self: center;
   }
   
   /* Single column layout */
+  .tutor-section{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 32px;
+  }
+  .tutor-section .title{
+    width: min(100%, 560px);
+    margin: 0 0 16px;
+    font-size: 16px;
+    letter-spacing:.4px;
+    opacity:.95;
+    text-transform: uppercase;
+  }
   .form-single-column{
     display: flex;
     flex-direction: column;
     gap: var(--gap);
+    width: min(100%, 560px);
+    margin: 0 auto;
   }
   
   /* Pole */
@@ -253,21 +313,19 @@
   }
 
 /* Floating action buttons bottom-right */
-.tutor-fab {
-  position: absolute; /* wewnątrz karty, nie przyklejony do okna */
-  right: 16px;
-  bottom: 16px;
-  display: flex;
-  gap: 8px;
-  z-index: 20;
-}
-  
   /* Responsywka */
   @media (max-width: 640px){
     .tutor-header .avatar{ width: 56px; height: 56px; }
     .tutor-card{ 
-      padding: 18px; 
+      padding: 110px 18px 72px; 
+      width: auto;
       margin: 0 16px;
+    }
+    .form-single-column{
+      width: 100%;
+    }
+    .tutor-profile-wrap{
+      padding: 0;
     }
     .photo-uploader {
       min-height: 100px;

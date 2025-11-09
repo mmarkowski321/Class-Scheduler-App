@@ -3,6 +3,19 @@
     "edit": "Edytuj",
     "cancel": "Anuluj"
   },
+  "loading": "Ładowanie…",
+  "auth": {
+    "required": "Musisz być zalogowany, aby kontynuować.",
+    "tutorOnly": "Ta sekcja wymaga konta korepetytora."
+  },
+  "status": {
+    "requested": "Oczekuje",
+    "scheduled": "Zaplanowana",
+    "rescheduled": "Przełożona",
+    "in_progress": "W trakcie",
+    "cancelled": "Anulowana",
+    "completed": "Zakończona"
+  },
   "header": {
     "logo": "📚 EduScheduler",
     "nav": {
@@ -169,7 +182,7 @@
     },
     "errorText": "Link weryfikacyjny jest nieprawidłowy lub wygasł."
   },
-  "forgotPassword": {
+   "forgotPassword": {
     "title": "Resetowanie hasła",
     "subtitle": "Wprowadź swój adres e-mail, a wyślemy Ci link do resetowania hasła.",
     "sendLink": "Wyślij link resetujący",
@@ -356,7 +369,15 @@
     },
     "overview": {
       "upcomingTitle": "Najbliższe lekcje",
-      "empty": "Brak potwierdzonych lekcji."
+      "noUpcoming": "Nic w najbliższym czasie.",
+      "requestsTitle": "Prośby o rezerwację",
+      "noRequests": "Brak oczekujących próśb.",
+      "reviewsTitle": "Najnowsze opinie",
+      "noReviews": "Brak opinii.",
+      "newTutorsTitle": "Nowi korepetytorzy",
+      "noNewTutors": "Brak nowych korepetytorów.",
+      "viewAll": "Zobacz wszystkie",
+      "anonymous": "Anonim"
     }
   },
   "sidebar": {
@@ -403,6 +424,7 @@
         "confirmedTitle": "Potwierdzone lekcje",
         "joinLink": "Link do dołączenia",
         "empty": "Brak.",
+        "lessonLength": "Czas trwania",
         "actions": {
           "confirm": "Potwierdź",
           "decline": "Odrzuć",
@@ -607,14 +629,19 @@
           "calendarUrl": "URL do osadzenia kalendarza"
         },
         "placeholders": {
-          "calendarUrl": "https://calendar.google.com/calendar/embed?src=..."
+          "calendarUrl": "https://calendar.google.com/calendar/embed?src=...",
+          "calendarName": "Nazwa kalendarza (opcjonalnie)"
         },
         "hints": {
           "calendarUrl": "Obsługiwane kalendarze: Google Calendar, Outlook Calendar, Apple iCal oraz inne kalendarze z publicznym URL do osadzenia. Google Calendar: Ustawienia → Kalendarz do osadzenia → Skopiuj URL. Outlook: Kalendarz → Udostępnij → Pobierz link → Kod osadzania."
         },
         "calendarPreview": "Podgląd kalendarza",
+        "calendarsList": "Twoje kalendarze",
         "actions": {
-          "save": "Zapisz dostępność"
+          "save": "Zapisz dostępność",
+          "addCalendar": "Dodaj kalendarz",
+          "remove": "Usuń",
+          "syncAll": "Synchronizuj wszystkie kalendarze"
         },
         "errors": {
           "maxLessonsRequired": "Wymagana jest maksymalna liczba lekcji dziennie",
@@ -623,8 +650,10 @@
           "bufferInvalid": "Wprowadź prawidłową liczbę (minimum 0)"
         },
         "success": {
-          "saved": "Ustawienia dostępności zapisane pomyślnie"
-        }
+          "saved": "Ustawienia dostępności zapisane pomyślnie",
+          "calendarSynced": "Kalendarz zsynchronizowany pomyślnie. Znaleziono {{count}} wydarzeń."
+        },
+        "calendarSynced": "Kalendarz zsynchronizowany pomyślnie. Znaleziono {{count}} wydarzeń."
       },
       "reviews": {
         "title": "Opinie",
@@ -726,8 +755,10 @@
         "bufferInvalid": "Wprowadź prawidłową liczbę (minimum 0)"
       },
       "success": {
-        "saved": "Ustawienia dostępności zapisane pomyślnie"
-      }
+        "saved": "Ustawienia dostępności zapisane pomyślnie",
+        "calendarSynced": "Kalendarz zsynchronizowany pomyślnie. Znaleziono {{count}} wydarzeń."
+      },
+      "calendarSynced": "Kalendarz zsynchronizowany pomyślnie. Znaleziono {{count}} wydarzeń."
     },
     "admin": {
       "title": "Panel administratora",
@@ -751,6 +782,8 @@
         "studentsTitle": "Uczniowie",
         "banUser": "Ban",
         "banConfirm": "Czy na pewno chcesz zbanować tego użytkownika?",
+        "unbanUser": "Odbanuj",
+        "unbanConfirm": "Czy na pewno chcesz odbanować tego użytkownika?",
         "noTutors": "Brak korepetytorów.",
         "noStudents": "Brak uczniów.",
         "userDetails": "Szczegóły użytkownika",
@@ -817,7 +850,60 @@
         "apply": "Pokaż korepetytorów",
         "viewProfile": "Zobacz profil",
         "book": "Umów termin",
-        "empty": "Brak korepetytorów spełniających kryteria."
+        "empty": "Brak korepetytorów spełniających kryteria.",
+        "results": {
+          "title": "Dostępni korepetytorzy",
+          "meta": "Znaleziono {{count}} {{count, plural, one {osobę} few {osoby} other {osób}}}",
+          "days": "Filtr dni: {{count}}"
+        },
+        "loading": "Ładowanie…",
+        "errors": {
+          "list": "Nie udało się pobrać listy korepetytorów.",
+          "profile": "Nie udało się pobrać profilu korepetytora.",
+          "schedule": "Nie udało się pobrać grafiku korepetytora.",
+          "booking": "Rezerwacja nie powiodła się."
+        },
+        "card": {
+          "price": "{{value}} PLN / h",
+          "duration": "{{value}} min"
+        },
+        "detail": {
+          "busySlot": "Korepetytor zajęty",
+          "hourlyRate": "Stawka godzinowa",
+          "lessonDuration": "Czas lekcji",
+          "experience": "Doświadczenie",
+          "experienceUnit": "{{count, plural, one {rok} few {lata} other {lat}}}",
+          "subjects": "Przedmioty",
+          "languages": "Języki nauczania",
+          "lessonModes": "Tryb zajęć",
+          "lessonModeLabels": {
+            "online": "Online",
+            "onsite": "Stacjonarnie",
+            "hybrid": "Hybrydowo"
+          },
+          "preferredDays": "Preferowane dni",
+          "teachingMethods": "Metody nauczania",
+          "bookingTitle": "Zarezerwuj termin",
+          "bookingSubtitle": "Wybierz pasującą datę i godzinę. Korepetytor otrzyma powiadomienie.",
+          "date": "Data",
+          "time": "Godzina",
+          "notes": "Wiadomość dla korepetytora (opcjonalnie)",
+          "notesPlaceholder": "Napisz, czego chcesz się uczyć lub inne ważne informacje…",
+          "duration": "Czas trwania: {{value}} min",
+          "formRequired": "Podaj datę i godzinę.",
+          "bookSuccess": "Rezerwacja wysłana! Korepetytor wkrótce potwierdzi termin.",
+          "bookError": "Nie udało się wysłać rezerwacji. {{error}}",
+          "requiresLogin": "Musisz być zalogowany jako uczeń, aby rezerwować zajęcia.",
+          "bookingSubmitting": "Wysyłanie rezerwacji…",
+          "bookingWaiting": "Wysyłanie…",
+          "bookCta": "Zarezerwuj termin",
+          "close": "Zamknij",
+          "loadingProfile": "Ładowanie profilu…",
+          "scheduleTitle": "Zajęte terminy",
+          "scheduleEmpty": "Brak zajętych terminów – wiele wolnych okienek!",
+          "busyLoading": "Ładowanie kalendarza…",
+          "busyError": "Nie udało się załadować kalendarza."
+        }
       },
       "profile": {
         "title": "Profil ucznia",
@@ -996,18 +1082,26 @@
           "calendarUrl": "URL do osadzenia kalendarza"
         },
         "placeholders": {
-          "calendarUrl": "https://calendar.google.com/calendar/embed?src=..."
+          "calendarUrl": "https://calendar.google.com/calendar/embed?src=...",
+          "calendarName": "Nazwa kalendarza (opcjonalnie)"
         },
         "hints": {
           "calendarUrl": "Obsługiwane kalendarze: Google Calendar, Outlook Calendar, Apple iCal oraz inne kalendarze z publicznym URL do osadzenia. Google Calendar: Ustawienia → Kalendarz do osadzenia → Skopiuj URL. Outlook: Kalendarz → Udostępnij → Pobierz link → Kod osadzania."
         },
         "calendarPreview": "Podgląd kalendarza",
+        "calendarsList": "Twoje kalendarze",
+        "noCalendars": "Brak dodanych kalendarzy. Dodaj kalendarz powyżej, aby zsynchronizować zajęte terminy.",
         "actions": {
-          "save": "Zapisz dostępność"
+          "save": "Zapisz dostępność",
+          "addCalendar": "Dodaj kalendarz",
+          "remove": "Usuń",
+          "syncAll": "Synchronizuj wszystkie kalendarze"
         },
         "success": {
-          "saved": "Ustawienia dostępności zapisane pomyślnie"
-        }
+          "saved": "Ustawienia dostępności zapisane pomyślnie",
+          "calendarSynced": "Kalendarz zsynchronizowany pomyślnie. Znaleziono {{count}} wydarzeń."
+        },
+        "calendarSynced": "Kalendarz zsynchronizowany pomyślnie. Znaleziono {{count}} wydarzeń."
       }
     }
   },

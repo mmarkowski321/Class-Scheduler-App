@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "../../../components/ui/Button";
 import "./student-settings.css";
 
 export default function StudentSettings() {
   const { t } = useTranslation("common");
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
   
   // Account Information
-  const [currentEmail, setCurrentEmail] = useState("student@example.com");
+  const [currentEmail, setCurrentEmail] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [confirmEmail, setConfirmEmail] = useState("");
   
@@ -17,12 +19,31 @@ export default function StudentSettings() {
   const [confirmPassword, setConfirmPassword] = useState("");
   
   // Phone Numbers
-  const [primaryPhone, setPrimaryPhone] = useState("+48 123 456 789");
-  const [additionalPhones, setAdditionalPhones] = useState([
-    { id: 1, label: "Rodzice", number: "+48 987 654 321" }
-  ]);
+  const [primaryPhone, setPrimaryPhone] = useState("");
+  const [additionalPhones, setAdditionalPhones] = useState([]);
   const [newPhoneLabel, setNewPhoneLabel] = useState("");
   const [newPhoneNumber, setNewPhoneNumber] = useState("");
+  
+  // Load user data on mount
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (!token || !userId) return;
+      try {
+        const res = await fetch(`/api/profile/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const user = await res.json();
+          setCurrentEmail(user.email || "");
+          setPrimaryPhone(user.phone || "");
+          setEmailLanguage(user.emailLanguage || "pl");
+        }
+      } catch (error) {
+        console.error("Failed to load user data:", error);
+      }
+    };
+    loadUserData();
+  }, [token, userId]);
   
   // Notifications
   const [notifications, setNotifications] = useState({
@@ -69,13 +90,35 @@ export default function StudentSettings() {
       return;
     }
     
-    // TODO: API call to change email
-    console.log("Changing email:", { newEmail, currentPassword });
-    setSuccessMessage(t("app.student.settings.success.emailChanged"));
-    setNewEmail("");
-    setConfirmEmail("");
-    setCurrentPassword("");
-    setErrors({});
+    try {
+      const response = await fetch(`/api/settings/email/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          newEmail,
+          currentPassword,
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setSuccessMessage(data.message || t("app.student.settings.success.emailChanged"));
+        setCurrentEmail(newEmail);
+        setNewEmail("");
+        setConfirmEmail("");
+        setCurrentPassword("");
+        setErrors({});
+      } else {
+        const errorData = await response.json();
+        setErrors({ form: errorData.error || "Failed to change email" });
+      }
+    } catch (error) {
+      console.error("Failed to change email:", error);
+      setErrors({ form: "Failed to change email" });
+    }
   };
 
   const handleChangePassword = async () => {
@@ -102,13 +145,34 @@ export default function StudentSettings() {
       return;
     }
     
-    // TODO: API call to change password
-    console.log("Changing password:", { currentPassword, newPassword });
-    setSuccessMessage(t("app.student.settings.success.passwordChanged"));
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-    setErrors({});
+    try {
+      const response = await fetch(`/api/settings/password/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setSuccessMessage(data.message || t("app.student.settings.success.passwordChanged"));
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setErrors({});
+      } else {
+        const errorData = await response.json();
+        setErrors({ form: errorData.error || "Failed to change password" });
+      }
+    } catch (error) {
+      console.error("Failed to change password:", error);
+      setErrors({ form: "Failed to change password" });
+    }
   };
 
   const handleAddPhone = () => {
@@ -147,15 +211,68 @@ export default function StudentSettings() {
     setSuccessMessage(t("app.student.settings.success.phoneRemoved"));
   };
 
+  const handleSavePhone = async () => {
+    try {
+      const response = await fetch(`/api/settings/phone/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          phone: primaryPhone,
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setSuccessMessage(data.message || t("app.student.settings.success.settingsSaved"));
+        setErrors({});
+      } else {
+        const errorData = await response.json();
+        setErrors({ form: errorData.error || "Failed to save phone number" });
+      }
+    } catch (error) {
+      console.error("Failed to save phone:", error);
+      setErrors({ form: "Failed to save phone number" });
+    }
+  };
+
+  const handleSaveEmailLanguage = async () => {
+    try {
+      const response = await fetch(`/api/settings/email-language/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          emailLanguage,
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setSuccessMessage(data.message || t("app.student.settings.success.settingsSaved"));
+        setErrors({});
+      } else {
+        const errorData = await response.json();
+        setErrors({ form: errorData.error || "Failed to save email language" });
+      }
+    } catch (error) {
+      console.error("Failed to save email language:", error);
+      setErrors({ form: "Failed to save email language" });
+    }
+  };
+
   const handleSaveSettings = async () => {
-    // TODO: API call to save all settings
-    console.log("Saving settings:", {
-      notifications,
-      emailLanguage,
-      primaryPhone,
-      additionalPhones
-    });
-    setSuccessMessage(t("app.student.settings.success.settingsSaved"));
+    // Save phone number
+    await handleSavePhone();
+    
+    // Save email language preference
+    await handleSaveEmailLanguage();
+    
+    // TODO: Save notifications preferences when backend supports it
   };
 
   const toggleNotification = (key) => {
@@ -218,6 +335,8 @@ export default function StudentSettings() {
           {errors.currentPassword && <div className="error-message">{errors.currentPassword}</div>}
         </div>
 
+        {errors.form && <div className="error-message">{errors.form}</div>}
+
         <div className="settings-actions">
           <Button variant="primary" onClick={handleChangeEmail}>
             {t("app.student.settings.actions.changeEmail")}
@@ -261,6 +380,8 @@ export default function StudentSettings() {
           />
           {errors.confirmPassword && <div className="error-message">{errors.confirmPassword}</div>}
         </div>
+
+        {errors.form && <div className="error-message">{errors.form}</div>}
 
         <div className="settings-actions">
           <Button variant="primary" onClick={handleChangePassword}>
@@ -323,8 +444,10 @@ export default function StudentSettings() {
           {errors.newPhoneLabel && <div className="error-message">{errors.newPhoneLabel}</div>}
         </div>
 
+        {errors.form && <div className="error-message">{errors.form}</div>}
+
         <div className="settings-actions">
-          <Button variant="primary" onClick={handleSaveSettings}>
+          <Button variant="primary" onClick={handleSavePhone}>
             {t("app.student.settings.actions.saveChanges")}
           </Button>
         </div>
