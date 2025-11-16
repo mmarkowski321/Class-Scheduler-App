@@ -160,6 +160,7 @@ class AuthServiceTest {
     @Test
     void shouldRegisterTutorSuccessfully() {
         registerRequest.setRole("TUTOR");
+        registerRequest.setBirthDate(LocalDate.now().minusYears(25));
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("hashedPassword");
         when(userRepository.save(any(Tutor.class))).thenAnswer(invocation -> {

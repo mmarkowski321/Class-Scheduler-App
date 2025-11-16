@@ -33,12 +33,7 @@ public class DataLoader implements CommandLineRunner {
             admin.setEmailVerified(true); // Admin doesn't need email verification
             
             userRepository.save(admin);
-            System.out.println("========================================");
-            System.out.println("✅ Default admin created!");
-            System.out.println("Email: admin@eduscheduler.com");
-            System.out.println("Password: EduScheduler2024!Admin");
-            System.out.println("⚠️  CHANGE THIS PASSWORD IN PRODUCTION!");
-            System.out.println("========================================");
+            System.out.println("Default admin created");
         }
     }
 }
