@@ -26,9 +26,6 @@ jobs:
   test-backend:
     name: Test Backend
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
     
     steps:
       - name: Checkout code
@@ -44,13 +41,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
       - name: Make Maven wrapper executable
+        working-directory: backend
         run: chmod +x ./mvnw || true
 
       - name: Run tests
+        working-directory: backend
         env:
           SPRING_MAIL_PASSWORD: ${{ secrets.SPRING_MAIL_PASSWORD }}
         run: ./mvnw clean test
