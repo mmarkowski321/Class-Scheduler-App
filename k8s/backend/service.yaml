@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: eduscheduler-backend
+spec:
+  type: ClusterIP
+  selector:
+    app: eduscheduler-backend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+
+

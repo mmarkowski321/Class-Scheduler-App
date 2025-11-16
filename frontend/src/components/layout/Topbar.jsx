@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import "./Topbar.css";
+import { clearAuthSession } from "../../utils/auth";
 
 export default function Topbar({ user = { name: "Użytkownik", role: "student", email: "" } }) {
   const navigate = useNavigate();
 
   const logout = () => {
-    localStorage.removeItem("devRole");
+    clearAuthSession();
     navigate("/", { replace: true });
   };
 

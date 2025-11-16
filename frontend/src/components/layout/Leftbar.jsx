@@ -3,6 +3,7 @@ import "./Leftbar.css";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { clearAuthSession } from "../../utils/auth";
 
 export default function Leftbar({
   open,
@@ -42,6 +43,7 @@ export default function Leftbar({
   const setLang = (lng) => {
     i18n.changeLanguage(lng);
     try { localStorage.setItem("lang", lng); } catch {}
+    try { localStorage.setItem("i18nextLng", lng); } catch {}
   };
 
   const activeLang = i18n.language?.startsWith("pl") ? "pl" : "en";
@@ -52,8 +54,7 @@ export default function Leftbar({
   }, [activeLang]);
 
   const logout = () => {
-    // TODO: podmień na realny logout (API/cookies)
-    localStorage.removeItem("devRole");
+    clearAuthSession();
     navigate("/", { replace: true });
   };
 
@@ -118,12 +119,6 @@ export default function Leftbar({
 
         {/* Stopka akcji */}
         <div className="leftbar__footer">
-          <button
-            className="btn ghost"
-            onClick={() => { navigate("settings"); onClose?.(); }}
-          >
-            {t("sidebar.actions.settings")}
-          </button>
           <button className="btn danger" onClick={logout}>
             {t("sidebar.actions.logout")}
           </button>

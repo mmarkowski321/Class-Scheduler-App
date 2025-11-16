@@ -31,10 +31,20 @@ public class Review {
     @Column(nullable = false)
     private Integer platformRating; // Rating for platform (1-5)
     
-    @Column(length = 200)
+    @Column(length = 400)
     private String comment;
     
+    @Column(name = "student_behavior_rating")
     private Integer studentBehaviorRating; // Rating for student behavior by tutor (1-5, nullable, visible only to tutors and admins)
+
+    private Integer tutorPlatformRating; // Tutor feedback about platform
+
+    @Column(length = 400)
+    private String tutorComment; // Tutor written feedback about student / platform
+
+    private LocalDateTime studentReviewAt;
+
+    private LocalDateTime tutorReviewAt;
     
     private LocalDateTime createdAt;
     

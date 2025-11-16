@@ -1,5 +1,5 @@
 // pages/app/student/StudentProfile.jsx
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "../../../components/ui/Button";
 import "./student-profile.css";
@@ -37,11 +37,15 @@ export default function StudentProfile() {
     guardianName: "",
     guardianEmail: "",
     shareProfile: true,
+    photoUrl: "",
   });
 
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoError, setPhotoError] = useState("");
+  const fileInputRef = useRef(null);
   const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   const onToggle = (group, key) =>
     setForm((f) => ({ ...f, [group]: { ...f[group], [key]: !f[group][key] } }));
@@ -96,6 +100,7 @@ export default function StudentProfile() {
         guardianName: p.guardianName || "",
         guardianEmail: p.guardianEmail || "",
         shareProfile: typeof p.shareProfile === "boolean" ? p.shareProfile : f.shareProfile,
+        photoUrl: p.photoUrl || "",
       }));
     } catch {}
   };
@@ -132,6 +137,7 @@ export default function StudentProfile() {
         guardianName: form.guardianName,
         guardianEmail: form.guardianEmail,
         shareProfile: form.shareProfile,
+        photoUrl: form.photoUrl,
       };
       const res = await fetch(`/api/profile/student/${userId}`, {
         method: "PUT",
@@ -155,12 +161,111 @@ export default function StudentProfile() {
   const D = t("app.student.profile.dayLabels", { returnObjects: true });
   const P = t("app.student.profile.placeholders", { returnObjects: true });
 
+  const handlePhotoUpload = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setPhotoError(t("app.student.profile.errors.photoType"));
+      return;
+    }
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    if (!token || !userId) {
+      setPhotoError(t("app.student.profile.errors.server"));
+      return;
+    }
+    setPhotoUploading(true);
+    setPhotoError("");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch(`/api/profile/student/${userId}/photo`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (!res.ok) {
+        throw new Error("upload failed");
+      }
+      const data = await res.json();
+      setForm((f) => ({ ...f, photoUrl: data.photoUrl || "" }));
+    } catch (err) {
+      console.error(err);
+      setPhotoError(t("app.student.profile.errors.photoUpload"));
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
+
+  const handlePhotoRemove = async () => {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    if (!token || !userId) return;
+    setPhotoUploading(true);
+    setPhotoError("");
+    try {
+      const res = await fetch(`/api/profile/student/${userId}/photo`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("delete failed");
+      setForm((f) => ({ ...f, photoUrl: "" }));
+    } catch (err) {
+      console.error(err);
+      setPhotoError(t("app.student.profile.errors.photoUpload"));
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
+
   return (
     <div className="sp-card card">
       <div className="sp-header">
         <div className="sp-title">{t("app.student.profile.title")}</div>
         <div className="sp-subtitle">{t("app.student.profile.subtitle")}</div>
       </div>
+
+      <section className="sp-section sp-photo-section">
+        <div className="sp-photo-wrapper">
+          <div className={`sp-photo-preview ${form.photoUrl ? "" : "sp-photo-empty"}`}>
+            {form.photoUrl ? (
+              <img src={form.photoUrl} alt={t("app.student.profile.photo.alt")} />
+            ) : (
+              <span>{t("app.student.profile.photo.placeholder")}</span>
+            )}
+          </div>
+          <div className="sp-photo-info">
+            <p>{t("app.student.profile.photo.helper")}</p>
+            <p className="sp-photo-note">{t("app.student.profile.photo.requirements")}</p>
+            <div className="sp-photo-actions">
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handlePhotoUpload}
+              />
+              <Button
+                variant="secondary"
+                size="small"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={photoUploading}
+              >
+                {photoUploading
+                  ? t("app.student.profile.photo.uploading")
+                  : t("app.student.profile.photo.upload")}
+              </Button>
+              {form.photoUrl && (
+                <Button variant="ghost" size="small" onClick={handlePhotoRemove} disabled={photoUploading}>
+                  {t("app.student.profile.photo.remove")}
+                </Button>
+              )}
+            </div>
+            {photoError && <div className="sp-error">{photoError}</div>}
+          </div>
+        </div>
+      </section>
 
       {/* BASIC */}
       <fieldset disabled={!isEditing} className="sp-fieldset">

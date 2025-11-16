@@ -14,14 +14,19 @@ import pl.projekt.backend.repository.LessonRepository;
 import pl.projekt.backend.repository.UserRepository;
 import pl.projekt.backend.service.GoogleCalendarService;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import pl.projekt.backend.util.AvailabilityUtils;
 @RestController
 @RequestMapping("/api/calendar")
 @CrossOrigin(origins = "http://localhost:5173")
@@ -211,6 +216,8 @@ public class CalendarController {
             }
             
             // Convert to JSON format with full details
+            lessons.forEach(this::ensureLessonStatus);
+
             List<Map<String, Object>> lessonsJson = lessons.stream()
                 .filter(lesson -> lesson.getStatus() != LessonStatus.CANCELLED
                         && lesson.getStatus() != LessonStatus.REQUESTED)
@@ -229,6 +236,12 @@ public class CalendarController {
                     map.put("end", lesson.getEndTime().toString());
                     map.put("status", lesson.getStatus().toString());
                     map.put("meetingLink", lesson.getMeetingLink());
+                    map.put("deliveryMode", lesson.getDeliveryMode() != null ? lesson.getDeliveryMode().name() : null);
+                    map.put("onsiteCity", lesson.getOnsiteCity());
+                    map.put("onsitePostalCode", lesson.getOnsitePostalCode());
+                    map.put("onsiteStreet", lesson.getOnsiteStreet());
+                    map.put("onsiteBuilding", lesson.getOnsiteBuilding());
+                    map.put("onsiteApartment", lesson.getOnsiteApartment());
                     map.put("notes", lesson.getNotes());
                     return map;
                 })
@@ -267,15 +280,70 @@ public class CalendarController {
                 lessons = lessonRepository.findByStudentId(userId);
             }
             
-            // Convert to busy time slots (without details)
-            List<Map<String, String>> busySlots = lessons.stream()
+            lessons.forEach(this::ensureLessonStatus);
+
+            Map<LocalDate, Long> lessonCounts = lessons.stream()
+                .filter(lesson -> lesson.getStartTime() != null)
+                .filter(lesson -> lesson.getStatus() == LessonStatus.SCHEDULED
+                        || lesson.getStatus() == LessonStatus.RESCHEDULED
+                        || lesson.getStatus() == LessonStatus.IN_PROGRESS)
+                .collect(Collectors.groupingBy(lesson -> lesson.getStartTime().toLocalDate(), Collectors.counting()));
+
+            Integer maxLessonsPerDay = null;
+            int bufferMinutes = 0;
+            Set<DayOfWeek> preferredDays = Set.of();
+            if (user instanceof Tutor tutor) {
+                maxLessonsPerDay = tutor.getMaxLessonsPerDay();
+                bufferMinutes = tutor.getBufferTime() != null ? Math.max(0, tutor.getBufferTime()) : 0;
+                preferredDays = AvailabilityUtils.parsePreferredDays(tutor.getPreferredDays());
+            }
+            final Integer effectiveMaxLessonsPerDay = maxLessonsPerDay;
+            final int effectiveBufferMinutes = bufferMinutes;
+            final Set<DayOfWeek> effectivePreferredDays = preferredDays;
+
+            final Set<LocalDate> limitReachedDays = new HashSet<>();
+            if (effectiveMaxLessonsPerDay != null && effectiveMaxLessonsPerDay > 0) {
+                lessonCounts.forEach((date, count) -> {
+                    if (count >= effectiveMaxLessonsPerDay) {
+                        limitReachedDays.add(date);
+                    }
+                });
+            }
+
+        // Convert to busy time slots (without details)
+        List<Map<String, String>> busySlots = lessons.stream()
                 .filter(lesson -> lesson.getStatus() == LessonStatus.SCHEDULED || 
                                  lesson.getStatus() == LessonStatus.RESCHEDULED ||
                                  lesson.getStatus() == LessonStatus.IN_PROGRESS)
+                .filter(lesson -> {
+                    if (lesson.getStartTime() == null) {
+                        return true;
+                    }
+                    LocalDate date = lesson.getStartTime().toLocalDate();
+                    if (!limitReachedDays.isEmpty() && limitReachedDays.contains(date)) {
+                        return false;
+                    }
+                    if (!effectivePreferredDays.isEmpty()
+                        && !effectivePreferredDays.contains(lesson.getStartTime().getDayOfWeek())) {
+                        return false;
+                    }
+                    return true;
+                })
                 .map(lesson -> {
                     Map<String, String> map = new HashMap<>();
-                    map.put("start", lesson.getStartTime().toString());
-                    map.put("end", lesson.getEndTime().toString());
+                    LocalDateTime start = lesson.getStartTime();
+                    LocalDateTime end = lesson.getEndTime();
+                    if (start != null && end != null) {
+                        if (effectiveBufferMinutes > 0) {
+                            start = start.minusMinutes(effectiveBufferMinutes);
+                            end = end.plusMinutes(effectiveBufferMinutes);
+                        }
+                        map.put("start", start.toString());
+                        map.put("end", end.toString());
+                    } else {
+                        map.put("start", lesson.getStartTime() != null ? lesson.getStartTime().toString() : "");
+                        map.put("end", lesson.getEndTime() != null ? lesson.getEndTime().toString() : "");
+                    }
                     return map;
                 })
                 .collect(Collectors.toList());
@@ -287,10 +355,29 @@ public class CalendarController {
                     try {
                         List<GoogleCalendarService.BusyTime> googleBusyTimes = googleCalendarService.fetchBusyTimes(cal.getCalendarUrl());
                         List<Map<String, String>> googleBusyJson = googleBusyTimes.stream()
+                            .filter(bt -> {
+                                if (bt.getStart() == null) {
+                                    return true;
+                                }
+                                LocalDate date = bt.getStart().toLocalDate();
+                                if (!limitReachedDays.isEmpty() && limitReachedDays.contains(date)) {
+                                    return false;
+                                }
+                                if (effectivePreferredDays.isEmpty()) {
+                                    return true;
+                                }
+                                return effectivePreferredDays.contains(bt.getStart().getDayOfWeek());
+                            })
                             .map(bt -> {
                                 Map<String, String> map = new HashMap<>();
-                                map.put("start", bt.getStart().toString());
-                                map.put("end", bt.getEnd().toString());
+                                LocalDateTime start = bt.getStart();
+                                LocalDateTime end = bt.getEnd();
+                                if (start != null && end != null && effectiveBufferMinutes > 0) {
+                                    start = start.minusMinutes(effectiveBufferMinutes);
+                                    end = end.plusMinutes(effectiveBufferMinutes);
+                                }
+                                map.put("start", start != null ? start.toString() : "");
+                                map.put("end", end != null ? end.toString() : "");
                                 return map;
                             })
                             .collect(Collectors.toList());
@@ -301,11 +388,76 @@ public class CalendarController {
                 }
             }
             
+        // Mark non-preferred days as busy (for tutors)
+        if (user instanceof Tutor tutor) {
+            Set<LocalDate> fullDayBlocks = new HashSet<>();
+            if (!effectivePreferredDays.isEmpty()) {
+                LocalDate current = LocalDate.now();
+                LocalDate end = current.plusWeeks(8); // expose unavailable days ~2 months ahead
+                while (!current.isAfter(end)) {
+                    if (!effectivePreferredDays.contains(current.getDayOfWeek())) {
+                        Map<String, String> map = new HashMap<>();
+                        map.put("start", current.atStartOfDay().toString());
+                        map.put("end", current.plusDays(1).atStartOfDay().toString());
+                        busySlots.add(map);
+                        fullDayBlocks.add(current);
+                    }
+                    current = current.plusDays(1);
+                }
+            }
+
+            if (!limitReachedDays.isEmpty()) {
+                for (LocalDate date : limitReachedDays) {
+                    if (fullDayBlocks.contains(date)) {
+                        continue;
+                    }
+                    Map<String, String> map = new HashMap<>();
+                    map.put("start", date.atStartOfDay().toString());
+                    map.put("end", date.plusDays(1).atStartOfDay().toString());
+                    busySlots.add(map);
+                    fullDayBlocks.add(date);
+                }
+            }
+        }
+
             return ResponseEntity.ok(Map.of("busyTimes", busySlots, "count", busySlots.size()));
             
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    private LessonStatus ensureLessonStatus(Lesson lesson) {
+        LessonStatus desired = computeLessonStatus(lesson);
+        LessonStatus current = lesson.getStatus();
+        if (desired != null && desired != current) {
+            lesson.setStatus(desired);
+            lessonRepository.save(lesson);
+            return desired;
+        }
+        return current;
+    }
+
+    private LessonStatus computeLessonStatus(Lesson lesson) {
+        if (lesson == null) return null;
+        LessonStatus status = lesson.getStatus();
+        if (status == null || status == LessonStatus.CANCELLED || status == LessonStatus.COMPLETED) {
+            return status;
+        }
+        LocalDateTime start = lesson.getStartTime();
+        LocalDateTime end = lesson.getEndTime();
+        if (start == null || end == null) {
+            return status;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isAfter(end) && status != LessonStatus.COMPLETED) {
+            return LessonStatus.COMPLETED;
+        }
+        if (!now.isBefore(start) && now.isBefore(end)
+                && (status == LessonStatus.SCHEDULED || status == LessonStatus.RESCHEDULED || status == LessonStatus.IN_PROGRESS)) {
+            return LessonStatus.IN_PROGRESS;
+        }
+        return status;
     }
 }
 

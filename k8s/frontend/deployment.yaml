@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eduscheduler-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eduscheduler-frontend
+  template:
+    metadata:
+      labels:
+        app: eduscheduler-frontend
+    spec:
+      imagePullSecrets:
+        - name: ecr-registry-secret
+      containers:
+        - name: frontend
+          image: 619613970416.dkr.ecr.eu-north-1.amazonaws.com/eduscheduler-frontend:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+
+

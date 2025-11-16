@@ -209,8 +209,17 @@
 
 .tutor-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+}
+
+.tutor-grid::after {
+  content: "";
+  display: block;
+}
+
+.tutor-grid > *:last-child:nth-child(2n+1) {
+  grid-column: 1 / -1;
 }
 
 .tutor-card {

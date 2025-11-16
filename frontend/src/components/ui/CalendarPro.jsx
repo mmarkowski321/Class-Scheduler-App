@@ -13,14 +13,16 @@ function CalendarPro({
   onChange,
   locale = "pl",
   weekStart = 1,
-  businessHours = { start: "07:00", end: "22:00" },
+  businessHours = { start: "00:00", end: "24:00" },
   readOnly = false,
 }) {
   const calRef = useRef(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   const fcEvents = useMemo(() => {
-    return events.map(ev => {
+    const now = Date.now();
+    return events.map((ev) => {
+      const statusLower = (ev.status || "").toLowerCase();
       if (ev.type === "availability" || ev.type === "free") {
         return {
           ...ev,
@@ -45,22 +47,40 @@ function CalendarPro({
           },
         };
       }
+      const isCurrent =
+        ev.type === "lesson" &&
+        statusLower === "scheduled" &&
+        ev.start &&
+        ev.end &&
+        new Date(ev.start).getTime() <= now &&
+        now < new Date(ev.end).getTime();
+
       return {
         id: ev.id,
-        title: ev.title || (locale === "pl" ? "Lekcja" : "Lesson"),
+        title:
+          ev.title ||
+          (locale === "pl"
+            ? (isCurrent ? "Lekcja (w trakcie)" : "Lekcja")
+            : (isCurrent ? "Lesson (in progress)" : "Lesson")),
         start: ev.start,
         end: ev.end,
         display: "auto",
         editable: false,
-        color: "#9333ea", // Fallback color
+        color: isCurrent ? "#22c55e" : "#9333ea", // highlight running lesson
         classNames: ["fc-lesson"],
         extendedProps: {
           type: ev.type,
-          status: ev.status,
+          status: isCurrent ? "in_progress" : statusLower || ev.status,
           meetingLink: ev.meetingLink,
           notes: ev.notes,
           studentId: ev.studentId,
-          tutorId: ev.tutorId,
+            tutorId: ev.tutorId,
+            deliveryMode: ev.deliveryMode,
+            onsiteCity: ev.onsiteCity,
+            onsitePostalCode: ev.onsitePostalCode,
+            onsiteStreet: ev.onsiteStreet,
+            onsiteBuilding: ev.onsiteBuilding,
+            onsiteApartment: ev.onsiteApartment,
         },
       };
     });
@@ -134,6 +154,12 @@ function CalendarPro({
         meetingLink: ev.meetingLink,
         notes: ev.notes,
         description: ev.description,
+        deliveryMode: ev.deliveryMode,
+        onsiteCity: ev.onsiteCity,
+        onsitePostalCode: ev.onsitePostalCode,
+        onsiteStreet: ev.onsiteStreet,
+        onsiteBuilding: ev.onsiteBuilding,
+        onsiteApartment: ev.onsiteApartment,
       };
       setSelectedEvent(eventData);
     }
@@ -170,7 +196,7 @@ function CalendarPro({
         }}
         slotDuration="00:30:00"
         expandRows
-        scrollTime="09:00:00"
+        scrollTime="00:00:00"
         dayMaxEvents
       />
       <div className="calpro__legend">

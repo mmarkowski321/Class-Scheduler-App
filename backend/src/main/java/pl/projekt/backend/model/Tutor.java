@@ -34,5 +34,9 @@ public class Tutor extends User {
     private Integer maxLessonsPerDay;
     private Integer bufferTime;
     private String preferredDays;
+
+    // Auto-accept booking when slot is free
+    @Column(name = "auto_accept_bookings")
+    private Boolean autoAcceptBookings = false;
 }
 

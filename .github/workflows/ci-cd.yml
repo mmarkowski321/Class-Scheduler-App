@@ -1,0 +1,136 @@
+name: CI/CD - Build and Push to ECR
+
+on:
+  push:
+    branches:
+      - develop
+      - 'release/*'
+  pull_request:
+    branches:
+      - develop
+      - 'release/*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Custom tag for images'
+        required: false
+        type: string
+
+env:
+  AWS_REGION: eu-north-1
+  AWS_ACCOUNT_ID: 619613970416
+  ECR_BACKEND: eduscheduler-backend
+  ECR_FRONTEND: eduscheduler-frontend
+
+jobs:
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Make Maven wrapper executable
+        run: chmod +x ./mvnw || true
+
+      - name: Run tests
+        env:
+          SPRING_MAIL_PASSWORD: ${{ secrets.SPRING_MAIL_PASSWORD }}
+        run: ./mvnw clean test
+
+  build-and-push:
+    name: Build & Push Docker Images
+    needs: test-backend
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Determine image tags
+        id: tags
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            CUSTOM_TAG="${{ github.event.inputs.tag }}"
+            if [ -z "$CUSTOM_TAG" ]; then
+              CUSTOM_TAG="manual-$(echo ${{ github.sha }} | cut -c1-7)"
+            fi
+            echo "tag=$CUSTOM_TAG" >> $GITHUB_OUTPUT
+            echo "tags=$CUSTOM_TAG,latest" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+            echo "tag=develop" >> $GITHUB_OUTPUT
+            echo "tags=develop,${{ github.sha }},latest" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == refs/heads/release/* ]]; then
+            RELEASE_VERSION=$(echo ${{ github.ref }} | sed 's/refs\/heads\/release\///')
+            echo "tag=release-$RELEASE_VERSION" >> $GITHUB_OUTPUT
+            echo "tags=release-$RELEASE_VERSION,${{ github.sha }},latest" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "tags=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+          echo "Determined tags: $(cat $GITHUB_OUTPUT | grep '^tags=' | cut -d'=' -f2)"
+
+      - name: Build and push backend image
+        env:
+          REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          REPOSITORY: ${{ env.ECR_BACKEND }}
+          IMAGE_TAG: ${{ steps.tags.outputs.tag }}
+        run: |
+          cd backend
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          for tag in $(echo "${{ steps.tags.outputs.tags }}" | tr ',' ' '); do
+            docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REPOSITORY:$tag
+            docker push $REGISTRY/$REPOSITORY:$tag
+          done
+
+      - name: Build and push frontend image
+        env:
+          REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          REPOSITORY: ${{ env.ECR_FRONTEND }}
+          IMAGE_TAG: ${{ steps.tags.outputs.tag }}
+        run: |
+          cd frontend
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          for tag in $(echo "${{ steps.tags.outputs.tags }}" | tr ',' ' '); do
+            docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REPOSITORY:$tag
+            docker push $REGISTRY/$REPOSITORY:$tag
+          done
+
+      - name: Summary
+        run: |
+          echo "## Images pushed to ECR" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Backend:** \`${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_BACKEND }}:${{ steps.tags.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Frontend:** \`${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_FRONTEND }}:${{ steps.tags.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:** ${{ steps.tags.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+

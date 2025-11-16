@@ -48,6 +48,27 @@
   transform: translateY(-2px);
 }
 
+.btn-secondary {
+  background: rgba(148, 163, 184, 0.2);
+  color: #e2e8f0;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.btn-secondary:hover {
+  background: rgba(148, 163, 184, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
 /* 🔹 Outline button */
 .btn-outline {
   background: transparent;

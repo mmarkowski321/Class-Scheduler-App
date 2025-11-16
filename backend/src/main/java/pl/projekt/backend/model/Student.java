@@ -34,5 +34,8 @@ public class Student extends User {
     private String guardianName;
     private String guardianEmail;
     private Boolean shareProfile;
+
+    @Column(name = "student_photo_url")
+    private String photoUrl;
 }
 

@@ -29,6 +29,7 @@ public class TutorPublicDto {
     private String teachingMethods;
     private String website;
     private String linkedIn;
+    private List<String> certificates;
 
     public static TutorPublicDto fromEntity(Tutor tutor) {
         TutorPublicDto dto = new TutorPublicDto();
@@ -51,6 +52,7 @@ public class TutorPublicDto {
         dto.teachingMethods = tutor.getTeachingMethods();
         dto.website = tutor.getWebsite();
         dto.linkedIn = tutor.getLinkedIn();
+        dto.certificates = split(tutor.getCertificates());
         return dto;
     }
 
