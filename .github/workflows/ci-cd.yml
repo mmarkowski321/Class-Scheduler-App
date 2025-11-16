@@ -36,6 +36,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+          cache: maven
 
       - name: Cache Maven dependencies
         uses: actions/cache@v4
@@ -44,15 +45,11 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Make Maven wrapper executable
-        working-directory: backend
-        run: chmod +x ./mvnw || true
-
       - name: Run tests
         working-directory: backend
         env:
           SPRING_MAIL_PASSWORD: ${{ secrets.SPRING_MAIL_PASSWORD }}
-        run: ./mvnw clean test
+        run: mvn clean test
 
   build-and-push:
     name: Build & Push Docker Images
