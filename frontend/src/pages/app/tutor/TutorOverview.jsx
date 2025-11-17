@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import "./tutor-overview.css";
+import Alert from "../../../components/ui/Alert";
 import { fetchTutorOverview } from "../../../services/lessons";
 
 const formatDate = (iso, lang) => {
@@ -59,7 +60,7 @@ export default function TutorOverview() {
 
   const renderUpcoming = () => {
     if (!data.upcoming.length) {
-      return <div className="empty">{t("tutor.overview.noUpcoming")}</div>;
+      return <Alert variant="info">{t("tutor.overview.noUpcoming")}</Alert>;
     }
     return data.upcoming.map((item) => (
       <div key={item.id} className="overview-item">
@@ -78,7 +79,7 @@ export default function TutorOverview() {
 
   const renderRequests = () => {
     if (!data.requests.length) {
-      return <div className="empty">{t("tutor.overview.noRequests")}</div>;
+      return <Alert variant="info">{t("tutor.overview.noRequests")}</Alert>;
     }
     return data.requests.map((req) => (
       <div key={req.id} className="overview-item">
@@ -94,7 +95,7 @@ export default function TutorOverview() {
 
   const renderReviews = () => {
     if (!data.reviews.length) {
-      return <div className="empty">{t("tutor.overview.noReviews")}</div>;
+      return <Alert variant="info">{t("tutor.overview.noReviews")}</Alert>;
     }
     return data.reviews.map((review) => (
       <div key={review.id} className="overview-item">
@@ -116,7 +117,7 @@ export default function TutorOverview() {
 
   const renderNewTutors = () => {
     if (!data.newTutors.length) {
-      return <div className="empty">{t("tutor.overview.noNewTutors")}</div>;
+      return <Alert variant="info">{t("tutor.overview.noNewTutors")}</Alert>;
     }
     return data.newTutors.map((tutor) => (
       <div key={tutor.id} className="overview-item">
@@ -132,11 +133,19 @@ export default function TutorOverview() {
   };
 
   if (loading) {
-    return <div className="card"><div className="empty">{t("loading", { defaultValue: "Ładowanie..." })}</div></div>;
+    return (
+      <div className="card">
+        <Alert variant="info">{t("loading", { defaultValue: "Ładowanie..." })}</Alert>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="card"><div className="empty" style={{ color: "#f87171" }}>{error}</div></div>;
+    return (
+      <div className="card">
+        <Alert variant="error">{error}</Alert>
+      </div>
+    );
   }
 
   return (

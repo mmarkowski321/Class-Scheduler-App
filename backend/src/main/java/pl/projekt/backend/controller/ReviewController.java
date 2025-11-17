@@ -11,6 +11,7 @@ import pl.projekt.backend.repository.LessonRepository;
 import pl.projekt.backend.repository.ReviewRepository;
 import pl.projekt.backend.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -50,11 +51,6 @@ public class ReviewController {
             
             Lesson lesson = lessonOpt.get();
             
-            // Check if review already exists for this lesson
-            if (reviewRepository.existsByLessonId(lessonId)) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Review already exists for this lesson"));
-            }
-            
             // Get student and tutor
             var studentOpt = userRepository.findById(studentId);
             var tutorOpt = userRepository.findById(lesson.getTutor().getId());
@@ -70,14 +66,22 @@ public class ReviewController {
             Student student = (Student) studentOpt.get();
             Tutor tutor = (Tutor) tutorOpt.get();
             
-            // Create review
-            Review review = new Review();
+            // Create or update review
+            Review review = reviewRepository.findByLessonId(lessonId)
+                    .orElseGet(() -> {
+                        Review r = new Review();
+                        r.setLesson(lesson);
+                        r.setStudent(student);
+                        r.setTutor(tutor);
+                        return r;
+                    });
             review.setLesson(lesson);
             review.setStudent(student);
             review.setTutor(tutor);
             review.setTutorRating(tutorRating);
             review.setPlatformRating(platformRating);
             review.setComment(comment);
+            review.setStudentReviewAt(LocalDateTime.now());
             
             Review saved = reviewRepository.save(review);
             return ResponseEntity.ok(saved);
@@ -101,24 +105,53 @@ public class ReviewController {
         return ResponseEntity.ok(reviewRepository.findByTutorId(tutorId));
     }
     
-    @PutMapping("/{reviewId}/student-behavior")
-    public ResponseEntity<?> addStudentBehaviorRating(
-            @PathVariable Long reviewId,
+    @PostMapping("/lesson/{lessonId}/tutor")
+    public ResponseEntity<?> addTutorFeedback(
+            @PathVariable Long lessonId,
             @RequestBody Map<String, Object> request) {
         try {
+            Long tutorId = Long.valueOf(request.get("tutorId").toString());
             Integer behaviorRating = null;
-            if (request.get("behaviorRating") != null) {
-                behaviorRating = Integer.valueOf(request.get("behaviorRating").toString());
+            if (request.get("studentRating") != null) {
+                behaviorRating = Integer.valueOf(request.get("studentRating").toString());
                 if (behaviorRating < 1 || behaviorRating > 5) {
                     return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Behavior rating must be between 1 and 5"));
+                        .body(Map.of("error", "Student rating must be between 1 and 5"));
                 }
             }
+            Integer platformRating = null;
+            if (request.get("platformRating") != null) {
+                platformRating = Integer.valueOf(request.get("platformRating").toString());
+                if (platformRating < 1 || platformRating > 5) {
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("error", "Platform rating must be between 1 and 5"));
+                }
+            }
+            String tutorComment = request.get("comment") != null ? request.get("comment").toString() : null;
             
-            Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new RuntimeException("Review not found"));
+            Lesson lesson = lessonRepository.findById(lessonId)
+                    .orElseThrow(() -> new RuntimeException("Lesson not found"));
+            
+            if (!lesson.getTutor().getId().equals(tutorId)) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Review not allowed for this tutor"));
+            }
+            
+            Review review = reviewRepository.findByLessonId(lessonId)
+                    .orElseGet(() -> {
+                        Review r = new Review();
+                        r.setLesson(lesson);
+                        r.setStudent(lesson.getStudent());
+                        r.setTutor(lesson.getTutor());
+                        return r;
+                    });
+            review.setLesson(lesson);
+            review.setStudent(lesson.getStudent());
+            review.setTutor(lesson.getTutor());
             
             review.setStudentBehaviorRating(behaviorRating);
+            review.setTutorPlatformRating(platformRating);
+            review.setTutorComment(tutorComment);
+            review.setTutorReviewAt(LocalDateTime.now());
             
             Review saved = reviewRepository.save(review);
             return ResponseEntity.ok(saved);

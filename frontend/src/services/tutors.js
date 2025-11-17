@@ -1,3 +1,5 @@
+import i18n from "../i18n";
+
 const toQueryString = (params = {}) => {
   const searchParams = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
@@ -49,6 +51,7 @@ export async function bookTutor(id, payload, token) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Accept-Language": i18n.language || "pl",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(payload),

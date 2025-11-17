@@ -21,6 +21,9 @@ i18n
   .init({
     resources,
     fallbackLng: 'pl', // Default language
+    supportedLngs: ['pl', 'en'],
+    nonExplicitSupportedLngs: true,
+    load: 'languageOnly',
     debug: false, // Set to true for development debugging
     
     interpolation: {

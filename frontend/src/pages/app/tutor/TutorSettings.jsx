@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "../../../components/ui/Button";
+import Alert from "../../../components/ui/Alert";
 import "./tutor-settings.css";
 
 export default function TutorSettings() {
   const { t } = useTranslation("common");
   
   // Account Information
-  const [currentEmail, setCurrentEmail] = useState("tutor@example.com");
+  const [currentEmail, setCurrentEmail] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [confirmEmail, setConfirmEmail] = useState("");
   
@@ -17,10 +18,8 @@ export default function TutorSettings() {
   const [confirmPassword, setConfirmPassword] = useState("");
   
   // Phone Numbers
-  const [primaryPhone, setPrimaryPhone] = useState("+48 123 456 789");
-  const [additionalPhones, setAdditionalPhones] = useState([
-    { id: 1, label: "Praca", number: "+48 987 654 321" }
-  ]);
+  const [primaryPhone, setPrimaryPhone] = useState("");
+  const [additionalPhones, setAdditionalPhones] = useState([]);
   const [newPhoneLabel, setNewPhoneLabel] = useState("");
   const [newPhoneNumber, setNewPhoneNumber] = useState("");
   
@@ -45,6 +44,79 @@ export default function TutorSettings() {
 
   const validatePhone = (phone) => {
     return /^\+?[\d\s\-\(\)]+$/.test(phone) && phone.length >= 9;
+  };
+
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
+  const [working, setWorking] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null); // 'deactivate' | 'activate' | 'delete'
+
+  // Load current user basic info (email, language)
+  useEffect(() => {
+    const loadUser = async () => {
+      if (!token || !userId) return;
+      try {
+        const res = await fetch(`/api/profile/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const user = await res.json();
+          if (user?.email) setCurrentEmail(user.email);
+          if (user?.emailLanguage) setEmailLanguage(user.emailLanguage);
+          if (user?.phone) setPrimaryPhone(user.phone);
+        }
+      } catch {}
+    };
+    loadUser();
+  }, [token, userId]);
+
+  // Load current notification preferences
+  useEffect(() => {
+    const loadPrefs = async () => {
+      if (!token || !userId) return;
+      try {
+        const res = await fetch(`/api/settings/notifications/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const p = await res.json();
+          setNotifications((prev) => ({
+            ...prev,
+            email: !!p.emailNotifications,
+            autoAcceptBookings: !!p.autoAcceptBookings,
+            bookingReminders: !!p.bookingReminders,
+            lessonReminders: !!p.lessonReminders,
+            changeNotifications: !!p.changeNotifications,
+          }));
+        }
+      } catch {}
+    };
+    loadPrefs();
+  }, [token, userId]);
+
+  const savePrefs = async () => {
+    if (!token || !userId) return;
+    try {
+      const payload = {
+        emailNotifications: !!notifications.email,
+        autoAcceptBookings: !!notifications.autoAcceptBookings,
+        bookingReminders: !!notifications.bookingReminders,
+        lessonReminders: !!notifications.lessonReminders,
+        changeNotifications: !!notifications.changeNotifications,
+      };
+      const res = await fetch(`/api/settings/notifications/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to save settings");
+      }
+      setSuccessMessage(t("app.tutor.settings.success.settingsSaved"));
+    } catch (e) {
+      setErrors({ form: e.message || "Failed to save" });
+    }
   };
 
   const handleChangeEmail = async () => {
@@ -150,18 +222,77 @@ export default function TutorSettings() {
   };
 
   const handleSaveSettings = async () => {
-    // TODO: API call to save all settings
-    console.log("Saving settings:", {
-      notifications,
-      emailLanguage,
-      primaryPhone,
-      additionalPhones
-    });
-    setSuccessMessage(t("app.tutor.settings.success.settingsSaved"));
+    await savePrefs();
+    // plus inne sekcje kiedy backend będzie gotowy
   };
 
   const toggleNotification = (key) => {
     setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const performDeactivate = async () => {
+    if (!token || !userId) return;
+    setWorking(true);
+    try {
+      const res = await fetch(`/api/settings/account/${userId}/deactivate`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to deactivate account");
+      }
+      setSuccessMessage(t("app.settings.success.deactivated"));
+    } catch (e) {
+      setErrors({ form: e.message || "Failed" });
+    } finally {
+      setWorking(false);
+      setConfirmAction(null);
+    }
+  };
+
+  const performActivate = async () => {
+    if (!token || !userId) return;
+    setWorking(true);
+    try {
+      const res = await fetch(`/api/settings/account/${userId}/activate`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to activate account");
+      }
+      setSuccessMessage(t("app.settings.success.activated"));
+    } catch (e) {
+      setErrors({ form: e.message || "Failed" });
+    } finally {
+      setWorking(false);
+      setConfirmAction(null);
+    }
+  };
+
+  const performDelete = async () => {
+    if (!token || !userId) return;
+    setWorking(true);
+    try {
+      const res = await fetch(`/api/settings/account/${userId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to delete account");
+      }
+      setSuccessMessage(t("app.settings.success.deleted"));
+      localStorage.clear();
+      setTimeout(() => (window.location.href = "/"), 1200);
+    } catch (e) {
+      setErrors({ form: e.message || "Failed" });
+    } finally {
+      setWorking(false);
+      setConfirmAction(null);
+    }
   };
 
   return (
@@ -407,6 +538,46 @@ export default function TutorSettings() {
         <div className="settings-actions">
           <Button variant="primary" onClick={handleSaveSettings}>
             {t("app.tutor.settings.actions.saveChanges")}
+          </Button>
+        </div>
+      </div>
+
+      {/* Account controls */}
+      <div className="settings-section">
+        <h3>{t("app.settings.sections.accountControls")}</h3>
+        {confirmAction && (
+          <Alert variant="warning">
+            {confirmAction === 'deactivate' && t("app.settings.confirmations.deactivate")}
+            {confirmAction === 'activate' && t("app.settings.confirmations.activate")}
+            {confirmAction === 'delete' && t("app.settings.confirmations.delete")}
+            <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+              <Button
+                size="small"
+                variant={confirmAction === 'delete' ? 'danger' : 'primary'}
+                disabled={working}
+                onClick={() => (
+                  confirmAction === 'deactivate' ? performDeactivate() :
+                  confirmAction === 'activate' ? performActivate() :
+                  performDelete()
+                )}
+              >
+                OK
+              </Button>
+              <Button size="small" variant="secondary" disabled={working} onClick={() => setConfirmAction(null)}>
+                {t("actions.cancel", { defaultValue: "Cancel" })}
+              </Button>
+            </div>
+          </Alert>
+        )}
+        <div className="settings-actions">
+          <Button variant="secondary" disabled={working} onClick={() => setConfirmAction('deactivate')}>
+            {t("app.settings.actions.deactivate")}
+          </Button>
+          <Button variant="secondary" disabled={working} onClick={() => setConfirmAction('activate')}>
+            {t("app.settings.actions.activate")}
+          </Button>
+          <Button variant="danger" disabled={working} onClick={() => setConfirmAction('delete')}>
+            {t("app.settings.actions.delete")}
           </Button>
         </div>
       </div>

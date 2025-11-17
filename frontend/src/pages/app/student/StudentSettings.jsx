@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "../../../components/ui/Button";
+import Alert from "../../../components/ui/Alert";
 import "./student-settings.css";
 
 export default function StudentSettings() {
@@ -41,6 +42,19 @@ export default function StudentSettings() {
       } catch (error) {
         console.error("Failed to load user data:", error);
       }
+      try {
+        const res2 = await fetch(`/api/settings/notifications/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res2.ok) {
+          const p = await res2.json();
+          setNotifications({
+            email: !!p.emailNotifications,
+            lessonReminders: !!p.lessonReminders,
+            changeNotifications: !!p.changeNotifications
+          });
+        }
+      } catch {}
     };
     loadUserData();
   }, [token, userId]);
@@ -272,11 +286,102 @@ export default function StudentSettings() {
     // Save email language preference
     await handleSaveEmailLanguage();
     
+    // Save notifications preferences
+    try {
+      const res = await fetch(`/api/settings/notifications/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          emailNotifications: !!notifications.email,
+          lessonReminders: !!notifications.lessonReminders,
+          changeNotifications: !!notifications.changeNotifications
+        })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to save notifications");
+      }
+      setSuccessMessage(t("app.student.settings.success.settingsSaved"));
+    } catch (e) {
+      setErrors({ form: e.message || "Failed to save notifications" });
+    }
+    
     // TODO: Save notifications preferences when backend supports it
   };
 
   const toggleNotification = (key) => {
     setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const [working, setWorking] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null); // 'deactivate' | 'activate' | 'delete'
+
+  const performDeactivate = async () => {
+    if (!token || !userId) return;
+    setWorking(true);
+    try {
+      const res = await fetch(`/api/settings/account/${userId}/deactivate`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to deactivate account");
+      }
+      setSuccessMessage(t("app.settings.success.deactivated"));
+    } catch (e) {
+      setErrors({ form: e.message || "Failed" });
+    } finally {
+      setWorking(false);
+      setConfirmAction(null);
+    }
+  };
+
+  const performActivate = async () => {
+    if (!token || !userId) return;
+    setWorking(true);
+    try {
+      const res = await fetch(`/api/settings/account/${userId}/activate`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to activate account");
+      }
+      setSuccessMessage(t("app.settings.success.activated"));
+    } catch (e) {
+      setErrors({ form: e.message || "Failed" });
+    } finally {
+      setWorking(false);
+      setConfirmAction(null);
+    }
+  };
+
+  const performDelete = async () => {
+    if (!token || !userId) return;
+    setWorking(true);
+    try {
+      const res = await fetch(`/api/settings/account/${userId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to delete account");
+      }
+      setSuccessMessage(t("app.settings.success.deleted"));
+      localStorage.clear();
+      setTimeout(() => (window.location.href = "/"), 1200);
+    } catch (e) {
+      setErrors({ form: e.message || "Failed" });
+    } finally {
+      setWorking(false);
+      setConfirmAction(null);
+    }
   };
 
   return (
@@ -510,6 +615,46 @@ export default function StudentSettings() {
         <div className="settings-actions">
           <Button variant="primary" onClick={handleSaveSettings}>
             {t("app.student.settings.actions.saveChanges")}
+          </Button>
+        </div>
+      </div>
+
+      {/* Account controls */}
+      <div className="settings-section">
+        <h3>{t("app.settings.sections.accountControls")}</h3>
+        {confirmAction && (
+          <Alert variant="warning">
+            {confirmAction === 'deactivate' && t("app.settings.confirmations.deactivate")}
+            {confirmAction === 'activate' && t("app.settings.confirmations.activate")}
+            {confirmAction === 'delete' && t("app.settings.confirmations.delete")}
+            <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+              <Button
+                size="small"
+                variant={confirmAction === 'delete' ? 'danger' : 'primary'}
+                disabled={working}
+                onClick={() => (
+                  confirmAction === 'deactivate' ? performDeactivate() :
+                  confirmAction === 'activate' ? performActivate() :
+                  performDelete()
+                )}
+              >
+                OK
+              </Button>
+              <Button size="small" variant="secondary" disabled={working} onClick={() => setConfirmAction(null)}>
+                {t("actions.cancel", { defaultValue: "Cancel" })}
+              </Button>
+            </div>
+          </Alert>
+        )}
+        <div className="settings-actions">
+          <Button variant="secondary" disabled={working} onClick={() => setConfirmAction('deactivate')}>
+            {t("app.settings.actions.deactivate")}
+          </Button>
+          <Button variant="secondary" disabled={working} onClick={() => setConfirmAction('activate')}>
+            {t("app.settings.actions.activate")}
+          </Button>
+          <Button variant="danger" disabled={working} onClick={() => setConfirmAction('delete')}>
+            {t("app.settings.actions.delete")}
           </Button>
         </div>
       </div>

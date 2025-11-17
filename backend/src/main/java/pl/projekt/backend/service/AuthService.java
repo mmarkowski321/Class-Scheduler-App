@@ -14,7 +14,9 @@ import pl.projekt.backend.model.User;
 import pl.projekt.backend.repository.UserRepository;
 import pl.projekt.backend.util.JwtUtil;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 
 @Service
 public class AuthService {
@@ -54,6 +56,15 @@ public class AuthService {
         String verificationToken = java.util.UUID.randomUUID().toString();
         
         if ("STUDENT".equals(request.getRole())) {
+            // Age check: students must be at least 13
+            LocalDate birth = request.getBirthDate();
+            if (birth == null) {
+                throw new RuntimeException("Birth date is required");
+            }
+            int age = Period.between(birth, LocalDate.now()).getYears();
+            if (age < 13) {
+                throw new RuntimeException("You must be at least 13 to register as a student.");
+            }
             Student student = new Student();
             student.setEmail(request.getEmail());
             student.setPassword(hashedPassword); // Store hashed password
@@ -65,6 +76,15 @@ public class AuthService {
             student.setVerificationToken(verificationToken);
             user = student;
         } else if ("TUTOR".equals(request.getRole())) {
+            // Age check: tutors must be at least 18
+            LocalDate birth = request.getBirthDate();
+            if (birth == null) {
+                throw new RuntimeException("Birth date is required");
+            }
+            int age = Period.between(birth, LocalDate.now()).getYears();
+            if (age < 18) {
+                throw new RuntimeException("You must be at least 18 to register as a tutor.");
+            }
             Tutor tutor = new Tutor();
             tutor.setEmail(request.getEmail());
             tutor.setPassword(hashedPassword); // Store hashed password

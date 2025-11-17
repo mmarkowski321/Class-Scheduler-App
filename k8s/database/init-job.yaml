@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: eduscheduler-db-init
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: psql
+          image: postgres:16
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              until pg_isready -h postgres -p 5432 -U "$POSTGRES_USER" >/dev/null 2>&1; do echo 'waiting for postgres...'; sleep 2; done
+              psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f /schema/schema.sql
+          envFrom:
+            - secretRef:
+                name: postgres-secret
+          volumeMounts:
+            - name: schema
+              mountPath: /schema
+      volumes:
+        - name: schema
+          configMap:
+            name: eduscheduler-schema
+            items:
+              - key: schema.sql
+                path: schema.sql
+
+

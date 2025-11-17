@@ -1,8 +1,12 @@
 package pl.projekt.backend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import pl.projekt.backend.model.Calendar;
 import pl.projekt.backend.model.Student;
 import pl.projekt.backend.model.Tutor;
@@ -10,6 +14,11 @@ import pl.projekt.backend.model.User;
 import pl.projekt.backend.repository.CalendarRepository;
 import pl.projekt.backend.repository.UserRepository;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +35,10 @@ public class ProfileController {
     
     @Autowired
     private CalendarRepository calendarRepository;
+
+    private static final Path STUDENT_PHOTO_DIR = Paths.get("uploads", "student-photos");
+    private static final long MAX_PHOTO_BYTES = 3 * 1024 * 1024;
+    private static final List<String> ALLOWED_PHOTO_TYPES = List.of("image/jpeg", "image/png", "image/webp");
     
     @GetMapping("/{id}")
     public ResponseEntity<?> getProfile(@PathVariable Long id) {
@@ -71,6 +84,7 @@ public class ProfileController {
         if (studentData.getGuardianName() != null) student.setGuardianName(studentData.getGuardianName());
         if (studentData.getGuardianEmail() != null) student.setGuardianEmail(studentData.getGuardianEmail());
         if (studentData.getShareProfile() != null) student.setShareProfile(studentData.getShareProfile());
+        if (studentData.getPhotoUrl() != null) student.setPhotoUrl(studentData.getPhotoUrl());
         
         Student updated = userRepository.save(student);
         return ResponseEntity.ok(updated);
@@ -205,6 +219,87 @@ public class ProfileController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @PostMapping(value = "/student/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadStudentPhoto(@PathVariable Long id,
+                                                @RequestParam("file") MultipartFile file) {
+        try {
+            Optional<User> userOpt = userRepository.findById(id);
+            if (userOpt.isEmpty() || !(userOpt.get() instanceof Student)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Invalid student ID"));
+            }
+
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "File is required"));
+            }
+
+            if (!ALLOWED_PHOTO_TYPES.contains(file.getContentType())) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Unsupported file type"));
+            }
+
+            if (file.getSize() > MAX_PHOTO_BYTES) {
+                return ResponseEntity.badRequest().body(Map.of("error", "File too large"));
+            }
+
+            Files.createDirectories(STUDENT_PHOTO_DIR);
+
+            Student student = (Student) userOpt.get();
+            deleteExistingPhoto(student.getPhotoUrl());
+
+            String extension = resolveExtension(file.getOriginalFilename(), file.getContentType());
+            String filename = "student-" + id + "-" + System.currentTimeMillis() + extension;
+            Path target = STUDENT_PHOTO_DIR.resolve(filename);
+            Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+
+            String publicUrl = "/uploads/student-photos/" + filename;
+            student.setPhotoUrl(publicUrl);
+            userRepository.save(student);
+
+            return ResponseEntity.ok(Map.of("photoUrl", publicUrl));
+        } catch (IOException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Could not store file"));
+        }
+    }
+
+    @DeleteMapping("/student/{id}/photo")
+    public ResponseEntity<?> deleteStudentPhoto(@PathVariable Long id) {
+        Optional<User> userOpt = userRepository.findById(id);
+        if (userOpt.isEmpty() || !(userOpt.get() instanceof Student)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Invalid student ID"));
+        }
+
+        Student student = (Student) userOpt.get();
+        deleteExistingPhoto(student.getPhotoUrl());
+        student.setPhotoUrl(null);
+        userRepository.save(student);
+
+        return ResponseEntity.ok(Map.of("photoUrl", ""));
+    }
+
+    private void deleteExistingPhoto(String photoUrl) {
+        if (!StringUtils.hasText(photoUrl) || !photoUrl.startsWith("/uploads/")) {
+            return;
+        }
+        try {
+            Path uploadsRoot = Paths.get("uploads").toAbsolutePath();
+            String relative = photoUrl.replaceFirst("^/uploads/?", "");
+            Path existing = uploadsRoot.resolve(relative).normalize();
+            if (existing.startsWith(uploadsRoot) && Files.exists(existing)) {
+                Files.delete(existing);
+            }
+        } catch (IOException ignored) {
+        }
+    }
+
+    private String resolveExtension(String filename, String contentType) {
+        if (StringUtils.hasText(filename) && filename.contains(".")) {
+            return filename.substring(filename.lastIndexOf("."));
+        }
+        if ("image/png".equals(contentType)) return ".png";
+        if ("image/webp".equals(contentType)) return ".webp";
+        return ".jpg";
     }
 }
 

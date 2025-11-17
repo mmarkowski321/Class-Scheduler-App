@@ -8,6 +8,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import pl.projekt.backend.model.Lesson;
+import pl.projekt.backend.model.LessonDeliveryMode;
 import pl.projekt.backend.model.Student;
 import pl.projekt.backend.model.Tutor;
 
@@ -15,6 +16,8 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class EmailService {
@@ -196,36 +199,79 @@ public class EmailService {
         String subject;
         StringBuilder text = new StringBuilder();
 
+        LessonDeliveryMode mode = lesson.getDeliveryMode();
+        boolean isOnline = mode == LessonDeliveryMode.ONLINE;
+        String modeLabelEn = isOnline ? "Online" : "Onsite";
+        String modeLabelPl = isOnline ? "Zdalnie" : "Stacjonarnie";
+        String streetLine = Stream.of(lesson.getOnsiteStreet(), lesson.getOnsiteBuilding(), lesson.getOnsiteApartment())
+                .filter(value -> value != null && !value.isBlank())
+                .map(String::trim)
+                .collect(Collectors.joining(" "));
+        String cityLine = Stream.of(lesson.getOnsitePostalCode(), lesson.getOnsiteCity())
+                .filter(value -> value != null && !value.isBlank())
+                .map(String::trim)
+                .collect(Collectors.joining(" "));
+
         if ("en".equals(lang)) {
             subject = "New lesson request from " + student.getFirstName();
             text.append("Hi ").append(tutor.getFirstName()).append(",\n\n")
-                .append("A new lesson request has arrived:\n")
-                .append("Student: ").append(student.getFirstName()).append(" ").append(student.getLastName()).append(" (")
-                .append(student.getEmail()).append(")\n")
-                .append("Date: ").append(formattedStart).append("\n")
-                .append("Duration: ").append(durationMinutes).append(" min\n");
+                    .append("A new lesson request has arrived:\n")
+                    .append("Student: ").append(student.getFirstName()).append(" ").append(student.getLastName()).append(" (")
+                    .append(student.getEmail()).append(")\n")
+                    .append("Date: ").append(formattedStart).append("\n")
+                    .append("Duration: ").append(durationMinutes).append(" min\n")
+                    .append("Mode: ").append(modeLabelEn).append("\n");
+
+            if (!isOnline && (!streetLine.isBlank() || !cityLine.isBlank())) {
+                text.append("Address: ");
+                if (!streetLine.isBlank()) {
+                    text.append(streetLine);
+                }
+                if (!cityLine.isBlank()) {
+                    if (!streetLine.isBlank()) {
+                        text.append(", ");
+                    }
+                    text.append(cityLine);
+                }
+                text.append("\n");
+            }
 
             if (lesson.getNotes() != null && !lesson.getNotes().isBlank()) {
                 text.append("Student note: ").append(lesson.getNotes()).append("\n");
             }
 
             text.append("\nReview the request in your dashboard: ").append(lessonsUrl).append("\n\n")
-                .append("Best regards,\nEduScheduler");
+                    .append("Best regards,\nEduScheduler");
         } else {
             subject = "Nowa prośba o lekcję od " + student.getFirstName();
             text.append("Cześć ").append(tutor.getFirstName()).append(",\n\n")
-                .append("Otrzymałeś nową prośbę o lekcję:\n")
-                .append("Uczeń: ").append(student.getFirstName()).append(" ").append(student.getLastName()).append(" (")
-                .append(student.getEmail()).append(")\n")
-                .append("Termin: ").append(formattedStart).append("\n")
-                .append("Czas trwania: ").append(durationMinutes).append(" min\n");
+                    .append("Otrzymałeś nową prośbę o lekcję:\n")
+                    .append("Uczeń: ").append(student.getFirstName()).append(" ").append(student.getLastName()).append(" (")
+                    .append(student.getEmail()).append(")\n")
+                    .append("Termin: ").append(formattedStart).append("\n")
+                    .append("Czas trwania: ").append(durationMinutes).append(" min\n")
+                    .append("Tryb zajęć: ").append(modeLabelPl).append("\n");
+
+            if (!isOnline && (!streetLine.isBlank() || !cityLine.isBlank())) {
+                text.append("Adres: ");
+                if (!streetLine.isBlank()) {
+                    text.append(streetLine);
+                }
+                if (!cityLine.isBlank()) {
+                    if (!streetLine.isBlank()) {
+                        text.append(", ");
+                    }
+                    text.append(cityLine);
+                }
+                text.append("\n");
+            }
 
             if (lesson.getNotes() != null && !lesson.getNotes().isBlank()) {
                 text.append("Wiadomość od ucznia: ").append(lesson.getNotes()).append("\n");
             }
 
             text.append("\nPotwierdź lub odrzuć w panelu korepetytora: ").append(lessonsUrl).append("\n\n")
-                .append("Pozdrowienia,\nZespół EduScheduler");
+                    .append("Pozdrowienia,\nZespół EduScheduler");
         }
 
         sendEmail(tutor.getEmail(), subject, text.toString());

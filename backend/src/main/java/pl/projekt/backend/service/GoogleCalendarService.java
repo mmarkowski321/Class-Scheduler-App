@@ -1,701 +1,197 @@
 package pl.projekt.backend.service;
 
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.ConferenceData;
+import com.google.api.services.calendar.model.ConferenceSolutionKey;
+import com.google.api.services.calendar.model.CreateConferenceRequest;
+import com.google.api.services.calendar.model.EntryPoint;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventAttendee;
+import com.google.api.services.calendar.model.EventDateTime;
+import com.google.auth.http.HttpCredentialsAdapter;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.ServiceAccountCredentials;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
+import pl.projekt.backend.model.Lesson;
+import pl.projekt.backend.model.Student;
+import pl.projekt.backend.model.Tutor;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.GeneralSecurityException;
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class GoogleCalendarService {
     
+    private static final Logger log = LoggerFactory.getLogger(GoogleCalendarService.class);
+
+    private static final DateTimeFormatter ICS_UTC = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssX");
+    private static final DateTimeFormatter ICS_LOCAL = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
+
+    private final boolean enabled;
+    private final Calendar calendar;
+    private final String calendarId;
     private final RestTemplate restTemplate;
     
-    public GoogleCalendarService(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder.build();
-    }
-    
-    /**
-     * Extract calendar ID from Google Calendar URL
-     * Supports formats:
-     * - https://calendar.google.com/calendar/u/0?cid=ENCODED_EMAIL
-     * - https://calendar.google.com/calendar/embed?src=EMAIL
-     * - https://calendar.google.com/calendar/ical/EMAIL/basic.ics
-     */
-    public String extractCalendarId(String calendarUrl) {
-        if (calendarUrl == null || calendarUrl.isBlank()) {
-            return null;
-        }
-        
+    public GoogleCalendarService(
+            @Value("${google.calendar.credentials-path:}") String credentialsPath,
+            @Value("${google.calendar.credentials-json:}") String credentialsJson,
+            @Value("${google.calendar.delegate:}") String delegateEmail,
+            @Value("${google.calendar.calendar-id:primary}") String calendarId,
+            @Value("${google.calendar.application-name:EduScheduler}") String applicationName,
+            RestTemplateBuilder restTemplateBuilder
+    ) {
+        this.calendarId = calendarId;
+        this.restTemplate = restTemplateBuilder
+                .setConnectTimeout(Duration.ofSeconds(5))
+                .setReadTimeout(Duration.ofSeconds(10))
+                .build();
+
+        Calendar built = null;
+        boolean active = true;
         try {
-            // Format 1: embed?src= parameter (direct email in URL encoded format)
-            if (calendarUrl.contains("embed?src=") || calendarUrl.contains("embed&src=")) {
-                String srcParam;
-                if (calendarUrl.contains("embed?src=")) {
-                    srcParam = calendarUrl.substring(calendarUrl.indexOf("embed?src=") + 10);
-                } else {
-                    srcParam = calendarUrl.substring(calendarUrl.indexOf("embed&src=") + 10);
-                }
-                // Remove any additional parameters
-                if (srcParam.contains("&")) {
-                    srcParam = srcParam.substring(0, srcParam.indexOf("&"));
-                }
-                
-                // Decode URL encoding
-                try {
-                    String decodedEmail = URLDecoder.decode(srcParam, StandardCharsets.UTF_8);
-                    // If still encoded, decode again
-                    if (decodedEmail.contains("%")) {
-                        decodedEmail = URLDecoder.decode(decodedEmail, StandardCharsets.UTF_8);
-                    }
-                    return decodedEmail.replaceAll("%40", "@").replaceAll("%2E", ".");
-                } catch (Exception e) {
-                    return srcParam.replaceAll("%40", "@").replaceAll("%2E", ".");
-                }
-            }
-            
-            // Format 2: cid parameter (base64 encoded email)
-            if (calendarUrl.contains("cid=")) {
-                String cidParam = calendarUrl.substring(calendarUrl.indexOf("cid=") + 4);
-                // Remove any additional parameters
-                if (cidParam.contains("&")) {
-                    cidParam = cidParam.substring(0, cidParam.indexOf("&"));
-                }
-                
-                // First, try to decode URL encoding (in case it's double-encoded)
-                String decodedCid = cidParam;
-                try {
-                    decodedCid = URLDecoder.decode(cidParam, StandardCharsets.UTF_8);
-                    // If still encoded, decode again
-                    if (decodedCid.contains("%")) {
-                        decodedCid = URLDecoder.decode(decodedCid, StandardCharsets.UTF_8);
-                    }
-                } catch (Exception e) {
-                    // If URL decode fails, use original
-                }
-                
-                // Try base64 decode
-                try {
-                    byte[] decoded = Base64.getDecoder().decode(decodedCid);
-                    String email = new String(decoded, StandardCharsets.UTF_8);
-                    // Clean up email - remove any remaining encoding
-                    email = email.replaceAll("%40", "@").replaceAll("%2E", ".");
-                    return email;
-                } catch (Exception e) {
-                    // If base64 decode fails, try using decoded URL as-is
-                    if (decodedCid.contains("@")) {
-                        return decodedCid.replaceAll("%40", "@").replaceAll("%2E", ".");
-                    }
-                    return decodedCid;
-                }
-            }
-            
-            // Format 3: ical URL format
-            if (calendarUrl.contains("/ical/")) {
-                String icalPart = calendarUrl.substring(calendarUrl.indexOf("/ical/") + 6);
-                if (icalPart.contains("/")) {
-                    String email = icalPart.substring(0, icalPart.indexOf("/"));
-                    // Decode URL encoding multiple times if needed
-                    String decodedEmail = email;
-                    try {
-                        decodedEmail = URLDecoder.decode(email, StandardCharsets.UTF_8);
-                        if (decodedEmail.contains("%")) {
-                            decodedEmail = URLDecoder.decode(decodedEmail, StandardCharsets.UTF_8);
-                        }
-                        return decodedEmail.replaceAll("%40", "@").replaceAll("%2E", ".");
-                    } catch (Exception e) {
-                        return email.replaceAll("%40", "@").replaceAll("%2E", ".");
-                    }
-                }
-            }
-            
-            // Format 4: Direct email format
-            if (calendarUrl.contains("@")) {
-                String email = calendarUrl.replaceAll("^.*mailto:|^.*calendar/", "").replaceAll("\\?.*$", "");
-                return email.replaceAll("%40", "@").replaceAll("%2E", ".");
-            }
-            
-        } catch (Exception e) {
-            System.err.println("Error extracting calendar ID: " + e.getMessage());
-            e.printStackTrace();
+            built = buildCalendar(credentialsPath, credentialsJson, delegateEmail, applicationName);
+        } catch (Exception ex) {
+            active = false;
+            log.warn("Google Calendar integration disabled: {}", ex.getMessage());
+            log.debug("Google Calendar initialization error", ex);
         }
-        
-        return null;
+        this.calendar = built;
+        this.enabled = active && built != null;
+        if (!this.enabled) {
+            log.info("Google Calendar integration is not enabled (missing credentials).");
+        }
     }
-    
-    /**
-     * Get iCal feed URL from calendar ID (email)
-     * Returns URI object to prevent double encoding
-     * Note: Google Calendar public iCal feed has limited date range (usually 30-60 days)
-     * For wider range, user should use private iCal URL or Google Calendar API
-     */
-    public URI getICalFeedUri(String calendarId) {
-        if (calendarId == null || calendarId.isBlank()) {
-            return null;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public record CalendarEvent(String eventId, String hangoutLink) {}
+
+    public Optional<CalendarEvent> createLessonEvent(Lesson lesson) {
+        if (!enabled || lesson == null || lesson.getStartTime() == null || lesson.getEndTime() == null) {
+            return Optional.empty();
         }
-        
-        // Clean email - remove any existing encoding
-        String cleanEmail = calendarId.replaceAll("%40", "@").replaceAll("%2E", ".").replaceAll("%2540", "@");
-        
-        // Build URI using UriComponentsBuilder to handle encoding properly
-        // Note: Google Calendar public feed may have limited date range
-        // We can try adding query parameters but they may not be supported
         try {
-            UriComponentsBuilder builder = UriComponentsBuilder
-                .fromHttpUrl("https://calendar.google.com")
-                .path("/calendar/ical/{email}/public/basic.ics");
-            
-            // Try to extend date range - Google may ignore these but it's worth trying
-            // Note: These parameters may not work with public feeds
-            builder.queryParam("singleevents", "true"); // Expand recurring events
-            builder.queryParam("max-results", "2500"); // Maximum number of events
-            
-            return builder.buildAndExpand(cleanEmail).toUri();
-        } catch (Exception e) {
-            System.err.println("Error building URI for calendar ID: " + calendarId);
-            return null;
+            Event event = buildEvent(lesson);
+            Event created = calendar.events()
+                    .insert(calendarId, event)
+                    .setConferenceDataVersion(1)
+                    .setSendUpdates("all")
+                    .execute();
+
+            String hangoutLink = created.getHangoutLink();
+            if (!StringUtils.hasText(hangoutLink) && created.getConferenceData() != null) {
+                hangoutLink = created.getConferenceData().getEntryPoints()
+                        .stream()
+                        .filter(entry -> Objects.equals("video", entry.getEntryPointType()))
+                        .map(EntryPoint::getUri)
+                        .findFirst()
+                        .orElse(null);
+            }
+
+            return Optional.of(new CalendarEvent(created.getId(), hangoutLink));
+        } catch (Exception ex) {
+            log.warn("Failed to create Google Calendar event for lesson {}: {}", lesson != null ? lesson.getId() : null, ex.getMessage());
+            log.debug("Google Calendar create event error", ex);
+            return Optional.empty();
         }
     }
-    
-    /**
-     * Fetch busy times from calendar public iCal feed
-     * Supports Google Calendar (extracts calendar ID and builds iCal URL) and direct iCal URLs
-     */
+
+    public void deleteLessonEvent(Lesson lesson) {
+        if (!enabled || lesson == null || !StringUtils.hasText(lesson.getGoogleEventId())) {
+            return;
+        }
+        try {
+            calendar.events().delete(calendarId, lesson.getGoogleEventId()).execute();
+        } catch (GoogleJsonResponseException e) {
+            if (e.getStatusCode() == 404) {
+                log.debug("Google Calendar event {} already removed.", lesson.getGoogleEventId());
+            } else {
+                log.warn("Failed to delete Google Calendar event {}: {}", lesson.getGoogleEventId(), e.getMessage());
+                log.debug("Google Calendar delete event error", e);
+            }
+        } catch (Exception ex) {
+            log.warn("Failed to delete Google Calendar event {}: {}", lesson.getGoogleEventId(), ex.getMessage());
+            log.debug("Google Calendar delete event error", ex);
+        }
+    }
+
     public List<BusyTime> fetchBusyTimes(String calendarUrl) {
-        List<BusyTime> busyTimes = new ArrayList<>();
-        
+        if (!StringUtils.hasText(calendarUrl)) {
+            return Collections.emptyList();
+        }
+        String resolvedUrl = resolveCalendarUrl(calendarUrl);
+        if (!StringUtils.hasText(resolvedUrl)) {
+            return Collections.emptyList();
+        }
         try {
-            URI icalUri = null;
-            String calendarId = null; // Define here for use in catch block
-            
-            // Check if URL is already a direct iCal feed (ends with .ics or contains /ical/ or /upcoming_ical)
-            if (calendarUrl.contains(".ics") || 
-                calendarUrl.contains("/ical/") || 
-                calendarUrl.contains("/upcoming_ical") ||
-                calendarUrl.contains("ical=")) {
-                // Direct iCal feed URL - use it directly
-                try {
-                    icalUri = new URI(calendarUrl);
-                    System.out.println("Using direct iCal URL: " + icalUri.toString());
-                } catch (Exception e) {
-                    System.err.println("Invalid direct iCal URL: " + calendarUrl);
-                    return busyTimes;
-                }
-            } else {
-                // Try to extract Google Calendar ID and build iCal feed URL
-                calendarId = extractCalendarId(calendarUrl);
-                if (calendarId == null) {
-                    System.err.println("Could not extract calendar ID from URL: " + calendarUrl);
-                    System.err.println("Note: URL must be a Google Calendar embed URL or a direct iCal feed URL (.ics or /ical/)");
-                    return busyTimes;
-                }
-                
-                icalUri = getICalFeedUri(calendarId);
-                if (icalUri == null) {
-                    System.err.println("Could not generate iCal URI for calendar ID: " + calendarId);
-                    return busyTimes;
-                }
-                
-                System.out.println("Fetching iCal from Google Calendar: " + icalUri.toString());
-            }
-            
-            // Fetch iCal feed with error handling
-            // Use URI object to prevent RestTemplate from double-encoding the URL
-            try {
-                String icalContent = restTemplate.getForObject(icalUri, String.class);
-                if (icalContent == null || icalContent.isBlank()) {
-                    System.err.println("Empty iCal feed response from: " + icalUri.toString());
-                    return busyTimes;
-                }
-                
-                // Check if response is HTML (error page or regular web page)
-                if (icalContent.trim().startsWith("<html") || 
-                    icalContent.contains("Error 404") ||
-                    icalContent.contains("<!DOCTYPE") ||
-                    (icalContent.contains("<body") && !icalContent.contains("BEGIN:VCALENDAR"))) {
-                    System.err.println("Got HTML page instead of iCal feed. This is likely a web page URL, not an iCal feed URL.");
-                    System.err.println("For USOS: Use the iCal feed URL (e.g., https://apps.usos.pwr.edu.pl/services/tt/upcoming_ical?...), not the HTML page URL.");
-                    System.err.println("URL attempted: " + icalUri.toString());
-                    throw new RuntimeException("URL is a web page (HTML), not an iCal feed. Please use the iCal feed URL instead.");
-                }
-                
-                // Parse iCal content
-                System.out.println("Parsing iCal content, length: " + icalContent.length() + " characters");
-                System.out.println("iCal feed URL: " + icalUri);
-                busyTimes = parseICal(icalContent);
-                System.out.println("Parsed " + busyTimes.size() + " events from iCal feed");
-                
-                // Log date range of events
-                if (!busyTimes.isEmpty()) {
-                    LocalDateTime minDate = busyTimes.stream()
-                        .map(BusyTime::getStart)
-                        .min(LocalDateTime::compareTo)
-                        .orElse(null);
-                    LocalDateTime maxDate = busyTimes.stream()
-                        .map(BusyTime::getEnd)
-                        .max(LocalDateTime::compareTo)
-                        .orElse(null);
-                    System.out.println("Event date range: " + minDate + " to " + maxDate);
-                } else {
-                    System.out.println("WARNING: No events found in iCal feed!");
-                }
-                
-            } catch (org.springframework.web.client.HttpClientErrorException e) {
-                System.err.println("HTTP error fetching calendar: " + e.getStatusCode() + " - " + e.getMessage());
-                if (calendarId != null) {
-                    System.err.println("Calendar ID: " + calendarId);
-                }
-                if (icalUri != null) {
-                    System.err.println("iCal URI: " + icalUri.toString());
-                }
-                System.err.println("NOTE: Calendar must be public and accessible. Check calendar settings.");
-                // Return empty list instead of throwing
-                return busyTimes;
-            }
-            
-        } catch (Exception e) {
-            System.err.println("Error fetching busy times: " + e.getMessage());
-            e.printStackTrace();
-        }
-        
-        return busyTimes;
-    }
-    
-    /**
-     * Generate recurring event occurrences based on RRULE
-     * Supports: FREQ=WEEKLY, FREQ=DAILY, FREQ=MONTHLY with BYDAY
-     * Generates occurrences up to 2 years from now
-     */
-    private List<LocalDateTime> generateRecurrences(LocalDateTime startDate, String rrule) {
-        System.out.println("generateRecurrences called with startDate: " + startDate + ", rrule: " + rrule);
-        List<LocalDateTime> occurrences = new ArrayList<>();
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime maxDate = now.plusYears(2); // Generate up to 2 years ahead
-        System.out.println("Max date for generation: " + maxDate);
-        
-        // Parse RRULE parameters
-        String[] parts = rrule.split(";");
-        String freq = null;
-        String byDay = null;
-        LocalDateTime until = null;
-        Integer count = null;
-        
-        System.out.println("Parsing RRULE parts: " + java.util.Arrays.toString(parts));
-        
-        for (String part : parts) {
-            if (part.startsWith("FREQ=")) {
-                freq = part.substring(5);
-                System.out.println("Found FREQ: " + freq);
-            } else if (part.startsWith("BYDAY=")) {
-                byDay = part.substring(6);
-                System.out.println("Found BYDAY: " + byDay);
-            } else if (part.startsWith("UNTIL=")) {
-                String untilStr = part.substring(6);
-                until = parseDateTime(untilStr, true);
-                System.out.println("Found UNTIL: " + untilStr + " -> " + until);
-            } else if (part.startsWith("COUNT=")) {
-                count = Integer.parseInt(part.substring(6));
-                System.out.println("Found COUNT: " + count);
-            } else {
-                System.out.println("Unknown RRULE part: " + part);
-            }
-        }
-        
-        System.out.println("Parsed RRULE - FREQ: " + freq + ", BYDAY: " + byDay + ", UNTIL: " + until + ", COUNT: " + count);
-        
-        // Determine end date
-        LocalDateTime endDate = maxDate;
-        if (until != null && until.isBefore(endDate)) {
-            endDate = until;
-        }
-        
-        // Generate occurrences based on frequency
-        if ("WEEKLY".equals(freq)) {
-            List<DayOfWeek> daysOfWeek = new ArrayList<>();
-            if (byDay != null) {
-                // Parse BYDAY (e.g., "TU" or "MO,WE,FR")
-                String[] dayCodes = byDay.split(",");
-                for (String dayCode : dayCodes) {
-                    DayOfWeek day = parseDayOfWeek(dayCode.trim());
-                    if (day != null) {
-                        daysOfWeek.add(day);
-                    }
-                }
-            } else {
-                // If no BYDAY specified, use the day of the start date
-                daysOfWeek.add(startDate.getDayOfWeek());
-            }
-            
-            // Generate occurrences for each specified day of week
-            // Start from startDate's week
-            LocalDateTime weekStart = startDate.minusDays(startDate.getDayOfWeek().getValue() - 1); // Start of week (Monday)
-            
-            System.out.println("WEEKLY recurrence - startDate: " + startDate + ", weekStart: " + weekStart);
-            System.out.println("Target days of week: " + daysOfWeek);
-            System.out.println("End date: " + endDate);
-            
-            int generatedCount = 0;
-            int maxIterations = 104; // 2 years * 52 weeks
-            int iteration = 0;
-            
-            while (weekStart.isBefore(endDate) && (count == null || generatedCount < count) && iteration < maxIterations) {
-                // Check each target day of week in this week
-                for (DayOfWeek targetDay : daysOfWeek) {
-                    LocalDateTime occurrence = weekStart.plusDays(targetDay.getValue() - 1); // Day of week (1=Monday, 7=Sunday)
-                    
-                    // Only add if it's on or after startDate and before endDate
-                    if (!occurrence.isBefore(startDate) && occurrence.isBefore(endDate) && 
-                        (count == null || generatedCount < count)) {
-                        occurrences.add(occurrence);
-                        generatedCount++;
-                        System.out.println("  Generated occurrence #" + generatedCount + ": " + occurrence);
-                    }
-                }
-                // Move to next week
-                weekStart = weekStart.plusWeeks(1);
-                iteration++;
-            }
-            
-            System.out.println("Total occurrences generated: " + occurrences.size());
-        } else if ("DAILY".equals(freq)) {
-            LocalDateTime current = startDate;
-            int generatedCount = 0;
-            while (current.isBefore(endDate) && (count == null || generatedCount < count)) {
-                occurrences.add(current);
-                current = current.plusDays(1);
-                generatedCount++;
-            }
-        } else if ("MONTHLY".equals(freq)) {
-            LocalDateTime current = startDate;
-            int generatedCount = 0;
-            while (current.isBefore(endDate) && (count == null || generatedCount < count)) {
-                occurrences.add(current);
-                current = current.plusMonths(1);
-                generatedCount++;
-            }
-        } else {
-            // Unknown frequency, just add the start date
-            System.err.println("Unknown RRULE frequency: " + freq + ". Adding only start date.");
-            occurrences.add(startDate);
-        }
-        
-        return occurrences;
-    }
-    
-    /**
-     * Parse day of week code from RRULE BYDAY
-     * Supports: SU, MO, TU, WE, TH, FR, SA
-     */
-    private DayOfWeek parseDayOfWeek(String dayCode) {
-        switch (dayCode.toUpperCase()) {
-            case "SU": return DayOfWeek.SUNDAY;
-            case "MO": return DayOfWeek.MONDAY;
-            case "TU": return DayOfWeek.TUESDAY;
-            case "WE": return DayOfWeek.WEDNESDAY;
-            case "TH": return DayOfWeek.THURSDAY;
-            case "FR": return DayOfWeek.FRIDAY;
-            case "SA": return DayOfWeek.SATURDAY;
-            default:
-                System.err.println("Unknown day code: " + dayCode);
-                return null;
+            String ics = restTemplate.getForObject(resolvedUrl, String.class);
+            return parseIcs(ics);
+        } catch (Exception ex) {
+            log.warn("Failed to fetch busy times from {}: {}", resolvedUrl, ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
-    
-    /**
-     * Parse iCal content and extract busy times
-     */
-    private List<BusyTime> parseICal(String icalContent) {
-        List<BusyTime> busyTimes = new ArrayList<>();
-        
-        // Pattern to match DTSTART and DTEND
-        Pattern dtStartPattern = Pattern.compile("DTSTART[^:]*:(.+)");
-        Pattern dtEndPattern = Pattern.compile("DTEND[^:]*:(.+)");
-        Pattern dtStartDatePattern = Pattern.compile("DTSTART[^;]*;VALUE=DATE:(.+)");
-        Pattern dtEndDatePattern = Pattern.compile("DTEND[^;]*;VALUE=DATE:(.+)");
-        
-        String[] lines = icalContent.split("\\r?\\n");
-        String currentStart = null;
-        String currentEnd = null;
-        String currentTitle = null;
-        String currentDescription = null;
-        String currentRRule = null;
-        boolean inEvent = false;
-        
-        // Pattern to match SUMMARY (title)
-        Pattern summaryPattern = Pattern.compile("SUMMARY[^:]*:(.+)");
-        // Pattern to match DESCRIPTION
-        Pattern descriptionPattern = Pattern.compile("DESCRIPTION[^:]*:(.+)");
-        // Pattern to match RRULE (recurrence rule)
-        Pattern rrulePattern = Pattern.compile("RRULE[^:]*:(.+)");
-        
-        for (String line : lines) {
-            if (line.startsWith("BEGIN:VEVENT")) {
-                inEvent = true;
-                currentStart = null;
-                currentEnd = null;
-                currentTitle = null;
-                currentDescription = null;
-                currentRRule = null;
-            } else if (line.startsWith("END:VEVENT")) {
-                if (inEvent) {
-                    if (currentStart == null || currentEnd == null) {
-                        System.err.println("Skipping event - missing DTSTART or DTEND. Title: " + currentTitle);
-                    } else {
-                        try {
-                            // Check if both are date-only (all-day events)
-                            boolean startIsDateOnly = currentStart.endsWith("DATE");
-                            boolean endIsDateOnly = currentEnd.endsWith("DATE");
-                            
-                            LocalDateTime start = parseDateTime(currentStart, true);
-                            LocalDateTime end = parseDateTime(currentEnd, false);
-                            
-                            // For all-day events, DTEND is exclusive
-                            // If DTEND is date-only, it means the event ends at the beginning of that day
-                            // So we should use the end of the previous day (23:59:59)
-                            if (endIsDateOnly && end != null) {
-                                // Subtract 1 day and set to end of day
-                                end = end.minusDays(1).withHour(23).withMinute(59).withSecond(59);
-                            }
-                            
-                            if (start != null && end != null && end.isAfter(start)) {
-                                // Use title if available, otherwise use default
-                                // Decode the final title and description after all continuations
-                                String title = currentTitle != null && !currentTitle.trim().isEmpty() 
-                                    ? decodeICalText(currentTitle).trim() 
-                                    : "Wydarzenie";
-                                String description = currentDescription != null && !currentDescription.trim().isEmpty()
-                                    ? decodeICalText(currentDescription).trim()
-                                    : null;
-                                
-                                // Google Calendar public iCal feed already includes all occurrences of recurring events
-                                // So we just add every event we find, regardless of RRULE
-                                // RRULE is only used if we need to generate occurrences (which we don't for public feeds)
-                                busyTimes.add(new BusyTime(start, end, title, description));
-                                System.out.println("Added event: " + title + " from " + start + " to " + end + 
-                                    (currentRRule != null ? " (has RRULE but using direct occurrence)" : ""));
-                            } else {
-                                System.err.println("Skipping event - invalid dates. Title: " + currentTitle + ", Start: " + start + ", End: " + end);
-                            }
-                        } catch (Exception e) {
-                            System.err.println("Error parsing event: " + e.getMessage());
-                            System.err.println("Event title: " + currentTitle);
-                            System.err.println("Event start: " + currentStart);
-                            System.err.println("Event end: " + currentEnd);
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                inEvent = false;
-            } else if (inEvent) {
-                // Handle line continuation (iCal format: lines starting with space are continuation)
-                if (line.startsWith(" ") && (currentTitle != null || currentDescription != null)) {
-                    String continuation = line.substring(1);
-                    if (currentTitle != null) {
-                        currentTitle += continuation;
-                    } else if (currentDescription != null) {
-                        currentDescription += continuation;
-                    }
-                    continue;
-                }
-                
-                // Extract SUMMARY (title)
-                Matcher summaryMatcher = summaryPattern.matcher(line);
-                if (summaryMatcher.find()) {
-                    currentTitle = summaryMatcher.group(1);
-                    // Don't decode yet - wait for all continuations
-                    continue;
-                }
-                
-                // Extract DESCRIPTION
-                Matcher descriptionMatcher = descriptionPattern.matcher(line);
-                if (descriptionMatcher.find()) {
-                    currentDescription = descriptionMatcher.group(1);
-                    // Don't decode yet - wait for all continuations
-                    continue;
-                }
-                
-                // Extract RRULE (recurrence rule)
-                Matcher rruleMatcher = rrulePattern.matcher(line);
-                if (rruleMatcher.find()) {
-                    currentRRule = rruleMatcher.group(1);
-                    System.out.println("Found RRULE: " + currentRRule);
-                    continue;
-                }
-                
-                // Handle line continuation for RRULE (lines starting with space are continuation)
-                if (line.startsWith(" ") && currentRRule != null) {
-                    currentRRule += line.substring(1);
-                    continue;
-                }
-                
-                // Check for VALUE=DATE patterns first (all-day events)
-                Matcher startDateMatcher = dtStartDatePattern.matcher(line);
-                if (startDateMatcher.find()) {
-                    // Mark as date-only format
-                    String startDateStr = startDateMatcher.group(1);
-                    if (startDateStr.length() == 8) {
-                        currentStart = startDateStr + "DATE"; // Marker to indicate date-only
-                    } else {
-                        currentStart = startDateStr;
-                    }
-                } else {
-                    // Check for regular DTSTART
-                    Matcher startMatcher = dtStartPattern.matcher(line);
-                    if (startMatcher.find()) {
-                        String startValue = startMatcher.group(1);
-                        // Check if it's a date-only format (8 digits) even without VALUE=DATE
-                        if (startValue.length() == 8 && startValue.matches("\\d{8}")) {
-                            currentStart = startValue + "DATE"; // Mark as date-only
-                        } else {
-                            currentStart = startValue;
-                        }
-                    }
-                }
-                
-                // Check for VALUE=DATE patterns first (all-day events)
-                Matcher endDateMatcher = dtEndDatePattern.matcher(line);
-                if (endDateMatcher.find()) {
-                    // For all-day events, DTEND is exclusive, so we need to add 1 day
-                    // But first check if it's already a date-only format
-                    String endDateStr = endDateMatcher.group(1);
-                    if (endDateStr.length() == 8) {
-                        // This is a date-only format, mark it as such
-                        currentEnd = endDateStr + "DATE"; // Marker to indicate date-only
-                    } else {
-                        currentEnd = endDateStr;
-                    }
-                } else {
-                    // Check for regular DTEND
-                    Matcher endMatcher = dtEndPattern.matcher(line);
-                    if (endMatcher.find()) {
-                        String endValue = endMatcher.group(1);
-                        // Check if it's a date-only format (8 digits) even without VALUE=DATE
-                        if (endValue.length() == 8 && endValue.matches("\\d{8}")) {
-                            currentEnd = endValue + "DATE"; // Mark as date-only
-                        } else {
-                            currentEnd = endValue;
-                        }
-                    }
-                }
-            }
-        }
-        
-        return busyTimes;
-    }
-    
-    /**
-     * Parse iCal datetime format
-     * Formats: 20240101T120000Z, 20240101T120000, 20240101 (date-only)
-     * @param dateTimeStr The datetime string to parse
-     * @param isStart Whether this is DTSTART (true) or DTEND (false)
-     */
-    private LocalDateTime parseDateTime(String dateTimeStr, boolean isStart) {
-        try {
-            // Check if this is a date-only format (marked with "DATE" suffix)
-            boolean isDateOnly = dateTimeStr.endsWith("DATE");
-            if (isDateOnly) {
-                dateTimeStr = dateTimeStr.replace("DATE", "");
-            }
-            
-            // Remove timezone indicator if present
-            dateTimeStr = dateTimeStr.replace("Z", "");
-            
-            // Handle date-only format (YYYYMMDD) - all-day events
-            if (dateTimeStr.length() == 8) {
-                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-                java.time.LocalDate date = java.time.LocalDate.parse(dateTimeStr, dateFormatter);
-                
-                // For all-day events:
-                // - DTSTART: beginning of the day (00:00:00)
-                // - DTEND: beginning of the next day (00:00:00), but it's exclusive
-                //   So we'll handle the exclusive nature in the calling code
-                return date.atStartOfDay();
-            }
-            
-            // Handle datetime format (YYYYMMDDTHHMMSS)
-            if (dateTimeStr.length() == 15 && dateTimeStr.contains("T")) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
-                return LocalDateTime.parse(dateTimeStr, formatter);
-            }
-            
-            // Handle datetime format with timezone (YYYYMMDDTHHMMSSZ or YYYYMMDDTHHMMSS+0000)
-            if (dateTimeStr.length() >= 15 && dateTimeStr.contains("T")) {
-                // Try to parse without timezone first
-                String dateTimeWithoutTz = dateTimeStr.replaceAll("[+-]\\d{4}$", "").replace("Z", "");
-                if (dateTimeWithoutTz.length() == 15) {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
-                    return LocalDateTime.parse(dateTimeWithoutTz, formatter);
-                }
-            }
-            
-        } catch (Exception e) {
-            System.err.println("Error parsing datetime: " + dateTimeStr + " - " + e.getMessage());
-            System.err.println("Datetime string length: " + (dateTimeStr != null ? dateTimeStr.length() : 0));
-        }
-        
-        return null;
-    }
-    
-    /**
-     * Decode iCal text - handle escape sequences
-     * iCal uses \, for comma, \; for semicolon, \\ for backslash, \n for newline
-     */
-    private String decodeICalText(String text) {
-        if (text == null) return null;
-        return text
-            .replace("\\,", ",")
-            .replace("\\;", ";")
-            .replace("\\\\", "\\")
-            .replace("\\n", "\n")
-            .replace("\\N", "\n");
-    }
-    
-    /**
-     * Check if a time slot is busy
-     */
+
     public boolean isTimeSlotBusy(String calendarUrl, LocalDateTime start, LocalDateTime end) {
+        try {
         List<BusyTime> busyTimes = fetchBusyTimes(calendarUrl);
-        
-        for (BusyTime busyTime : busyTimes) {
-            // Check if requested time overlaps with busy time
-            if (start.isBefore(busyTime.getEnd()) && end.isAfter(busyTime.getStart())) {
+            for (BusyTime busy : busyTimes) {
+                if (busy.getStart() == null || busy.getEnd() == null) continue;
+                if (start.isBefore(busy.getEnd()) && end.isAfter(busy.getStart())) {
                 return true;
+                }
             }
+        } catch (Exception ex) {
+            log.debug("Could not determine busy slot for {}: {}", calendarUrl, ex.getMessage());
         }
-        
         return false;
     }
     
-    /**
-     * Inner class to represent busy time slot with event details
-     */
     public static class BusyTime {
-        private LocalDateTime start;
-        private LocalDateTime end;
-        private String title;
-        private String description;
+        private final LocalDateTime start;
+        private final LocalDateTime end;
+        private final String title;
+        private final String description;
         
         public BusyTime(LocalDateTime start, LocalDateTime end) {
-            this.start = start;
-            this.end = end;
-            this.title = null;
-            this.description = null;
+            this(start, end, null, null);
         }
-        
+
         public BusyTime(LocalDateTime start, LocalDateTime end, String title, String description) {
             this.start = start;
             this.end = end;
@@ -719,5 +215,279 @@ public class GoogleCalendarService {
             return description;
         }
     }
+
+    private Calendar buildCalendar(String credentialsPath,
+                                   String credentialsJson,
+                                   String delegateEmail,
+                                   String applicationName) throws IOException, GeneralSecurityException {
+        try (InputStream stream = loadCredentials(credentialsPath, credentialsJson)) {
+            if (stream == null) {
+                throw new IllegalStateException("No Google service account credentials provided.");
+            }
+
+            GoogleCredentials credentials = GoogleCredentials.fromStream(stream)
+                    .createScoped(Collections.singleton(CalendarScopes.CALENDAR));
+
+            if (StringUtils.hasText(delegateEmail) && credentials instanceof ServiceAccountCredentials sac) {
+                credentials = sac.createDelegated(delegateEmail);
+            }
+
+            return new Calendar.Builder(
+                    GoogleNetHttpTransport.newTrustedTransport(),
+                    JacksonFactory.getDefaultInstance(),
+                    new HttpCredentialsAdapter(credentials))
+                    .setApplicationName(applicationName)
+                    .build();
+        }
+    }
+
+    private InputStream loadCredentials(String credentialsPath, String credentialsJson) throws IOException {
+        if (StringUtils.hasText(credentialsPath)) {
+            Path path = Path.of(credentialsPath);
+            if (!Files.exists(path)) {
+                throw new IOException("Credentials path not found: " + credentialsPath);
+            }
+            return Files.newInputStream(path);
+        }
+        if (StringUtils.hasText(credentialsJson)) {
+            String trimmed = credentialsJson.trim();
+            if (!trimmed.startsWith("{")) {
+                try {
+                    byte[] decoded = Base64.getDecoder().decode(trimmed);
+                    trimmed = new String(decoded, StandardCharsets.UTF_8);
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+            if (trimmed.startsWith("{")) {
+                return new ByteArrayInputStream(trimmed.getBytes(StandardCharsets.UTF_8));
+            }
+        }
+        return null;
+    }
+
+    private Event buildEvent(Lesson lesson) {
+        Event event = new Event();
+        event.setSummary(buildSummary(lesson));
+        event.setDescription(buildDescription(lesson));
+
+        ZoneId zoneId = ZoneId.systemDefault();
+        event.setStart(new EventDateTime()
+                .setDateTime(toDateTime(lesson.getStartTime().atZone(zoneId)))
+                .setTimeZone(zoneId.toString()));
+        event.setEnd(new EventDateTime()
+                .setDateTime(toDateTime(lesson.getEndTime().atZone(zoneId)))
+                .setTimeZone(zoneId.toString()));
+
+        List<EventAttendee> attendees = new ArrayList<>();
+        Tutor tutor = lesson.getTutor();
+        Student student = lesson.getStudent();
+        if (tutor != null && StringUtils.hasText(tutor.getEmail())) {
+            attendees.add(new EventAttendee().setEmail(tutor.getEmail()));
+        }
+        if (student != null && StringUtils.hasText(student.getEmail())) {
+            attendees.add(new EventAttendee().setEmail(student.getEmail()));
+        }
+        if (!attendees.isEmpty()) {
+            event.setAttendees(attendees);
+        }
+
+        ConferenceSolutionKey solutionKey = new ConferenceSolutionKey().setType("hangoutsMeet");
+        CreateConferenceRequest conferenceRequest = new CreateConferenceRequest()
+                .setRequestId("lesson-" + lesson.getId() + "-" + System.currentTimeMillis())
+                .setConferenceSolutionKey(solutionKey);
+        event.setConferenceData(new ConferenceData().setCreateRequest(conferenceRequest));
+
+        return event;
+    }
+
+    private DateTime toDateTime(ZonedDateTime zonedDateTime) {
+        return new DateTime(Date.from(zonedDateTime.toInstant()));
+    }
+
+    private String buildSummary(Lesson lesson) {
+        Student student = lesson.getStudent();
+        Tutor tutor = lesson.getTutor();
+        String studentName = student != null
+                ? ((student.getFirstName() + " " + student.getLastName()).trim())
+                : "Uczeń";
+        String tutorName = tutor != null
+                ? ((tutor.getFirstName() + " " + tutor.getLastName()).trim())
+                : "Korepetytor";
+        return "Lekcja: " + studentName + " × " + tutorName;
+    }
+
+    private String buildDescription(Lesson lesson) {
+        StringBuilder sb = new StringBuilder("Lekcja utworzona w EduScheduler.\n");
+        if (StringUtils.hasText(lesson.getNotes())) {
+            sb.append("\nWiadomość od ucznia:\n").append(lesson.getNotes());
+        }
+        return sb.toString();
+    }
+
+    private String resolveCalendarUrl(String calendarUrl) {
+        String trimmed = calendarUrl.trim();
+        if (trimmed.startsWith("webcal://")) {
+            return "https://" + trimmed.substring("webcal://".length());
+        }
+        if (trimmed.endsWith(".ics")) {
+            return trimmed;
+        }
+        if (trimmed.contains("calendar.google.com")) {
+            String calendarId = extractGoogleCalendarId(trimmed);
+            if (StringUtils.hasText(calendarId)) {
+                try {
+                    String encoded = URLEncoder.encode(calendarId, StandardCharsets.UTF_8);
+                    return "https://calendar.google.com/calendar/ical/" + encoded + "/public/basic.ics";
+                } catch (Exception ex) {
+                    log.debug("Failed to encode calendar ID {}: {}", calendarId, ex.getMessage());
+                }
+            }
+        }
+        return trimmed;
+    }
+
+    private String extractGoogleCalendarId(String url) {
+        try {
+            URI uri = new URI(url);
+            String query = uri.getRawQuery();
+            if (StringUtils.hasText(query)) {
+                String[] params = query.split("&");
+                for (String param : params) {
+                    if (param.startsWith("cid=")) {
+                        String encoded = param.substring(4);
+                        try {
+                            String decoded = new String(Base64.getDecoder().decode(encoded), StandardCharsets.UTF_8);
+                            return URLDecoder.decode(decoded, StandardCharsets.UTF_8);
+                        } catch (IllegalArgumentException ignored) {
+                        }
+                    }
+                    if (param.startsWith("src=")) {
+                        String value = param.substring(4);
+                        return URLDecoder.decode(value, StandardCharsets.UTF_8);
+                    }
+                }
+            }
+            String path = uri.getPath();
+            if (StringUtils.hasText(path) && path.contains("/ical/")) {
+                String[] segments = path.split("/ical/");
+                if (segments.length > 1) {
+                    String remainder = segments[1];
+                    int slash = remainder.indexOf('/');
+                    if (slash > 0) {
+                        return URLDecoder.decode(remainder.substring(0, slash), StandardCharsets.UTF_8);
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            log.debug("Failed to extract calendar id from {}: {}", url, ex.getMessage());
+        }
+        return url;
+    }
+
+    private List<BusyTime> parseIcs(String icsContent) {
+        if (!StringUtils.hasText(icsContent)) {
+            return Collections.emptyList();
+        }
+        String normalized = icsContent.replace("\r\n", "\n");
+        List<String> unfolded = unfoldLines(normalized.split("\n"));
+        List<BusyTime> result = new ArrayList<>();
+
+        LocalDateTime start = null;
+        LocalDateTime end = null;
+        String title = null;
+        String description = null;
+
+        for (String line : unfolded) {
+            if ("BEGIN:VEVENT".equalsIgnoreCase(line)) {
+                start = null;
+                end = null;
+                title = null;
+                description = null;
+                continue;
+            }
+            if ("END:VEVENT".equalsIgnoreCase(line)) {
+                if (start != null && end != null) {
+                    result.add(new BusyTime(start, end, title, description));
+                }
+                start = null;
+                end = null;
+                title = null;
+                description = null;
+                continue;
+            }
+            if (line.startsWith("DTSTART")) {
+                start = parseIcsDate(line);
+            } else if (line.startsWith("DTEND")) {
+                end = parseIcsDate(line);
+            } else if (line.startsWith("SUMMARY:")) {
+                title = line.substring("SUMMARY:".length()).trim();
+            } else if (line.startsWith("DESCRIPTION:")) {
+                description = line.substring("DESCRIPTION:".length()).trim();
+            }
+        }
+
+        return result;
+    }
+
+    private List<String> unfoldLines(String[] lines) {
+        List<String> result = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        for (String raw : lines) {
+            if (raw.startsWith(" ") || raw.startsWith("\t")) {
+                current.append(raw.substring(1));
+            } else {
+                if (current.length() > 0) {
+                    result.add(current.toString());
+                }
+                current = new StringBuilder(raw);
+            }
+        }
+        if (current.length() > 0) {
+            result.add(current.toString());
+        }
+        return result;
+    }
+
+    private LocalDateTime parseIcsDate(String line) {
+        String[] parts = line.split(":", 2);
+        if (parts.length < 2) {
+            return null;
+        }
+        String property = parts[0];
+        String value = parts[1].trim();
+        ZoneId zoneId = ZoneId.systemDefault();
+        if (property.contains("TZID=")) {
+            String tzId = property.substring(property.indexOf("TZID=") + 5);
+            int semicolon = tzId.indexOf(';');
+            if (semicolon > 0) {
+                tzId = tzId.substring(0, semicolon);
+            }
+            int colon = tzId.indexOf(':');
+            if (colon > 0) {
+                tzId = tzId.substring(0, colon);
+            }
+            try {
+                zoneId = ZoneId.of(tzId);
+            } catch (Exception ignored) {
+                zoneId = ZoneId.systemDefault();
+            }
+        }
+
+        try {
+            if (value.endsWith("Z")) {
+                ZonedDateTime zdt = ZonedDateTime.parse(value, ICS_UTC);
+                return zdt.withZoneSameInstant(zoneId).toLocalDateTime();
+            }
+            if (value.length() == 8) {
+                LocalDate date = LocalDate.parse(value, DateTimeFormatter.BASIC_ISO_DATE);
+                return date.atStartOfDay();
+            }
+            return LocalDateTime.parse(value, ICS_LOCAL);
+        } catch (DateTimeParseException ex) {
+            log.debug("Failed to parse ICS date {}: {}", value, ex.getMessage());
+            return null;
+        }
+    }
 }
+
 

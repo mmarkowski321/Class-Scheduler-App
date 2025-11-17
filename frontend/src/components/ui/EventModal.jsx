@@ -7,6 +7,13 @@ export default function EventModal({ event, onClose }) {
 
   if (!event) return null;
 
+  const deliveryMode = event.deliveryMode;
+  const isOnline = deliveryMode === "ONLINE";
+  const locationLine = [event.onsiteStreet, event.onsiteBuilding, event.onsiteApartment]
+    .filter(Boolean)
+    .join(" ");
+  const cityLine = [event.onsitePostalCode, event.onsiteCity].filter(Boolean).join(" ");
+
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -108,14 +115,41 @@ export default function EventModal({ event, onClose }) {
             {isLesson && event.meetingLink && (
               <div className="event-modal-info-item">
                 <span className="event-modal-label">🔗 {locale === "pl" ? "Link do spotkania" : "Meeting Link"}</span>
-                <a 
-                  href={event.meetingLink} 
-                  target="_blank" 
+                <a
+                  href={event.meetingLink}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="event-modal-link"
                 >
-                  {locale === "pl" ? "Otwórz spotkanie" : "Open meeting"} →
+                  {locale === "pl" ? "Dołącz do spotkania" : "Join meeting"} →
                 </a>
+                <code className="event-modal-link-raw">{event.meetingLink}</code>
+              </div>
+            )}
+
+            {isLesson && deliveryMode && (
+              <div className="event-modal-info-item">
+                <span className="event-modal-label">
+                  🧭 {locale === "pl" ? "Tryb zajęć" : "Delivery mode"}
+                </span>
+                <span className="event-modal-value">
+                  {isOnline ? (locale === "pl" ? "Online" : "Online") : (locale === "pl" ? "Stacjonarnie" : "Onsite")}
+                </span>
+              </div>
+            )}
+
+            {!isOnline && (locationLine || cityLine) && (
+              <div className="event-modal-info-item">
+                <span className="event-modal-label">
+                  📍 {locale === "pl" ? "Adres" : "Address"}
+                </span>
+                <div className="event-modal-location">
+                  {[locationLine, cityLine]
+                    .filter(Boolean)
+                    .map((line, idx) => (
+                      <span key={`${line}-${idx}`}>{line}</span>
+                    ))}
+                </div>
               </div>
             )}
 

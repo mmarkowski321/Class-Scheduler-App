@@ -6,6 +6,7 @@ import "./Auth.css";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
+import { clearAuthSession } from "../../utils/auth";
 
 function LoginPage() {
   const { t } = useTranslation("common");
@@ -66,16 +67,16 @@ function LoginPage() {
 
       // Require token to proceed
       if (!data || !data.token) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("userId");
-        localStorage.removeItem("role");
+        clearAuthSession();
         setErrors({ form: data?.message || t("login.errors.invalid") });
         setSubmitting(false);
         return;
       }
 
       // Store token and user info in localStorage
+      clearAuthSession();
       localStorage.setItem("token", data.token);
+      localStorage.setItem("access_token", data.token);
       localStorage.setItem("userId", data.userId);
       localStorage.setItem("role", data.role);
 

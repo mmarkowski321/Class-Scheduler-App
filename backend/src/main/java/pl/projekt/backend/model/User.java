@@ -51,6 +51,16 @@ public abstract class User {
     // Email language preference (pl or en)
     @Column(nullable = false)
     private String emailLanguage = "pl";
+
+    // Notification preferences
+    @Column(name = "pref_email_notifications")
+    private Boolean emailNotifications = true;
+    @Column(name = "pref_booking_reminders")
+    private Boolean bookingReminders = true;
+    @Column(name = "pref_lesson_reminders")
+    private Boolean lessonReminders = true;
+    @Column(name = "pref_change_notifications")
+    private Boolean changeNotifications = true;
     
     // Relationship with calendars (one-to-many)
     // Ignored in JSON serialization to avoid circular references and lazy loading issues

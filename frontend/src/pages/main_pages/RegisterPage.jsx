@@ -7,6 +7,7 @@ import Button from "../../components/ui/Button";
 import { useTranslation } from "react-i18next";
 import "./Auth.css";
 import DateInput from "../../components/ui/DateInput";
+import { clearAuthSession } from "../../utils/auth";
 
 function RegisterPage() {
   const { t, i18n } = useTranslation("common");
@@ -110,6 +111,7 @@ function RegisterPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept-Language": i18n.language || "pl",
         },
         body: JSON.stringify({
           email: form.email,
@@ -132,16 +134,25 @@ function RegisterPage() {
 
       // If no token returned -> require email verification first
       if (!data || !data.token) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("userId");
-        localStorage.removeItem("role");
-        setErrors({ form: data?.message || t("register.verifyInfo", { defaultValue: "Registration successful. Please check your email to verify your account." }) });
+        clearAuthSession();
+        const localizedMessage = t("register.verifyInfo");
+        const fallbackMessage = "Registration successful. Please check your email to verify your account.";
+        setErrors({
+          form:
+            (localizedMessage && localizedMessage !== "register.verifyInfo"
+              ? localizedMessage
+              : undefined) ||
+            data?.message ||
+            fallbackMessage,
+        });
         setSubmitting(false);
         return;
       }
 
       // Token present -> proceed to app
+      clearAuthSession();
       localStorage.setItem("token", data.token);
+      localStorage.setItem("access_token", data.token);
       localStorage.setItem("userId", data.userId);
       localStorage.setItem("role", data.role);
       

@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./tutors.css";
 import Button from "../../../components/ui/Button";
+import Alert from "../../../components/ui/Alert";
 import { useTranslation } from "react-i18next";
 import TutorPreview from "../../../components/ui/TutorPreview";
 import {
@@ -10,6 +11,8 @@ import {
   fetchTutorBusyTimes,
   bookTutor,
 } from "../../../services/tutors";
+import { SUBJECTS, normalizeSubject } from "../../../data/subjects";
+import { ensureRoleInStorage } from "../../../utils/auth";
 
 const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const createInitialFilters = () => ({
@@ -24,7 +27,7 @@ const createInitialFilters = () => ({
 });
 
 export default function StudentTutors() {
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
   const tt = (k, o) => t(`app.student.tutors.${k}`, o);
   const dayLabel = (d) => t(`app.tutor.profile.days.${d}`);
   const busyLabel = tt("detail.busySlot");
@@ -47,14 +50,39 @@ export default function StudentTutors() {
     [filters.days]
   );
 
+  const subjectOptions = useMemo(
+    () =>
+      SUBJECTS.map((entry) => ({
+        value: entry.value,
+        label: i18n.language === "en" ? entry.labelEn : entry.label,
+      })),
+    [i18n.language]
+  );
+
+  const subjectLabelMap = useMemo(() => {
+    const map = new Map();
+    SUBJECTS.forEach((entry) => {
+      map.set(
+        entry.value,
+        i18n.language === "en" ? entry.labelEn : entry.label
+      );
+    });
+    return map;
+  }, [i18n.language]);
+
   const buildQuery = useCallback(
     (source) => {
       const query = {
         q: source.q,
-        subject: source.subject,
         city: source.city,
         maxPrice: source.price,
       };
+      const normalizedSubject = normalizeSubject(source.subject);
+      if (normalizedSubject) {
+        query.subject = normalizedSubject;
+      } else if (source.subject && source.subject.trim().length > 0) {
+        query.subject = source.subject.trim();
+      }
       const days = DAY_KEYS.filter((key) => source.days?.[key]);
       if (days.length) {
         query.days = days;
@@ -70,15 +98,32 @@ export default function StudentTutors() {
       setError("");
       try {
         const response = await fetchTutors(buildQuery(sourceFilters));
-        setTutors(response?.tutors ?? []);
+        const mapped = (response?.tutors ?? []).map((tutor) => ({
+          ...tutor,
+          subjects: (tutor.subjects || []).map(
+            (s) => subjectLabelMap.get(s) || s
+          ),
+        }));
+        setTutors(mapped);
       } catch (err) {
         setError(err.message || t("app.student.tutors.errors.list"));
       } finally {
         setLoading(false);
       }
     },
-    [buildQuery, t]
+    [buildQuery, t, subjectLabelMap]
   );
+
+  const getToken = () =>
+    localStorage.getItem("token") || localStorage.getItem("access_token");
+
+  const getRole = useCallback(() => {
+    let role = localStorage.getItem("role");
+    if (role) return role;
+    const rawToken = getToken();
+    if (!rawToken) return null;
+    return ensureRoleInStorage(rawToken);
+  }, []);
 
   useEffect(() => {
     loadTutors(createInitialFilters());
@@ -91,6 +136,14 @@ export default function StudentTutors() {
     setFilters((f) => ({ ...f, days: { ...f.days, [key]: !f.days[key] } }));
 
   const handleReset = () => {
+  const subjectOptions = useMemo(
+    () =>
+      SUBJECTS.map((entry) => ({
+        value: entry.value,
+        label: i18n.language === "en" ? entry.labelEn : entry.label,
+      })),
+    [i18n.language]
+  );
     const next = createInitialFilters();
     setFilters(next);
     loadTutors(next);
@@ -145,12 +198,20 @@ export default function StudentTutors() {
     setBookingState({ status: "idle" });
   };
 
-  const getToken = () => localStorage.getItem("token") || localStorage.getItem("access_token");
-
-  const handleBook = async ({ start, durationMinutes, notes }) => {
+  const handleBook = async ({
+    start,
+    durationMinutes,
+    notes,
+    deliveryMode,
+    onsiteCity,
+    onsitePostalCode,
+    onsiteStreet,
+    onsiteBuilding,
+    onsiteApartment,
+  }) => {
     if (!selectedTutor) return;
     const token = getToken();
-    const role = localStorage.getItem("role");
+    const role = getRole();
     if (!token || role !== "STUDENT") {
       setBookingState({ status: "unauthenticated" });
       return;
@@ -161,9 +222,19 @@ export default function StudentTutors() {
       const payload = {
         start,
         notes,
+        deliveryMode,
       };
       if (durationMinutes) {
         payload.durationMinutes = durationMinutes;
+      }
+      if (deliveryMode === "ONSITE") {
+        payload.onsiteCity = onsiteCity;
+        payload.onsitePostalCode = onsitePostalCode;
+        payload.onsiteStreet = onsiteStreet;
+        payload.onsiteBuilding = onsiteBuilding;
+        if (onsiteApartment) {
+          payload.onsiteApartment = onsiteApartment;
+        }
       }
       await bookTutor(selectedTutor.id, payload, token);
       setBookingState({ status: "success" });
@@ -209,7 +280,13 @@ export default function StudentTutors() {
               placeholder={tt("filters.subject")}
               aria-label={tt("filters.subject")}
               autoComplete="off"
+              list="subject-options"
             />
+            <datalist id="subject-options">
+              {subjectOptions.map((option) => (
+                <option key={option.value} value={option.label} />
+              ))}
+            </datalist>
           </div>
           <div className="field">
             <span className="icon" aria-hidden="true" role="presentation">
@@ -283,12 +360,17 @@ export default function StudentTutors() {
           </div>
           <div className="tutors-results-meta">
             {loading && <span>{tt("loading")}</span>}
-            {error && <span className="tutors-error">{error}</span>}
           </div>
         </div>
 
+        {error && (
+          <Alert variant="error" key="list-error">
+            {error}
+          </Alert>
+        )}
+
         {!loading && !error && tutors.length === 0 && (
-          <div className="tutors-empty">{tt("empty")}</div>
+          <Alert variant="info">{tt("empty")}</Alert>
         )}
 
         <div className="tutor-grid">

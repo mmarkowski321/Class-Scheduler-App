@@ -62,10 +62,18 @@ export default function AdminReviews() {
                 {review.studentBehaviorRating && (
                   <div><strong>{t("app.admin.reviews.studentBehaviorRating")}:</strong> {"⭐".repeat(review.studentBehaviorRating)} ({review.studentBehaviorRating}/5)</div>
                 )}
+                {review.tutorPlatformRating && (
+                  <div><strong>{t("app.admin.reviews.tutorPlatformRating")}:</strong> {"⭐".repeat(review.tutorPlatformRating)} ({review.tutorPlatformRating}/5)</div>
+                )}
               </div>
               {review.comment && (
                 <div style={{ marginTop: "12px", padding: "12px", background: "rgba(255,255,255,0.1)", borderRadius: "4px" }}>
                   <strong>{t("app.admin.reviews.comment")}:</strong> {review.comment}
+                </div>
+              )}
+              {review.tutorComment && (
+                <div style={{ marginTop: "12px", padding: "12px", background: "rgba(255,255,255,0.1)", borderRadius: "4px" }}>
+                  <strong>{t("app.admin.reviews.tutorComment")}:</strong> {review.tutorComment}
                 </div>
               )}
               <div style={{ marginTop: "8px", fontSize: "12px", color: "#aaa" }}>

@@ -2,6 +2,30 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "../../../components/ui/Button";
 import "./tutor-profile.css";
+import { SUBJECTS, normalizeSubject } from "../../../data/subjects";
+
+const splitSubjects = (raw = "") =>
+  raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+const normalizeSubjectsString = (raw = "") => {
+  const subjectTokens = splitSubjects(raw);
+  const normalized = [];
+  const extras = [];
+  subjectTokens.forEach((token) => {
+    const canonical = normalizeSubject(token);
+    if (canonical) {
+      if (!normalized.includes(canonical)) {
+        normalized.push(canonical);
+      }
+    } else if (!extras.includes(token)) {
+      extras.push(token);
+    }
+  });
+  return [...normalized, ...extras].join(", ");
+};
 
 function Check({ label, name, checked, onChange }) {
   return (
@@ -46,14 +70,97 @@ export default function TutorProfile() {
   const onToggle = (group, key) =>
     setForm((f) => ({ ...f, [group]: { ...f[group], [key]: !f[group][key] } }));
 
-  const subjectsList = useMemo(
-    () => form.subjects.split(",").map((s) => s.trim()).filter(Boolean),
-    [form.subjects]
+  const subjectOptions = useMemo(
+    () =>
+      SUBJECTS.map((entry) => ({
+        value: entry.value,
+        label: i18n.language === "en" ? entry.labelEn : entry.label,
+      })),
+    [i18n.language]
   );
+
+  const subjectLabelMap = useMemo(() => {
+    const map = new Map();
+    subjectOptions.forEach((entry) => map.set(entry.value, entry.label));
+    return map;
+  }, [subjectOptions]);
+
+  const recognizedSubjects = useMemo(() => {
+    const acc = [];
+    splitSubjects(form.subjects).forEach((token) => {
+      const canonical = normalizeSubject(token);
+      if (canonical && !acc.includes(canonical)) {
+        acc.push(canonical);
+      }
+    });
+    return acc;
+  }, [form.subjects]);
+
+  const customSubjects = useMemo(() => {
+    const acc = [];
+    splitSubjects(form.subjects).forEach((token) => {
+      const canonical = normalizeSubject(token);
+      if (!canonical) {
+        const trimmed = token.trim();
+        if (trimmed && !acc.includes(trimmed)) {
+          acc.push(trimmed);
+        }
+      }
+    });
+    return acc;
+  }, [form.subjects]);
+
+  const subjectChips = useMemo(() => {
+    const chips = [];
+    recognizedSubjects.forEach((value) => {
+      chips.push(subjectLabelMap.get(value) || value);
+    });
+    customSubjects.forEach((value) => chips.push(value));
+    return chips;
+  }, [recognizedSubjects, customSubjects, subjectLabelMap]);
+
   const langsList = useMemo(
     () => form.languages.split(",").map((s) => s.trim()).filter(Boolean),
     [form.languages]
   );
+
+  const selectedModes = useMemo(
+    () =>
+      Object.entries(form.modes)
+        .filter(([, value]) => value)
+        .map(([key]) => key),
+    [form.modes]
+  );
+
+  const isOnsiteMode = selectedModes.includes("onsite") || selectedModes.includes("hybrid");
+  const [customSubjectInput, setCustomSubjectInput] = useState("");
+
+  const handleSubjectsSelect = (event) => {
+    const selected = Array.from(event.target.selectedOptions).map((opt) => opt.value);
+    const combined = Array.from(new Set([...selected, ...customSubjects]));
+    setForm((f) => ({ ...f, subjects: combined.join(", ") }));
+  };
+
+  const handleCustomSubjectAdd = () => {
+    const trimmed = customSubjectInput.trim();
+    if (!trimmed) return;
+    const canonical = normalizeSubject(trimmed);
+    const current = new Set([...recognizedSubjects, ...customSubjects]);
+    if (canonical) {
+      current.add(canonical);
+    } else {
+      current.add(trimmed);
+    }
+    setForm((f) => ({ ...f, subjects: Array.from(current).join(", ") }));
+    setCustomSubjectInput("");
+  };
+
+  const handleCustomSubjectKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleCustomSubjectAdd();
+    }
+  };
 
   // Avatar w nagłówku (pokazuje podgląd jeśli jest wgrane zdjęcie)
   const avatarSrc = form.photoPreview
@@ -92,11 +199,14 @@ export default function TutorProfile() {
         const res = await fetch(`/api/profile/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
         if (!res.ok) return;
         const p = await res.json();
-        setForm((f) => ({
+        setForm((f) => {
+          const mergedSubjects = normalizeSubjectsString(p.subjects || "");
+
+          return {
           ...f,
           education: p.education || "",
           experienceYears: p.experienceYears ?? "",
-          subjects: p.subjects || "",
+          subjects: mergedSubjects,
           exams: p.examResults || "",
           hourlyRate: p.hourlyRate ?? "",
           lessonDuration: p.lessonDuration ?? "60",
@@ -110,36 +220,99 @@ export default function TutorProfile() {
           website: p.website || "",
           linkedin: p.linkedIn || "",
           // preferredDays etc. są w Tutor modelu, ale nie ma UI tutaj – pomijamy
-        }));
+        };
+        });
       } catch {}
     })();
   }, []);
 
   const onSave = async () => {
     const eMap = {};
-    if (!form.education.trim()) eMap.education = t("app.tutor.profile.validation.education");
+    const trimmedEducation = form.education.trim();
+    if (!trimmedEducation) {
+      eMap.education = t("app.tutor.profile.validation.education");
+    }
+
+    const experienceValue = form.experienceYears ? parseFloat(form.experienceYears) : NaN;
+    if (!Number.isFinite(experienceValue) || experienceValue < 0) {
+      eMap.experienceYears = t("app.tutor.profile.validation.experienceYears");
+    }
+
+    const subjectsCount = form.subjects
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean).length;
+    if (!subjectsCount) {
+      eMap.subjects = t("app.tutor.profile.validation.subjects");
+    }
+
+    const hourlyValue = form.hourlyRate ? parseFloat(form.hourlyRate) : NaN;
+    if (!Number.isFinite(hourlyValue) || hourlyValue <= 0) {
+      eMap.hourlyRate = t("app.tutor.profile.validation.hourlyRate");
+    }
+
+    const durationValue = form.lessonDuration ? parseInt(form.lessonDuration, 10) : NaN;
+    if (!Number.isFinite(durationValue) || durationValue <= 0) {
+      eMap.lessonDuration = t("app.tutor.profile.validation.lessonDuration");
+    }
+
+    if (!form.languages.trim()) {
+      eMap.languages = t("app.tutor.profile.validation.languages");
+    }
+
+    if (!selectedModes.length) {
+      eMap.lessonModes = t("app.tutor.profile.validation.lessonModes");
+    }
+
+    if (isOnsiteMode && !form.city.trim()) {
+      eMap.city = t("app.tutor.profile.validation.city");
+    }
+
+    const travelValue = form.travelRadiusKm ? parseInt(form.travelRadiusKm, 10) : NaN;
+    if (isOnsiteMode && (!Number.isFinite(travelValue) || travelValue <= 0)) {
+      eMap.travelRadiusKm = t("app.tutor.profile.validation.travelRadius");
+    }
+
+    if (!form.methods.trim()) {
+      eMap.methods = t("app.tutor.profile.validation.methods");
+    }
+
+    if (!form.bio.trim()) {
+      eMap.bio = t("app.tutor.profile.validation.bio");
+    }
+
     if (Object.keys(eMap).length) {
       setErrors(eMap);
       return;
     }
+    setErrors({});
 
     try {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
       if (!token || !userId) return;
+      const experienceYears = Number.isFinite(experienceValue) ? Math.max(0, Math.round(experienceValue)) : null;
+      const hourlyRate = Number.isFinite(hourlyValue) ? parseFloat(hourlyValue.toFixed(2)) : null;
+      const lessonDuration = Number.isFinite(durationValue) ? Math.max(1, durationValue) : null;
+      const travelRadius =
+        Number.isFinite(travelValue) && travelValue > 0 ? Math.round(travelValue) : null;
       const payload = {
-        education: form.education,
-        experienceYears: form.experienceYears ? parseInt(form.experienceYears, 10) : null,
-        subjects: form.subjects,
+        education: trimmedEducation,
+        experienceYears,
+        subjects: form.subjects
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .join(", "),
         examResults: form.exams,
-        hourlyRate: form.hourlyRate ? parseFloat(form.hourlyRate) : null,
-        lessonDuration: form.lessonDuration ? parseInt(form.lessonDuration, 10) : null,
-        teachingLanguages: form.languages,
+        hourlyRate,
+        lessonDuration,
+        teachingLanguages: form.languages.trim(),
         lessonModes: JSON.stringify(form.modes),
-        city: form.city,
-        travelRadius: form.travelRadiusKm ? parseInt(form.travelRadiusKm, 10) : null,
-        teachingMethods: form.methods,
-        bio: form.bio,
+        city: form.city.trim(),
+        travelRadius,
+        teachingMethods: form.methods.trim(),
+        bio: form.bio.trim(),
         certificates: form.certificates,
         website: form.website,
         linkedIn: form.linkedin,
@@ -159,7 +332,7 @@ export default function TutorProfile() {
           ...f,
           education: p.education || "",
           experienceYears: p.experienceYears ?? "",
-          subjects: p.subjects || "",
+        subjects: normalizeSubjectsString(p.subjects || ""),
           exams: p.examResults || "",
           hourlyRate: p.hourlyRate ?? "",
           lessonDuration: p.lessonDuration ?? "60",
@@ -208,13 +381,32 @@ export default function TutorProfile() {
         </div>
       </div>
 
+      <div className="required-note">
+        <span
+          className="required-badge"
+          aria-hidden="true"
+        >
+          *
+        </span>
+        <span>{t("app.tutor.profile.requiredNotice")}</span>
+      </div>
+
       {/* PODSTAWOWE */}
       <fieldset disabled={!isEditing} className="tutor-fieldset">
       <div className="tutor-section">
         <h4 className="title">{t("app.tutor.profile.basic")}</h4>
         <div className="form-single-column">
           <div className="field">
-            <label>{t("app.tutor.profile.education")}</label>
+            <label>
+              {t("app.tutor.profile.education")}
+              <span
+                className="required-badge"
+                title={t("app.tutor.profile.requiredLabel")}
+                aria-hidden="true"
+              >
+                *
+              </span>
+            </label>
             <input
               name="education"
               value={form.education}
@@ -226,7 +418,16 @@ export default function TutorProfile() {
           </div>
 
           <div className="field">
-            <label>{t("app.tutor.profile.experience")}</label>
+            <label>
+              {t("app.tutor.profile.experience")}
+              <span
+                className="required-badge"
+                title={t("app.tutor.profile.requiredLabel")}
+                aria-hidden="true"
+              >
+                *
+              </span>
+            </label>
             <input
               name="experienceYears"
               inputMode="numeric"
@@ -234,11 +435,15 @@ export default function TutorProfile() {
               onChange={onChange}
               placeholder={t("app.tutor.profile.placeholders.experience")}
             />
+            {errors.experienceYears && <div className="field-error">{errors.experienceYears}</div>}
           </div>
 
           {/* Uploader zdjęcia */}
           <div className="field photo-field">
-            <label>{t("app.tutor.profile.photoUpload")}</label>
+            <label>
+              {t("app.tutor.profile.photoUpload")}
+              <span className="optional-badge">{t("app.tutor.profile.optionalTag")}</span>
+            </label>
             <div
               className={`photo-uploader ${form.photoPreview ? "has-image" : ""}`}
               onDragEnter={prevent}
@@ -296,25 +501,64 @@ export default function TutorProfile() {
         <h4 className="title">{t("app.tutor.profile.offer")}</h4>
         <div className="form-single-column">
           <div className="field">
-            <label>{t("app.tutor.profile.subjects")}</label>
-            <input
-              name="subjects"
-              value={form.subjects}
-              onChange={onChange}
-              placeholder={t("app.tutor.profile.placeholders.subjects")}
-            />
-            <small className="hint">{t("app.tutor.profile.subjectsHint")}</small>
-            {!!subjectsList.length && (
+            <label>
+              {t("app.tutor.profile.subjects")}
+              <span
+                className="required-badge"
+                title={t("app.tutor.profile.requiredLabel")}
+                aria-hidden="true"
+              >
+                *
+              </span>
+            </label>
+            <select
+              multiple
+              value={recognizedSubjects}
+              onChange={handleSubjectsSelect}
+              className="select"
+            >
+              {subjectOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <small className="hint">{t("app.tutor.profile.subjectsHintSelect")}</small>
+            {!!subjectChips.length && (
               <div className="chips">
-                {subjectsList.map((s, i) => (
-                  <span key={i} className="chip">{s}</span>
+                {subjectChips.map((label, index) => (
+                  <span key={index} className="chip">
+                    {label}
+                  </span>
                 ))}
               </div>
             )}
+            {errors.subjects && <div className="field-error">{errors.subjects}</div>}
+          </div>
+          <div className="field">
+            <label>
+              {t("app.tutor.profile.subjectsCustom")}
+              <span className="optional-badge">{t("app.tutor.profile.optionalTag")}</span>
+            </label>
+            <div style={{ display: "flex", gap: "12px" }}>
+              <input
+                value={customSubjectInput}
+                onChange={(e) => setCustomSubjectInput(e.target.value)}
+                onKeyDown={handleCustomSubjectKeyDown}
+                placeholder={t("app.tutor.profile.subjectsCustomPlaceholder")}
+              />
+              <button type="button" className="btn-secondary" onClick={handleCustomSubjectAdd}>
+                {t("app.tutor.profile.subjectsCustomAdd")}
+              </button>
+            </div>
+            <small className="hint">{t("app.tutor.profile.subjectsCustomHint")}</small>
           </div>
 
           <div className="field">
-            <label>{t("app.tutor.profile.exams")}</label>
+            <label>
+              {t("app.tutor.profile.exams")}
+              <span className="optional-badge">{t("app.tutor.profile.optionalTag")}</span>
+            </label>
             <input
               name="exams"
               value={form.exams}
@@ -325,7 +569,16 @@ export default function TutorProfile() {
           </div>
 
           <div className="field">
-            <label>{t("app.tutor.profile.hourly")}</label>
+            <label>
+              {t("app.tutor.profile.hourly")}
+              <span
+                className="required-badge"
+                title={t("app.tutor.profile.requiredLabel")}
+                aria-hidden="true"
+              >
+                *
+              </span>
+            </label>
             <input
               name="hourlyRate"
               inputMode="decimal"
@@ -333,10 +586,20 @@ export default function TutorProfile() {
               onChange={onChange}
               placeholder={t("app.tutor.profile.placeholders.hourly")}
             />
+            {errors.hourlyRate && <div className="field-error">{errors.hourlyRate}</div>}
           </div>
 
           <div className="field">
-            <label>{t("app.tutor.profile.lessonDuration")}</label>
+            <label>
+              {t("app.tutor.profile.lessonDuration")}
+              <span
+                className="required-badge"
+                title={t("app.tutor.profile.requiredLabel")}
+                aria-hidden="true"
+              >
+                *
+              </span>
+            </label>
             <input
               name="lessonDuration"
               inputMode="numeric"
@@ -344,10 +607,20 @@ export default function TutorProfile() {
               onChange={onChange}
               placeholder={t("app.tutor.profile.placeholders.duration")}
             />
+            {errors.lessonDuration && <div className="field-error">{errors.lessonDuration}</div>}
           </div>
 
           <div className="field">
-            <label>{t("app.tutor.profile.languages")}</label>
+            <label>
+              {t("app.tutor.profile.languages")}
+              <span
+                className="required-badge"
+                title={t("app.tutor.profile.requiredLabel")}
+                aria-hidden="true"
+              >
+                *
+              </span>
+            </label>
             <input
               name="languages"
               value={form.languages}
@@ -361,10 +634,20 @@ export default function TutorProfile() {
                 ))}
               </div>
             )}
+            {errors.languages && <div className="field-error">{errors.languages}</div>}
           </div>
 
           <div className="field">
-            <label>{t("app.tutor.profile.modes")}</label>
+            <label>
+              {t("app.tutor.profile.modes")}
+              <span
+                className="required-badge"
+                title={t("app.tutor.profile.requiredLabel")}
+                aria-hidden="true"
+              >
+                *
+              </span>
+            </label>
             <div className="checks">
               <Check
                 label={modeLabels.online}
@@ -385,20 +668,54 @@ export default function TutorProfile() {
                 onChange={() => onToggle("modes", "hybrid")}
               />
             </div>
+            <small className="hint">{t("app.tutor.profile.modesHint")}</small>
+            {errors.lessonModes && <div className="field-error">{errors.lessonModes}</div>}
           </div>
 
           <div className="field">
-            <label>{t("app.tutor.profile.city")}</label>
+            <label>
+              {t("app.tutor.profile.city")}
+              {isOnsiteMode ? (
+                <span
+                  className="required-badge"
+                  title={t("app.tutor.profile.requiredLabel")}
+                  aria-hidden="true"
+                >
+                  *
+                </span>
+              ) : (
+                <span className="optional-badge">{t("app.tutor.profile.optionalTag")}</span>
+              )}
+            </label>
             <input
               name="city"
               value={form.city}
               onChange={onChange}
               placeholder={t("app.tutor.profile.placeholders.city")}
             />
+            <small className="hint">
+              {isOnsiteMode
+                ? t("app.tutor.profile.cityHintRequired")
+                : t("app.tutor.profile.cityHintOptional")}
+            </small>
+            {errors.city && <div className="field-error">{errors.city}</div>}
           </div>
 
           <div className="field">
-            <label>{t("app.tutor.profile.radius")}</label>
+            <label>
+              {t("app.tutor.profile.radius")}
+              {isOnsiteMode ? (
+                <span
+                  className="required-badge"
+                  title={t("app.tutor.profile.requiredLabel")}
+                  aria-hidden="true"
+                >
+                  *
+                </span>
+              ) : (
+                <span className="optional-badge">{t("app.tutor.profile.optionalTag")}</span>
+              )}
+            </label>
             <input
               name="travelRadiusKm"
               inputMode="numeric"
@@ -406,6 +723,12 @@ export default function TutorProfile() {
               onChange={onChange}
               placeholder={t("app.tutor.profile.placeholders.radius")}
             />
+            <small className="hint">
+              {isOnsiteMode
+                ? t("app.tutor.profile.travelHintRequired")
+                : t("app.tutor.profile.travelHintOptional")}
+            </small>
+            {errors.travelRadiusKm && <div className="field-error">{errors.travelRadiusKm}</div>}
           </div>
         </div>
       </div>
@@ -415,7 +738,16 @@ export default function TutorProfile() {
         <h4 className="title">{t("app.tutor.profile.methods")}</h4>
         <div className="form-single-column">
           <div className="field">
-            <label>{t("app.tutor.profile.teachingMethods")}</label>
+            <label>
+              {t("app.tutor.profile.teachingMethods")}
+              <span
+                className="required-badge"
+                title={t("app.tutor.profile.requiredLabel")}
+                aria-hidden="true"
+              >
+                *
+              </span>
+            </label>
             <textarea
               name="methods"
               rows={4}
@@ -423,10 +755,20 @@ export default function TutorProfile() {
               onChange={onChange}
               placeholder={t("app.tutor.profile.placeholders.methods")}
             />
+            {errors.methods && <div className="field-error">{errors.methods}</div>}
           </div>
 
           <div className="field">
-            <label>{t("app.tutor.profile.bio")}</label>
+            <label>
+              {t("app.tutor.profile.bio")}
+              <span
+                className="required-badge"
+                title={t("app.tutor.profile.requiredLabel")}
+                aria-hidden="true"
+              >
+                *
+              </span>
+            </label>
             <textarea
               name="bio"
               rows={3}
@@ -434,10 +776,14 @@ export default function TutorProfile() {
               onChange={onChange}
               placeholder={t("app.tutor.profile.placeholders.bio")}
             />
+            {errors.bio && <div className="field-error">{errors.bio}</div>}
           </div>
 
           <div className="field">
-            <label>{t("app.tutor.profile.certs")}</label>
+            <label>
+              {t("app.tutor.profile.certs")}
+              <span className="optional-badge">{t("app.tutor.profile.optionalTag")}</span>
+            </label>
             <textarea
               name="certificates"
               rows={3}
@@ -454,7 +800,10 @@ export default function TutorProfile() {
         <h4 className="title">{t("app.tutor.profile.links")}</h4>
         <div className="form-single-column">
           <div className="field">
-            <label>{t("app.tutor.profile.website")}</label>
+            <label>
+              {t("app.tutor.profile.website")}
+              <span className="optional-badge">{t("app.tutor.profile.optionalTag")}</span>
+            </label>
             <input
               name="website"
               value={form.website}
@@ -464,7 +813,10 @@ export default function TutorProfile() {
           </div>
 
           <div className="field">
-            <label>{t("app.tutor.profile.linkedin")}</label>
+            <label>
+              {t("app.tutor.profile.linkedin")}
+              <span className="optional-badge">{t("app.tutor.profile.optionalTag")}</span>
+            </label>
             <input
               name="linkedin"
               value={form.linkedin}

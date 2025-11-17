@@ -1,20 +1,93 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "../../../components/ui/Button";
 import Check from "../../../components/ui/Check";
 import "./tutor-availability.css";
 
+const DEFAULT_DAYS = Object.freeze({
+  mon: true,
+  tue: true,
+  wed: true,
+  thu: true,
+  fri: true,
+  sat: false,
+  sun: false,
+});
+
+const normalisePreferredDays = (raw) => {
+  const baseKeys = Object.keys(DEFAULT_DAYS);
+  const result = { ...DEFAULT_DAYS };
+  if (!raw || typeof raw !== "string") {
+    return result;
+  }
+
+  const trimmed = raw.trim();
+
+  const applyFromSet = (set) => {
+    baseKeys.forEach((key) => {
+      result[key] = set.has(key);
+    });
+    return result;
+  };
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (Array.isArray(parsed)) {
+      const lowered = new Set(
+        parsed
+          .map((value) => (typeof value === "string" ? value.toLowerCase() : value))
+          .filter((value) => typeof value === "string" && value in result)
+      );
+      return applyFromSet(lowered);
+    }
+    if (parsed && typeof parsed === "object") {
+      const loweredEntries = Object.entries(parsed).reduce((acc, [key, value]) => {
+        if (typeof key === "string") {
+          acc[key.toLowerCase()] = Boolean(value);
+        }
+        return acc;
+      }, {});
+      let any = false;
+      baseKeys.forEach((key) => {
+        if (key in loweredEntries) {
+          result[key] = loweredEntries[key];
+          any = true;
+        } else {
+          result[key] = false;
+        }
+      });
+      return any ? result : { ...DEFAULT_DAYS };
+    }
+  } catch (error) {
+    // will continue with fallback parsing below
+  }
+
+  const lowered = new Set(
+    trimmed
+      .split(/[,\s;]+/)
+      .map((part) => part.trim().toLowerCase())
+      .filter((part) => part && part in result)
+  );
+
+  if (lowered.size > 0) {
+    return applyFromSet(lowered);
+  }
+
+  return result;
+};
+
 export default function TutorAvailability() {
   const { t } = useTranslation("common");
-  const token = localStorage.getItem("token");
+  const getToken = useCallback(
+    () => localStorage.getItem("token") || localStorage.getItem("access_token"),
+    []
+  );
   const userId = localStorage.getItem("userId");
 
   const [form, setForm] = useState({
     maxLessonsPerDay: "",
     bufferMin: "10",
-    preferredDays: {
-      mon: true, tue: true, wed: true, thu: true, fri: true, sat: false, sun: false,
-    },
+    preferredDays: { ...DEFAULT_DAYS },
   });
 
   const [calendars, setCalendars] = useState([]); // List of calendars
@@ -35,6 +108,7 @@ export default function TutorAvailability() {
   // Load user data and calendars
   useEffect(() => {
     const loadUserData = async () => {
+      const token = getToken();
       if (!token || !userId) return;
       try {
         // Load profile
@@ -45,9 +119,15 @@ export default function TutorAvailability() {
           const user = await res.json();
           setForm((f) => ({
             ...f,
-            maxLessonsPerDay: user.maxLessonsPerDay || "",
-            bufferMin: user.bufferTime || "10",
-            preferredDays: user.preferredDays ? JSON.parse(user.preferredDays) : f.preferredDays,
+            maxLessonsPerDay:
+              user.maxLessonsPerDay !== null && user.maxLessonsPerDay !== undefined
+                ? String(user.maxLessonsPerDay)
+                : "",
+            bufferMin:
+              user.bufferTime !== null && user.bufferTime !== undefined
+                ? String(user.bufferTime)
+                : "10",
+            preferredDays: normalisePreferredDays(user.preferredDays),
           }));
         }
 
@@ -76,9 +156,10 @@ export default function TutorAvailability() {
       }
     };
     loadUserData();
-  }, [token, userId]);
+  }, [getToken, userId]);
 
   const syncAllCalendars = async () => {
+    const token = getToken();
     if (!token || !userId) return;
     
     setLoadingCalendar(true);
@@ -110,6 +191,9 @@ export default function TutorAvailability() {
       setErrors({ calendar: "Calendar URL is required" });
       return;
     }
+
+    const token = getToken();
+    if (!token) return;
 
     try {
       const response = await fetch(`/api/profile/${userId}/calendars`, {
@@ -151,6 +235,9 @@ export default function TutorAvailability() {
       return;
     }
 
+    const token = getToken();
+    if (!token) return;
+
     try {
       const response = await fetch(`/api/profile/${userId}/calendars/${calendarId}`, {
         method: "DELETE",
@@ -190,15 +277,18 @@ export default function TutorAvailability() {
   const handleSave = async () => {
     const newErrors = {};
 
-    if (!form.maxLessonsPerDay.trim()) {
+    const maxLessonsStr = String(form.maxLessonsPerDay ?? "").trim();
+    const bufferStr = String(form.bufferMin ?? "").trim();
+
+    if (!maxLessonsStr) {
       newErrors.maxLessonsPerDay = t("app.tutor.availability.errors.maxLessonsRequired");
-    } else if (isNaN(form.maxLessonsPerDay) || parseInt(form.maxLessonsPerDay) < 1) {
+    } else if (isNaN(maxLessonsStr) || parseInt(maxLessonsStr, 10) < 1) {
       newErrors.maxLessonsPerDay = t("app.tutor.availability.errors.maxLessonsInvalid");
     }
 
-    if (!form.bufferMin.trim()) {
+    if (!bufferStr) {
       newErrors.bufferMin = t("app.tutor.availability.errors.bufferRequired");
-    } else if (isNaN(form.bufferMin) || parseInt(form.bufferMin) < 0) {
+    } else if (isNaN(bufferStr) || parseInt(bufferStr, 10) < 0) {
       newErrors.bufferMin = t("app.tutor.availability.errors.bufferInvalid");
     }
 
@@ -208,6 +298,9 @@ export default function TutorAvailability() {
     }
 
     try {
+      const token = getToken();
+      if (!token) throw new Error("Unauthorized");
+
       const response = await fetch(`/api/profile/tutor/${userId}`, {
         method: "PUT",
         headers: {
@@ -215,8 +308,8 @@ export default function TutorAvailability() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          maxLessonsPerDay: parseInt(form.maxLessonsPerDay),
-          bufferTime: parseInt(form.bufferMin),
+          maxLessonsPerDay: parseInt(maxLessonsStr, 10),
+          bufferTime: parseInt(bufferStr, 10),
           preferredDays: JSON.stringify(form.preferredDays),
         }),
       });
@@ -224,6 +317,11 @@ export default function TutorAvailability() {
       if (response.ok) {
         setSuccessMessage(t("app.tutor.availability.success.saved"));
         setErrors({});
+        setForm((f) => ({
+          ...f,
+          maxLessonsPerDay: maxLessonsStr,
+          bufferMin: bufferStr,
+        }));
       } else {
         const errorData = await response.json();
         setErrors({ form: errorData.error || "Failed to save availability" });

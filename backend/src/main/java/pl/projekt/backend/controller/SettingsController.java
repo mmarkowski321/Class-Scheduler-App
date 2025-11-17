@@ -191,5 +191,118 @@ public class SettingsController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PutMapping("/account/{userId}/deactivate")
+    public ResponseEntity<?> deactivateAccount(@PathVariable Long userId) {
+        try {
+            Optional<User> userOpt = userRepository.findById(userId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
+            }
+            User user = userOpt.get();
+            if (Boolean.TRUE.equals(user.getBanned())) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Account already deactivated"));
+            }
+            user.ban(); // use banned flag to represent deactivation (blocks login)
+            User saved = userRepository.save(user);
+            return ResponseEntity.ok(Map.of("message", "Account deactivated successfully", "user", saved));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/account/{userId}/activate")
+    public ResponseEntity<?> activateAccount(@PathVariable Long userId) {
+        try {
+            Optional<User> userOpt = userRepository.findById(userId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
+            }
+            User user = userOpt.get();
+            if (!Boolean.TRUE.equals(user.getBanned())) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Account already active"));
+            }
+            user.unban();
+            User saved = userRepository.save(user);
+            return ResponseEntity.ok(Map.of("message", "Account reactivated successfully", "user", saved));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/account/{userId}")
+    public ResponseEntity<?> deleteAccount(@PathVariable Long userId) {
+        try {
+            Optional<User> userOpt = userRepository.findById(userId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
+            }
+            User user = userOpt.get();
+            // Soft-delete: anonymize & ban to avoid orphan FKs while respecting uniqueness on email
+            String placeholderEmail = "deleted+" + user.getId() + "@users.eduscheduler";
+            user.setEmail(placeholderEmail);
+            user.setFirstName("Deleted");
+            user.setLastName("User");
+            user.setEmailVerified(false);
+            user.setVerificationToken(null);
+            user.setResetPasswordToken(null);
+            user.setResetPasswordTokenExpiry(null);
+            user.ban();
+            userRepository.save(user);
+            return ResponseEntity.ok(Map.of("message", "Account deleted (anonymized) successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/notifications/{userId}")
+    public ResponseEntity<?> getNotifications(@PathVariable Long userId) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
+        }
+        User user = userOpt.get();
+        boolean emailNotif = Boolean.TRUE.equals(user.getEmailNotifications());
+        boolean bookingRem = Boolean.TRUE.equals(user.getBookingReminders());
+        boolean lessonRem = Boolean.TRUE.equals(user.getLessonReminders());
+        boolean changeNotif = Boolean.TRUE.equals(user.getChangeNotifications());
+        boolean autoAccept = false;
+        if (user instanceof pl.projekt.backend.model.Tutor) {
+            autoAccept = Boolean.TRUE.equals(((pl.projekt.backend.model.Tutor) user).getAutoAcceptBookings());
+        }
+        return ResponseEntity.ok(Map.of(
+                "emailNotifications", emailNotif,
+                "bookingReminders", bookingRem,
+                "lessonReminders", lessonRem,
+                "changeNotifications", changeNotif,
+                "autoAcceptBookings", autoAccept
+        ));
+    }
+
+    @PutMapping("/notifications/{userId}")
+    public ResponseEntity<?> updateNotifications(@PathVariable Long userId, @RequestBody Map<String, Object> req) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
+        }
+        User user = userOpt.get();
+        if (req.containsKey("emailNotifications")) {
+            user.setEmailNotifications(Boolean.TRUE.equals(req.get("emailNotifications")));
+        }
+        if (req.containsKey("bookingReminders")) {
+            user.setBookingReminders(Boolean.TRUE.equals(req.get("bookingReminders")));
+        }
+        if (req.containsKey("lessonReminders")) {
+            user.setLessonReminders(Boolean.TRUE.equals(req.get("lessonReminders")));
+        }
+        if (req.containsKey("changeNotifications")) {
+            user.setChangeNotifications(Boolean.TRUE.equals(req.get("changeNotifications")));
+        }
+        if (req.containsKey("autoAcceptBookings") && user instanceof pl.projekt.backend.model.Tutor) {
+            ((pl.projekt.backend.model.Tutor) user).setAutoAcceptBookings(Boolean.TRUE.equals(req.get("autoAcceptBookings")));
+        }
+        userRepository.save(user);
+        return ResponseEntity.ok(Map.of("message", "Notification preferences updated"));
+    }
 }
 

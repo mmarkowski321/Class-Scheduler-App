@@ -1,5 +1,6 @@
-import { NavLink, Routes, Route } from "react-router-dom";
+import { NavLink, Routes, Route, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 import AppShell from "./AppShell";
 import TutorOverview from "./tutor/TutorOverview";
 import TutorProfile from "./tutor/TutorProfile";
@@ -11,13 +12,29 @@ import TutorReviews from "./tutor/TutorReviews";
 
 export default function TutorApp() {
   const { t } = useTranslation("common");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const role = localStorage.getItem("role");
+    if (!role) {
+      navigate("/login", { replace: true });
+      return;
+    }
+    if (role !== "TUTOR") {
+      navigate(role === "STUDENT" ? "/app/student" : "/app/admin", {
+        replace: true,
+      });
+    }
+  }, [navigate]);
 
   return (
     <AppShell
       titleKey="app.tutor.title"
       sidebar={
         <nav className="nav">
-          <NavLink to="/app/tutor" end>🏠 {t("sidebar.nav.overview")}</NavLink>
+          <NavLink to="/app/tutor" end>
+            🏠 {t("sidebar.nav.overview")}
+          </NavLink>
           <NavLink to="/app/tutor/profile">👤 {t("sidebar.nav.profile")}</NavLink>
           <NavLink to="/app/tutor/lessons">📝 {t("sidebar.nav.lessons")}</NavLink>
           <NavLink to="/app/tutor/calendar">🗓️ {t("sidebar.nav.calendar")}</NavLink>
