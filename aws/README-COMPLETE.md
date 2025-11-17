@@ -209,11 +209,21 @@ aws configure
 # 3. Sprawdź czy AWS działa
 aws sts get-caller-identity
 
-# 4. Utwórz Kubernetes secret dla ECR
-cd Class-Scheduler-App  # Jeśli sklonowałeś repo
-# LUB
-cd ~  # Jeśli masz tylko k8s/ folder
+# 4. Sklonuj repozytorium (wszystkie branche)
+git clone --all <twoje-repo-url>
+cd Class-Scheduler-App
 
+# LUB sklonuj tylko main (jeśli wystarczy):
+# git clone <twoje-repo-url>
+# cd Class-Scheduler-App
+
+# LUB skopiuj pliki przez scp z lokalnego komputera:
+# (z lokalnego komputera, w PowerShell/Git Bash):
+# cd C:\Users\Acer\Desktop\Class-Scheduler-App
+# scp -i ~/.ssh/eduscheduler-key -r aws/ admin@VM_PUBLIC_IP:~/Class-Scheduler-App/
+# scp -i ~/.ssh/eduscheduler-key -r k8s/ admin@VM_PUBLIC_IP:~/Class-Scheduler-App/
+
+# 5. Utwórz Kubernetes secret dla ECR
 chmod +x aws/create-ecr-secret.sh
 ./aws/create-ecr-secret.sh
 ```
@@ -247,9 +257,13 @@ kubectl get secret ecr-registry-secret
 ### **Przygotowanie (na VM):**
 
 ```bash
-# Jeśli jeszcze nie sklonowałeś repo:
-git clone <twoje-repo-url>
+# Jeśli jeszcze nie sklonowałeś repo (wszystkie branche):
+git clone --all <twoje-repo-url>
 cd Class-Scheduler-App
+
+# LUB tylko main branch:
+# git clone <twoje-repo-url>
+# cd Class-Scheduler-App
 
 # LUB jeśli masz tylko k8s/ folder:
 # Upewnij się że masz folder k8s/ z wszystkimi manifestami
