@@ -3,13 +3,12 @@ kind: Service
 metadata:
   name: eduscheduler-frontend
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: eduscheduler-frontend
   ports:
     - name: http
       port: 80
       targetPort: 80
-      nodePort: 30080
 
 
