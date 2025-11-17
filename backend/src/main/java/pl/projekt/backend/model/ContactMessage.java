@@ -27,6 +27,15 @@ public class ContactMessage {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
+    @Column(nullable = false)
+    private Boolean replied = false;
+    
+    @Column(name = "admin_reply")
+    private String adminReply;
+    
+    @Column(name = "replied_at")
+    private LocalDateTime repliedAt;
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

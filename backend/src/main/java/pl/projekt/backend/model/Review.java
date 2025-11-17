@@ -48,5 +48,16 @@ public class Review {
 
     @Column(name = "tutor_review_at")
     private LocalDateTime tutorReviewAt;
+    
+    // Transient field for sorting/display (not in DB schema)
+    @jakarta.persistence.Transient
+    private LocalDateTime createdAt;
+    
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 }
 

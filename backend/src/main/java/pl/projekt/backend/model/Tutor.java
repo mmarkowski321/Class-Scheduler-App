@@ -6,6 +6,7 @@ import lombok.Data;
 @Entity
 @DiscriminatorValue("TUTOR")
 @Data
+@lombok.EqualsAndHashCode(callSuper = false)
 public class Tutor extends User {
     
     // Basic profile fields
