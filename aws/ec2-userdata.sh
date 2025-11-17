@@ -53,9 +53,18 @@ rm -rf aws awscliv2.zip
 aws --version || echo "AWS CLI installed (version check skipped)"
 
 echo "Starting minikube as user $DEFAULT_USER..."
-sudo -u "$DEFAULT_USER" -E env HOME=/home/$DEFAULT_USER minikube start --driver=docker || {
+MEMORY_SIZE="3000mb"
+TOTAL_MEM=$(free -m | awk '/^Mem:/{print $2}')
+if [ "$TOTAL_MEM" -lt 3500 ]; then
+    MEMORY_SIZE="2400mb"
+fi
+if [ "$TOTAL_MEM" -lt 2500 ]; then
+    MEMORY_SIZE="2000mb"
+fi
+echo "Starting Minikube with ${MEMORY_SIZE} memory..."
+sudo -u "$DEFAULT_USER" -E env HOME=/home/$DEFAULT_USER minikube start --driver=docker --memory="$MEMORY_SIZE" || {
     echo "Minikube start as $DEFAULT_USER failed, trying as root..."
-    minikube start --driver=docker
+    minikube start --driver=docker --memory="$MEMORY_SIZE"
 }
 
 echo "Enabling metrics-server addon..."

@@ -74,7 +74,8 @@ public class SecurityConfig {
                 "http://localhost:3000",
                 "http://localhost:80",
                 "http://localhost:8080",
-                "http://51.20.81.36:30080"
+                "http://51.20.81.36:30080",
+                "http://13.62.198.13:30080"
             ));
         }
         
