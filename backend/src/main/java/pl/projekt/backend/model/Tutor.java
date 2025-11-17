@@ -26,7 +26,7 @@ public class Tutor extends User {
     @Column(name = "tutor_exam_results")
     private String examResults;
     
-    @Column(name = "tutor_hourly_rate")
+    @Column(name = "tutor_hourly_rate", columnDefinition = "NUMERIC(12,2)")
     private Double hourlyRate;
     
     @Column(name = "tutor_lesson_duration")
