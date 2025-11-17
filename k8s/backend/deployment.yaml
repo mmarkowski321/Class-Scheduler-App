@@ -16,8 +16,8 @@ spec:
         - name: ecr-registry-secret
       containers:
         - name: backend
-          image: 619613970416.dkr.ecr.eu-north-1.amazonaws.com/eduscheduler-backend:dev
-          imagePullPolicy: IfNotPresent
+          image: 619613970416.dkr.ecr.eu-north-1.amazonaws.com/eduscheduler-backend:develop
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
