@@ -6,6 +6,7 @@ import lombok.Data;
 @Entity
 @DiscriminatorValue("ADMIN")
 @Data
+@lombok.EqualsAndHashCode(callSuper = false)
 public class Admin extends User {
     
     // Admin-specific fields can be added here in the future

@@ -139,6 +139,13 @@ CREATE TABLE IF NOT EXISTS lessons (
     meeting_link    TEXT,
     google_event_id VARCHAR(255),
     notes           TEXT,
+    
+    -- Onsite location (for ONSITE delivery mode)
+    onsite_city     VARCHAR(120),
+    onsite_postal_code VARCHAR(20),
+    onsite_street   VARCHAR(255),
+    onsite_building VARCHAR(50),
+    onsite_apartment VARCHAR(50),
 
     -- Reschedule proposal flow
     proposed_start_time TIMESTAMP,
@@ -214,8 +221,13 @@ CREATE TABLE IF NOT EXISTS contact_messages (
     email           VARCHAR(255) NOT NULL,
     subject         VARCHAR(255),
     message         TEXT NOT NULL,
+    replied         BOOLEAN DEFAULT FALSE,
+    admin_reply     TEXT,
+    replied_at      TIMESTAMP,
     created_at      TIMESTAMP DEFAULT NOW()
 );
+
+
 
 -- =========================
 -- Minimal seed (optional)
