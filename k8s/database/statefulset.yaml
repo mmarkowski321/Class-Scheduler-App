@@ -13,9 +13,15 @@ spec:
       labels:
         app: postgres
     spec:
+      initContainers:
+        - name: volume-permissions
+          image: busybox
+          command: ['sh', '-c', 'chown -R 999:999 /var/lib/postgresql/data']
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
       securityContext:
         fsGroup: 999
-        runAsUser: 999
       containers:
         - name: postgres
           image: postgres:16
@@ -28,13 +34,11 @@ spec:
           volumeMounts:
             - name: pgdata
               mountPath: /var/lib/postgresql/data
-              subPath: data
       restartPolicy: Always
   volumeClaimTemplates:
     - metadata:
         name: pgdata
       spec:
-        storageClassName: standard
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
