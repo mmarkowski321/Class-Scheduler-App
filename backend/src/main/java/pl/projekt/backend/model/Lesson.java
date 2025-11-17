@@ -59,6 +59,22 @@ public class Lesson {
     @Column(name = "notes")
     private String notes; // Additional notes
     
+    // Onsite location fields (for ONSITE delivery mode)
+    @Column(name = "onsite_city")
+    private String onsiteCity;
+    
+    @Column(name = "onsite_postal_code")
+    private String onsitePostalCode;
+    
+    @Column(name = "onsite_street")
+    private String onsiteStreet;
+    
+    @Column(name = "onsite_building")
+    private String onsiteBuilding;
+    
+    @Column(name = "onsite_apartment")
+    private String onsiteApartment;
+    
     // Proposed reschedule (awaiting confirmation by the other party)
     @Column(name = "proposed_start_time")
     private LocalDateTime proposedStartTime;

@@ -27,6 +27,16 @@ public class ContactMessage {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
+    // Fields used in code but not in DB schema
+    @jakarta.persistence.Transient
+    private Boolean replied = false;
+    
+    @jakarta.persistence.Transient
+    private String adminReply;
+    
+    @jakarta.persistence.Transient
+    private LocalDateTime repliedAt;
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

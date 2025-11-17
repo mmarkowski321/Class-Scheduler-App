@@ -7,6 +7,7 @@ import java.time.LocalDate;
 @Entity
 @DiscriminatorValue("STUDENT")
 @Data
+@lombok.EqualsAndHashCode(callSuper = false)
 public class Student extends User {
     
     // Profile fields from registration form
