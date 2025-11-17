@@ -50,6 +50,13 @@ kubectl apply -f $K8S_DIR/network/allow-backend-to-postgres.yaml
 kubectl apply -f $K8S_DIR/network/allow-backend-egress-dns.yaml
 
 echo "Deploying backend..."
+if ! kubectl get secret backend-secrets > /dev/null 2>&1; then
+  echo "WARNING: backend-secrets secret not found!"
+  echo "Create it manually using:"
+  echo "  kubectl create secret generic backend-secrets \\"
+  echo "    --from-literal=SPRING_MAIL_PASSWORD=\"your-email-password\""
+  echo ""
+fi
 kubectl apply -f $K8S_DIR/backend/service.yaml
 kubectl apply -f $K8S_DIR/backend/deployment.yaml
 kubectl apply -f $K8S_DIR/backend/hpa.yaml
