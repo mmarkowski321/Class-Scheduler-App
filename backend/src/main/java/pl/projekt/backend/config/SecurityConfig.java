@@ -39,14 +39,16 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // Disable CSRF for API
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // Allow public access to auth endpoints
-                .requestMatchers("/api/stats/**").permitAll() // Allow public access to stats
-                .requestMatchers("/api/contact").permitAll() // Allow public access to contact form (POST)
-                .requestMatchers(HttpMethod.GET, "/api/tutors/**").permitAll() // Allow public tutor search
-                .requestMatchers("/api/test/**").permitAll() // Allow test endpoint
-                .requestMatchers("/api/calendar/public/**").permitAll() // Allow public access to public calendar (busy times only)
-                .requestMatchers("/h2-console/**").permitAll() // Allow H2 console
-                .anyRequest().authenticated() // All other requests need authentication
+                .requestMatchers("/actuator/health/**").permitAll() // Allow Kubernetes health probes
+                .requestMatchers("/actuator/info").permitAll() // Allow actuator info
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/stats/**").permitAll()
+                .requestMatchers("/api/contact").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/tutors/**").permitAll()
+                .requestMatchers("/api/test/**").permitAll()
+                .requestMatchers("/api/calendar/public/**").permitAll()
+                .requestMatchers("/h2-console/**").permitAll()
+                .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Use JWT, not sessions
