@@ -71,7 +71,7 @@ public class AuthService {
             student.setFirstName(request.getFirstName());
             student.setLastName(request.getLastName());
             student.setBirthDate(request.getBirthDate());
-            student.setCreatedAt(LocalDateTime.now().toString());
+            student.setCreatedAt(LocalDateTime.now());
             student.setEmailVerified(false);
             student.setVerificationToken(verificationToken);
             user = student;
@@ -91,7 +91,7 @@ public class AuthService {
             tutor.setFirstName(request.getFirstName());
             tutor.setLastName(request.getLastName());
             tutor.setBirthDate(request.getBirthDate());
-            tutor.setCreatedAt(LocalDateTime.now().toString());
+            tutor.setCreatedAt(LocalDateTime.now());
             tutor.setEmailVerified(false);
             tutor.setVerificationToken(verificationToken);
             user = tutor;

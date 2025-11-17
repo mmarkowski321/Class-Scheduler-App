@@ -676,8 +676,8 @@ public class TutorController {
                 .filter(other -> !Objects.equals(other.getId(), tutor.getId()))
                 .filter(other -> !Boolean.TRUE.equals(other.getBanned()))
                 .sorted((a, b) -> {
-                    LocalDateTime bCreated = parseCreatedAt(b.getCreatedAt());
-                    LocalDateTime aCreated = parseCreatedAt(a.getCreatedAt());
+                    LocalDateTime bCreated = b.getCreatedAt();
+                    LocalDateTime aCreated = a.getCreatedAt();
                     if (bCreated == null || aCreated == null) {
                         return 0;
                     }

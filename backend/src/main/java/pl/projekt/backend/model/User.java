@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -32,7 +33,8 @@ public abstract class User {
     @Column(nullable = false)
     private LocalDate birthDate;
     
-    private String createdAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
     
     // Email verification fields
     @Column(nullable = false)
