@@ -25,15 +25,22 @@ spec:
               value: jdbc:postgresql://postgres:5432/eduscheduler
             - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
               value: org.postgresql.Driver
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
             - name: SPRING_JPA_DATABASE_PLATFORM
               value: org.hibernate.dialect.PostgreSQLDialect
             - name: SPRING_JPA_HIBERNATE_DDL_AUTO
               value: validate
             - name: SPRING_PROFILES_ACTIVE
               value: prod
-          envFrom:
-            - secretRef:
-                name: postgres-secret
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
