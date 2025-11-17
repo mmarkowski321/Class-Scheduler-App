@@ -1,9 +1,13 @@
 #!/bin/bash
 set -e
 
-IP_ADDRESS=${1:-"13.62.198.13"}
+DOMAIN=${1:-"eduscheduler.eu"}
+IP_ADDRESS=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo "")
 
-echo "Generating self-signed TLS certificate for IP: $IP_ADDRESS"
+echo "Generating self-signed TLS certificate for domain: $DOMAIN"
+if [ -n "$IP_ADDRESS" ]; then
+  echo "Including IP address: $IP_ADDRESS"
+fi
 echo ""
 
 # Install openssl if not available
@@ -14,11 +18,19 @@ if ! command -v openssl &> /dev/null; then
 fi
 
 echo "Creating certificate..."
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout /tmp/tls.key \
-  -out /tmp/tls.crt \
-  -subj "/CN=$IP_ADDRESS" \
-  -addext "subjectAltName=IP:$IP_ADDRESS,DNS:$IP_ADDRESS"
+if [ -n "$IP_ADDRESS" ]; then
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /tmp/tls.key \
+    -out /tmp/tls.crt \
+    -subj "/CN=$DOMAIN" \
+    -addext "subjectAltName=DNS:$DOMAIN,DNS:www.$DOMAIN,IP:$IP_ADDRESS"
+else
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /tmp/tls.key \
+    -out /tmp/tls.crt \
+    -subj "/CN=$DOMAIN" \
+    -addext "subjectAltName=DNS:$DOMAIN,DNS:www.$DOMAIN"
+fi
 
 echo ""
 echo "Creating Kubernetes secret..."
