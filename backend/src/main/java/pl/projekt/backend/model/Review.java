@@ -25,40 +25,28 @@ public class Review {
     @JoinColumn(name = "tutor_id", nullable = false)
     private Tutor tutor;
     
-    @Column(nullable = false)
+    @Column(name = "tutor_rating")
     private Integer tutorRating; // Rating for tutor (1-5)
     
-    @Column(nullable = false)
+    @Column(name = "platform_rating")
     private Integer platformRating; // Rating for platform (1-5)
     
-    @Column(length = 400)
+    @Column(name = "comment", length = 400)
     private String comment;
+    
+    @Column(name = "student_review_at")
+    private LocalDateTime studentReviewAt;
     
     @Column(name = "student_behavior_rating")
     private Integer studentBehaviorRating; // Rating for student behavior by tutor (1-5, nullable, visible only to tutors and admins)
 
+    @Column(name = "tutor_platform_rating")
     private Integer tutorPlatformRating; // Tutor feedback about platform
 
-    @Column(length = 400)
+    @Column(name = "tutor_comment", length = 400)
     private String tutorComment; // Tutor written feedback about student / platform
 
-    private LocalDateTime studentReviewAt;
-
+    @Column(name = "tutor_review_at")
     private LocalDateTime tutorReviewAt;
-    
-    private LocalDateTime createdAt;
-    
-    private LocalDateTime updatedAt;
-    
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-    
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }
 

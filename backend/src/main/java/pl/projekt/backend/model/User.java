@@ -24,26 +24,30 @@ public abstract class User {
     @Column(nullable = false)
     private String password;
     
-    @Column(nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
     
-    @Column(nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastName;
     
-    @Column(nullable = false)
+    @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
     // Email verification fields
-    @Column(nullable = false)
+    @Column(name = "email_verified", nullable = false)
     private Boolean emailVerified = false;
     
+    @Column(name = "verification_token")
     private String verificationToken;
 
     // Password reset fields
+    @Column(name = "reset_password_token")
     private String resetPasswordToken;
+    
+    @Column(name = "reset_password_token_expiry")
     private String resetPasswordTokenExpiry; // ISO string timestamp
     
     // Ban status - banned users cannot login or register again with same email
@@ -51,7 +55,7 @@ public abstract class User {
     private Boolean banned = false;
     
     // Email language preference (pl or en)
-    @Column(nullable = false)
+    @Column(name = "email_language", nullable = false)
     private String emailLanguage = "pl";
 
     // Notification preferences

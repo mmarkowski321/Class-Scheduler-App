@@ -18,11 +18,8 @@ public class Calendar {
     @JsonIgnore
     private User user;
     
-    @Column(nullable = false, length = 1000)
+    @Column(name = "calendar_url", nullable = false)
     private String calendarUrl;
-    
-    @Column(length = 255)
-    private String name; // Optional name for the calendar (e.g., "Work Calendar", "Personal")
     
     @Column(nullable = false)
     private Boolean active = true; // Can be disabled without deleting

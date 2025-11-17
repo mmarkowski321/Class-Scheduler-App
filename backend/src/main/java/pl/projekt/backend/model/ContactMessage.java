@@ -21,16 +21,11 @@ public class ContactMessage {
     
     private String subject;
     
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false)
     private String message;
     
-    private Boolean replied = false;
-    
-    private String adminReply;
-    
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
-    
-    private LocalDateTime repliedAt;
     
     @PrePersist
     protected void onCreate() {

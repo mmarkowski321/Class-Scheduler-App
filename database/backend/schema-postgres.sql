@@ -207,6 +207,16 @@ SELECT l.id,
        l.student_id
 FROM lessons l;
 
+-- Contact messages
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id              BIGSERIAL PRIMARY KEY,
+    name            VARCHAR(255) NOT NULL,
+    email           VARCHAR(255) NOT NULL,
+    subject         VARCHAR(255),
+    message         TEXT NOT NULL,
+    created_at      TIMESTAMP DEFAULT NOW()
+);
+
 -- =========================
 -- Minimal seed (optional)
 -- =========================
