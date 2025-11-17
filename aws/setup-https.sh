@@ -23,12 +23,13 @@ fi
 echo "Ingress IP: $INGRESS_IP"
 
 echo ""
-echo "4. Creating self-signed TLS certificate..."
+echo "4. Creating self-signed TLS certificate for eduscheduler.eu..."
+PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo "13.62.198.13")
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout /tmp/tls.key \
   -out /tmp/tls.crt \
-  -subj "/CN=13.62.198.13" \
-  -addext "subjectAltName=IP:13.62.198.13" 2>/dev/null || {
+  -subj "/CN=eduscheduler.eu" \
+  -addext "subjectAltName=DNS:eduscheduler.eu,DNS:www.eduscheduler.eu,IP:$PUBLIC_IP" 2>/dev/null || {
   echo "Note: openssl may not be available, using kubectl to create cert..."
   echo "Creating certificate secret with dummy data (will be replaced)..."
 }
@@ -72,18 +73,33 @@ echo ""
 echo "=== HTTPS Setup Complete ==="
 echo ""
 echo "Note: Using self-signed certificate. Browser will show security warning."
-echo "Click 'Advanced' -> 'Proceed to 13.62.198.13 (unsafe)' to continue."
+echo "To get a valid certificate from Let's Encrypt, see instructions below."
 echo ""
 echo "Access the application:"
 PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo "13.62.198.13")
-echo "  HTTPS: https://$PUBLIC_IP"
-echo "  (Browser will warn about self-signed cert - this is normal)"
+echo "  HTTPS: https://eduscheduler.eu"
+echo "  HTTPS: https://www.eduscheduler.eu"
+echo "  (IP fallback: https://$PUBLIC_IP - may show cert warning)"
+echo ""
+echo "IMPORTANT: Configure DNS in OVH Cloud:"
+echo "  1. Log in to OVH Cloud Control Panel"
+echo "  2. Go to Domains > eduscheduler.eu > DNS Zone"
+echo "  3. Add/Edit A record:"
+echo "     Name: @ (or blank)"
+echo "     Target: $PUBLIC_IP"
+echo "     TTL: 3600"
+echo "  4. Add/Edit A record:"
+echo "     Name: www"
+echo "     Target: $PUBLIC_IP"
+echo "     TTL: 3600"
+echo "  5. Wait 5-30 minutes for DNS propagation"
 echo ""
 echo "Note: Make sure Security Group allows port 443 (HTTPS)"
 echo ""
-echo "To get a valid certificate (Let's Encrypt), you need:"
-echo "  1. A domain name pointing to your EC2 IP"
-echo "  2. cert-manager installed in Kubernetes"
-echo "  3. Update Ingress to use cert-manager annotations"
+echo "To get a valid certificate from Let's Encrypt (recommended):"
+echo "  1. Wait for DNS to propagate (check with: dig eduscheduler.eu)"
+echo "  2. Install cert-manager: kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml"
+echo "  3. Create ClusterIssuer for Let's Encrypt"
+echo "  4. Update Ingress to use cert-manager annotations"
 echo ""
 
