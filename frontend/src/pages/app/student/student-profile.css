@@ -1,0 +1,140 @@
+/* Karta i nagłówek */
+.sp-card {
+    border: none; /* usunięcie białej ramki */
+    background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.10));
+    box-shadow: 0 20px 45px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.1);
+  }
+  
+  .sp-header { margin-bottom: 12px; }
+  .sp-title { font-size: 1.25rem; font-weight: 800; color: #fff; }
+  .sp-subtitle { color: rgba(255,255,255,.9); }
+  
+  /* Sekcje */
+  .sp-section { padding: 14px; border-radius: 12px; background: rgba(255,255,255,.06); margin-top: 12px; }
+  .sp-section.sp-consent { position: relative; }
+  /* Fieldset wrapper (read-only vs edit) */
+  .sp-fieldset { border: none; padding: 0; margin: 0; }
+  .sp-fieldset:disabled { opacity: 1; }
+  .sp-section-title {
+    font-weight: 700; margin: 0 0 10px 0; color: #fff;
+    text-shadow: 0 1px 6px rgba(0,0,0,.15);
+  }
+  
+  /* Grid */
+  .sp-grid { display: grid; gap: 12px; }
+  .sp-grid.two { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 820px){ .sp-grid.two { grid-template-columns: 1fr; } }
+  
+  /* Pola */
+  .sp-field { display: flex; flex-direction: column; gap: 6px; }
+  .sp-field > span { color: rgba(255,255,255,.96); font-size: .95rem; }
+  .sp-field input,
+  .sp-field select,
+  .sp-field textarea {
+    width: 100%;
+    background: rgba(255,255,255,.97);
+    color: #1d2330;
+    border: none; outline: none;
+    border-radius: 12px;
+    padding: .8rem .95rem;
+    box-shadow: 0 4px 14px rgba(0,0,0,.12);
+  }
+  .sp-field textarea { resize: vertical; }
+  
+  .sp-input-inline {
+    margin-top: 8px;
+    width: 320px; max-width: 100%;
+    background: rgba(255,255,255,.97);
+    border-radius: 10px; border: none; outline: none;
+    padding: .6rem .8rem;
+  }
+  
+  /* Chips */
+  .sp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sp-chip {
+    padding: 4px 10px; border-radius: 999px;
+    background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.28);
+    color: #fff; font-size: .85rem;
+    backdrop-filter: blur(6px);
+  }
+  
+  /* Checkboxes */
+  .sp-check { display: inline-flex; align-items: center; gap: 8px; }
+  .sp-check input { width: 18px; height: 18px; }
+  .sp-checks { display: flex; flex-wrap: wrap; gap: 10px; }
+  
+  /* Errors & actions */
+  .sp-error { color: #ffd6d6; font-size: .9rem; }
+  .sp-actions { margin-top: 14px; display: flex; justify-content: flex-end; }
+
+/* Consent section actions aligned to the right inside the section */
+.sp-consent-actions {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.sp-photo-section {
+  display: flex;
+  justify-content: center;
+}
+
+.sp-photo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.sp-photo-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.sp-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sp-photo-preview.sp-photo-empty {
+  color: #fff;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0 8px;
+}
+
+.sp-photo-info {
+  flex: 1;
+  min-width: 220px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sp-photo-info p {
+  margin: 0 0 8px 0;
+}
+
+.sp-photo-note {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: -6px;
+  margin-bottom: 10px;
+}
+
+.sp-photo-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+  

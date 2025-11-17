@@ -1,0 +1,1218 @@
+{
+  "actions": {
+    "edit": "Edit",
+    "cancel": "Cancel"
+  },
+  "loading": "Loading…",
+  "auth": {
+    "required": "You must be logged in to continue.",
+    "tutorOnly": "This section is available for tutors only."
+  },
+  "status": {
+    "requested": "Requested",
+    "scheduled": "Scheduled",
+    "rescheduled": "Rescheduled",
+    "in_progress": "In progress",
+    "cancelled": "Cancelled",
+    "completed": "Completed"
+  },
+  "header": {
+    "logo": "📚 EduScheduler",
+    "nav": {
+      "features": "Features",
+      "forStudent": "For Student",
+      "forTutor": "For Tutor",
+      "about": "About Us",
+      "contact": "Contact"
+    },
+    "actions": {
+      "login": "Log In",
+      "register": "Sign Up"
+    }
+  },
+  "hero": {
+    "title": "Find the perfect tutor<br/>and schedule classes easily",
+    "description": "Our platform connects tutors with students,<br />offering intelligent scheduling and calendar synchronization<br />to make learning enjoyable and effective.",
+    "actions": {
+      "startLearning": "Start Learning",
+      "becomeTutor": "Become a Tutor"
+    },
+    "stats": {
+      "tutors": "Tutors",
+      "monthlyLessons": "Monthly Lessons",
+      "satisfiedStudents": "Satisfied Students"
+    }
+  },
+  "features": {
+    "title": "Why choose EduScheduler?",
+    "description": "Our platform offers everything you need for effective learning and teaching",
+    "list": {
+      "smartScheduling": {
+        "title": "Smart Scheduling",
+        "description": "Automatic conflict resolution and calendar sync."
+      },
+      "tutorSearch": {
+        "title": "Tutor Search",
+        "description": "Find the right teacher by subject and ratings."
+      },
+      "ratingSystem": {
+        "title": "Ratings & Reviews",
+        "description": "Read reviews and leave your rating after lessons."
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Get reminders about upcoming classes and deadlines."
+      },
+      "communication": {
+        "title": "Communication",
+        "description": "Direct messaging with your tutor."
+      },
+      "progressStats": {
+        "title": "Progress Statistics",
+        "description": "Track your achievements and learning progress."
+      }
+    }
+  },
+  "footer": {
+    "description": "EduScheduler",
+    "subtitle": "Tutoring scheduling platform",
+    "forStudents": "For Students",
+    "forTutors": "For Tutors",
+    "company": "Company",
+    "links": {
+      "findTutor": "Find Tutor",
+      "howItWorks": "How it Works",
+      "pricing": "Pricing",
+      "help": "Help",
+      "becomeTutor": "Become a Tutor",
+      "manageSchedule": "Manage Schedule",
+      "earnings": "Earnings",
+      "support": "Support",
+      "about": "About Us",
+      "contact": "Contact"
+    },
+    "copyright": "© 2024 EduScheduler. All rights reserved.",
+    "legal": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookies"
+    }
+  },
+  "register": {
+    "title": "Create an Account",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "Enter first name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Enter last name",
+    "birthDate": "Date of Birth",
+    "email": "Email Address",
+    "emailPlaceholder": "Enter email jan@example.com",
+    "password": "Password",
+    "passwordPlaceholder": "Enter password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Re-enter password",
+    "button": "Sign Up",
+    "submitting": "Registering...",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Log in",
+    "success": "Registration successful!",
+    "verifyInfo": "Registration successful. Please check your email to verify your account.",
+    "birthDatePlaceholder": "dd.mm.yyyy",
+    "role": "Register as",
+    "rolePlaceholder": "Select role",
+    "roleStudent": "Student",
+    "roleTutor": "Tutor",
+    "errors": {
+      "firstName": "First name is required",
+      "lastName": "Last name is required",
+      "birthDate": "Date of birth is required",
+      "age": "You must be at least 13 years old to register",
+      "email": "Email address is required",
+      "emailInvalid": "Invalid email format",
+      "password": "Password is required",
+      "passwordShort": "Password must be at least 8 characters",
+      "confirmPassword": "Please confirm your password",
+      "passwordsMismatch": "Passwords do not match",
+      "role": "Please select a role",
+      "ageStudent": "You must be at least 13 to register as a student.",
+      "ageTutor": "You must be at least 18 to register as a tutor.",
+      "server": "Server error. Please try again later."
+    },
+    "hints": {
+      "role": {
+        "general": "Student: 13+ • Tutor: 18+",
+        "student": "To register as a student, you must be at least 13 years old.",
+        "tutor": "To register as a tutor, you must be at least 18 years old."
+      },
+      "birthDate": {
+        "general": "Pick your birth date. Requirements depend on role.",
+        "student": "Required: at least 13 years old.",
+        "tutor": "Required: at least 18 years old."
+      }
+    }
+  },
+  "login": {
+    "title": "Sign In",
+    "email": "Email Address",
+    "password": "Password",
+    "button": "Log In",
+    "noAccount": "Don't have an account?",
+    "registerLink": "Sign Up",
+    "forgotPassword": "Forgot your password?",
+    "submitting": "Logging in...",
+    "errors": {
+      "email": "Email is required",
+      "emailInvalid": "Invalid email address",
+      "password": "Password is required",
+      "invalid": "Invalid email or password",
+      "server": "Login failed. Please check your credentials and try again."
+    }
+  },
+  "verify": {
+    "verifying": "Verifying your email",
+    "verifyingText": "Please wait while we verify your email address...",
+    "success": "Email verified!",
+    "successText": "Your email has been successfully verified.",
+    "redirecting": "Redirecting to login",
+    "seconds": "seconds",
+    "goToLogin": "Go to Login",
+    "errorTitle": "Verification Failed",
+    "error": {
+      "noToken": "No verification token provided",
+      "server": "Server error. Please try again later."
+    },
+    "errorText": "The verification link is invalid or has expired."
+  },
+  "forgotPassword": {
+    "title": "Reset Password",
+    "subtitle": "Enter your email address and we'll send you a link to reset your password.",
+    "sendLink": "Send Reset Link",
+    "submitting": "Sending...",
+    "success": "If an account exists with this email, a password reset link has been sent.",
+    "backToLogin": "Back to Login",
+    "remember": "Remember your password?",
+    "loginLink": "Back to Login"
+  },
+  "resetPassword": {
+    "title": "Reset Password",
+    "subtitle": "Enter your new password below.",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "reset": "Reset Password",
+    "submitting": "Resetting...",
+    "loading": "Validating reset link...",
+    "invalidToken": "Invalid or expired reset link. Please request a new password reset.",
+    "requestNew": "Request New Reset Link",
+    "success": "Your password has been reset successfully. Redirecting to login...",
+    "goToLogin": "Go to Login",
+    "remember": "Remember your password?",
+    "loginLink": "Back to Login",
+    "errors": {
+      "password": "Password is required",
+      "passwordShort": "Password must be at least 8 characters",
+      "confirmPassword": "Please confirm your password",
+      "mismatch": "Passwords do not match"
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "lead": "We help connect students with the best tutors—quickly and without stress.",
+    "blocks": {
+      "mission": {
+        "title": "Our Mission",
+        "text": "Make scheduling and collaboration easy with smart tools and a clean interface."
+      },
+      "how": {
+        "title": "How We Work",
+        "text": "Find a tutor, book a time, and our system syncs calendars and reminds you of lessons."
+      },
+      "values": {
+        "title": "Values",
+        "items": ["Transparency", "Teaching quality", "Respect for time"]
+      }
+    },
+    "thesis": {
+      "title": "Engineering Thesis",
+      "desc": "The EduScheduler application is part of Miłosz Markowski’s engineering thesis."
+    },
+    "ageNotice": {
+      "title": "Age requirements for registration:",
+      "student": "Student — must be at least 13 years old.",
+      "tutor": "Tutor — must be at least 18 years old."
+    },
+    "payments": {
+      "title": "Payments",
+      "desc": "Online payments on the site are not available yet. For now, settlements are handled outside the platform (directly with the tutor). We plan to add secure online payments soon."
+    }
+  },
+  "contact": {
+    "title": "Contact",
+    "lead": "Have a question or suggestion? Write to us—we’ll reply as soon as possible.",
+    "form": {
+      "name": "Full name",
+      "email": "Email address",
+      "topic": "Topic (optional)",
+      "message": "Message",
+      "send": "Send"
+    },
+    "placeholders": {
+      "name": "Enter your full name",
+      "topic": "What is your message about?",
+      "message": "Briefly describe your topic…"
+    },
+    "errors": {
+      "name": "Please provide your name",
+      "email": "Please provide your email",
+      "emailInvalid": "Invalid email format",
+      "message": "Please enter a message",
+      "server": "An error occurred while sending the message. Please try again."
+    },
+    "success": "Thank you! Your message has been sent.",
+    "info": {
+      "title": "How else can we help?",
+      "desc": "Before writing, check these common topics:",
+      "items": [
+        "Problems with logging in or registration",
+        "Suggestions for new features",
+        "Cooperation or partnership"
+      ]
+    }
+  },
+  "student": {
+    "title": "For Students",
+    "lead": "If you are at least 13, you can use the platform and book lessons with top tutors.",
+    "blocks": {
+      "age": {
+        "title": "Age requirement",
+        "rule": "To use the service as a student, you must be at least 13 years old."
+      },
+      "profile": {
+        "title": "Student profile",
+        "desc": "After registration, complete basic info to match tutors and materials.",
+        "school": "Where you study (school/city).",
+        "class": "Your class/grade or education level.",
+        "track": "Track/advanced subjects (e.g., math-physics, biology-chemistry).",
+        "goals": "Learning goals (e.g., better grades, exam prep)."
+      },
+      "booking": {
+        "title": "Booking & reminders",
+        "email": "When you book, you’ll get an email with date, time and details.",
+        "calendar": "After the tutor confirms, the lesson appears in your calendar with a ready-to-join link.",
+        "reschedule": "You can reschedule up to 24 hours before the lesson.",
+        "cancel": "Late cancellations may be marked as no-show."
+      },
+      "reviews": {
+        "title": "Reviews",
+        "afterLesson": "After each lesson you can leave a rating and review.",
+        "editWindow": "You have a short window to edit the review after posting.",
+        "guidelines": "Be constructive and respectful — we help filter misuse."
+      },
+      "extras": {
+        "title": "Extras",
+        "favourites": "Favorite tutors and quick rebooking.",
+        "materials": "Shared lesson files and notes in one place.",
+        "progress": "Progress stats and term goals.",
+        "reminders": "Email reminders for upcoming lessons."
+      }
+    },
+    "cta": {
+      "title": "Ready to start?",
+      "desc": "Create your account and book your first lesson in a few clicks.",
+      "button": "Sign Up"
+    }
+  },
+  "tutor": {
+    "title": "For Tutors",
+    "lead": "Build a professional profile, manage availability and confirm student bookings easily.",
+    "blocks": {
+      "profile": {
+        "title": "Tutor profile",
+        "desc": "Complete your profile so students can find you.",
+        "education": "Education / graduated school or major.",
+        "exams": "Exam results (e.g., high-school finals) — optional.",
+        "subjects": "Subjects and levels you teach.",
+        "methods": "Your teaching approach (e.g., problem-solving, exam prep).",
+        "photo": "Profile photo — welcome but not required."
+      },
+      "availability": {
+        "title": "Availability",
+        "calendarSync": "Calendar sync (Google/Outlook/Apple).",
+        "slots": "Define time slots and max lessons per day.",
+        "buffer": "Buffer time between lessons (e.g., 10–15 min)."
+      },
+      "booking": {
+        "title": "Booking flow",
+        "requests": "Receive booking requests and verify details.",
+        "confirmation": "Upon confirmation we send an email to the student and add it to the calendar.",
+        "link": "Meeting link is auto-generated and visible on the lesson card.",
+        "policy": "24-hour rule: changes/cancellations after that may be marked as no-show."
+      },
+      "payments": {
+        "title": "Payments",
+        "desc": "Online payments are not available yet — settlements are handled outside the platform. We plan to add secure payments soon."
+      },
+      "extras": {
+        "title": "Extras",
+        "materials": "Share materials and assignments.",
+        "homework": "Assign homework with due dates.",
+        "reviews": "Build credibility with student reviews.",
+        "analytics": "Weekly summaries and calendar load analytics."
+      }
+    },
+    "cta": {
+      "title": "Join as a tutor?",
+      "desc": "Create an account, complete your profile and start accepting bookings.",
+      "button": "Sign Up"
+    },
+    "overview": {
+      "upcomingTitle": "Upcoming lessons",
+      "noUpcoming": "Nothing in the near future.",
+      "requestsTitle": "Booking requests",
+      "noRequests": "No pending requests.",
+      "reviewsTitle": "Latest reviews",
+      "noReviews": "No reviews yet.",
+      "newTutorsTitle": "New tutors",
+      "noNewTutors": "No new tutors at the moment.",
+      "viewAll": "View all",
+      "anonymous": "Anonymous"
+    }
+  },
+  "sidebar": {
+    "brand": "EduScheduler",
+    "user": {
+      "role": {
+        "student": "Student",
+        "tutor": "Tutor"
+      }
+    },
+    "nav": {
+      "overview": "Overview",
+      "calendar": "Calendar",
+      "lessons": "Lessons",
+      "profile": "Profile",
+      "availability": "Availability",
+      "reviews": "Reviews",
+      "settings": "Account settings",
+      "tutors": "Tutors"
+    },
+    "actions": {
+      "settings": "Settings",
+      "logout": "Log out"
+    },
+    "lang": {
+      "label": "Language",
+      "pl": "PL",
+      "en": "EN"
+    }
+  },
+  "app": {
+    "settings": {
+      "sections": { "accountControls": "Account controls" },
+      "actions": {
+        "deactivate": "Deactivate account",
+        "activate": "Activate account",
+        "delete": "Delete account"
+      },
+      "confirmations": {
+        "deactivate": "Deactivate your account? You can reactivate later.",
+        "activate": "Reactivate your account now?",
+        "delete": "Permanently delete your account? This cannot be undone."
+      },
+      "success": {
+        "deactivated": "Your account has been deactivated.",
+        "activated": "Your account has been reactivated.",
+        "deleted": "Your account has been deleted."
+      }
+    },
+    "tutor": {
+      "title": "Tutor dashboard",
+      "overview": { "title": "Overview" },
+      "calendar": { "title": "Calendar" },
+      "lessons": {
+        "title": "Lessons",
+        "requestsTitle": "Booking requests",
+        "noRequests": "No new requests.",
+        "confirmedTitle": "Confirmed lessons",
+        "joinLink": "Join link",
+        "empty": "None.",
+        "lessonLength": "Duration",
+        "studentMessage": "Message from student",
+        "mode": {
+          "online": "Online",
+          "onsite": "Onsite"
+        },
+        "locationLabel": "Location",
+        "joinMeeting": "Join meeting",
+        "reviewCta": "Leave feedback",
+        "reviewSubmitted": "Feedback sent",
+        "reviewSuccess": "Your feedback has been saved.",
+        "reviewError": "Could not save feedback.",
+        "joinUnavailableHost": "Link becomes active after the lesson is confirmed and the call is created.",
+        "confirmSuccess": "Lesson confirmed.",
+        "confirmError": "Could not confirm lesson.",
+        "declinePrompt": "Reason for declining (optional)",
+        "declineSuccess": "Lesson declined.",
+        "declineError": "Could not decline the lesson.",
+        "propose": "Propose new time",
+        "proposeFormTitle": "Suggest a new time for {{student}}",
+        "proposeDate": "Date",
+        "proposeTime": "Time",
+        "proposeDuration": "Duration",
+        "proposeNote": "Message for the student (optional)",
+        "proposeSubmit": "Send proposal",
+        "proposeCancel": "Close",
+        "proposeSuccess": "New time proposed.",
+        "proposeError": "Could not propose a new time.",
+        "section": {
+          "awaiting": "Awaiting confirmation",
+          "inProgress": "In progress",
+          "scheduled": "Scheduled",
+          "rescheduled": "Rescheduled",
+          "completed": "Completed (to review)",
+          "reviewed": "Reviewed",
+          "cancelled": "Cancelled"
+        },
+        "list": {
+          "searchPlaceholder": "Search by name or email…",
+          "sortLabel": "Sort",
+          "sortNewest": "Newest first",
+          "sortOldest": "Oldest first"
+        },
+        "actions": {
+          "confirm": "Confirm",
+          "decline": "Decline",
+          "reschedule": "Reschedule",
+          "cancel": "Cancel"
+        }
+      },
+      "reviews": {
+        "title": "Reviews",
+        "review": "review",
+        "reviews": "reviews",
+        "sortBy": "Sort by",
+        "newest": "Newest first",
+        "oldest": "Oldest first",
+        "noReviews": "No reviews",
+        "tutorNote": "Your note"
+      },
+      "profile": {
+        "title": "Tutor profile",
+        "basic": "Basic",
+        "offer": "Offer",
+        "methods": "Methods & bio",
+        "links": "Links & availability",
+        "save": "Save profile",
+        "education": "Education",
+        "educationHint": "WUT — Automation and Robotics",
+        "experience": "Experience (years)",
+        "photo": "Photo (URL)",
+        "subjects": "Subjects & levels",
+        "subjectsHintSelect": "Hold Ctrl (Windows) or Cmd (Mac) to select multiple subjects from the list.",
+        "subjectsCustom": "Other subject (optional)",
+        "subjectsCustomPlaceholder": "e.g. logistics",
+        "subjectsCustomAdd": "Add",
+        "subjectsCustomHint": "If the subject is missing from the list, type its name and add it manually.",
+        "exams": "Exam results (optional)",
+        "examsHint": "Separate with commas, e.g. final 90% math, 85% physics",
+        "hourly": "Hourly rate [PLN]",
+        "lessonDuration": "Lesson duration [min]",
+        "languages": "Teaching languages",
+        "modes": "Lesson mode",
+        "city": "City (on-site)",
+        "radius": "Travel radius [km]",
+        "teachingMethods": "Teaching methods",
+        "bio": "Short bio",
+        "certs": "Certificates / achievements (optional)",
+        "website": "Website (optional)",
+        "linkedin": "LinkedIn (optional)",
+        "maxPerDay": "Max lessons per day",
+        "buffer": "Buffer between lessons [min]",
+        "preferredDays": "Preferred days",
+        "fields": {
+          "firstName": "First Name",
+          "lastName": "Last Name",
+          "education": "Education",
+          "experienceYears": "Experience (years)",
+          "subjects": "Subjects",
+          "exams": "Exams",
+          "hourlyRate": "Hourly Rate",
+          "lessonDuration": "Lesson Duration",
+          "modes": "Modes",
+          "city": "City",
+          "travelRadiusKm": "Travel Radius",
+          "languages": "Languages",
+          "methods": "Methods",
+          "bio": "Bio",
+          "certificates": "Certificates",
+          "website": "Website",
+          "linkedin": "LinkedIn",
+          "maxPerDay": "Max lessons per day",
+          "buffer": "Buffer between lessons",
+          "preferredDays": "Preferred days"
+        },
+        "placeholders": {
+          "firstName": "Enter your first name",
+          "lastName": "Enter your last name",
+          "education": "e.g. Master of Mathematics, Warsaw University",
+          "experience": "e.g. 5",
+          "experienceYears": "e.g. 5",
+          "subjects": "e.g. mathematics, physics, chemistry",
+          "exams": "e.g. matura, eighth grade exam",
+          "hourlyRate": "e.g. 80",
+          "hourly": "e.g. 80",
+          "lessonDuration": "e.g. 60",
+          "city": "e.g. Warsaw",
+          "travelRadiusKm": "e.g. 10",
+          "radius": "e.g. 10",
+          "languages": "e.g. Polish, English",
+          "methods": "e.g. problem-solving, exam preparation",
+          "bio": "Describe your teaching approach...",
+          "certificates": "e.g. teacher certificate, pedagogical qualifications",
+          "certs": "e.g. teacher certificate, pedagogical qualifications",
+          "website": "e.g. https://mysite.com",
+          "linkedin": "e.g. https://linkedin.com/in/myprofile",
+          "maxPerDay": "e.g. 4",
+          "buffer": "e.g. 10"
+        },
+        "affix": { "pln": "PLN", "min": "min", "km": "km" },
+        "modesLabels": { "online": "online", "onsite": "on-site", "hybrid": "hybrid" },
+        "days": { "mon": "Mon", "tue": "Tue", "wed": "Wed", "thu": "Thu", "fri": "Fri", "sat": "Sat", "sun": "Sun" },
+        "photoUpload": "Photo (upload)",
+        "photoAlt": "Preview",
+        "photoDrag": "Drag & drop your photo here",
+        "or": "or",
+        "photoPick": "Choose from device",
+        "photoChange": "Change photo",
+        "photoRemove": "Remove",
+        "photoHint": "JPG/PNG/WebP up to 5 MB. Square crop recommended.",
+        "requiredNotice": "Complete every required field (marked with *) so your profile appears in student search results.",
+        "requiredLabel": "Required field",
+        "optionalTag": "optional",
+        "modesHint": "Select all lesson formats you offer. On-site or hybrid lessons require city and travel radius.",
+        "cityHintRequired": "Required because you offer on-site or hybrid lessons.",
+        "cityHintOptional": "Required only if you offer on-site or hybrid lessons.",
+        "travelHintRequired": "Required because you offer on-site or hybrid lessons.",
+        "travelHintOptional": "Required only if you offer on-site or hybrid lessons.",
+        "photoErrors": {
+          "invalidType": "Invalid file type. Allowed: JPG/PNG/WebP.",
+          "tooLarge": "File is too large (max 5 MB)."
+        },
+        "validation": {
+          "education": "Please provide your education.",
+          "experienceYears": "Enter your experience in years.",
+          "subjects": "Select at least one subject.",
+          "hourlyRate": "Enter your hourly rate.",
+          "lessonDuration": "Enter the lesson duration in minutes.",
+          "languages": "Enter at least one teaching language.",
+          "lessonModes": "Select at least one lesson mode.",
+          "city": "City is required when you teach on-site or hybrid.",
+          "travelRadius": "Provide your travel radius in kilometers.",
+          "methods": "Describe your teaching methods.",
+          "bio": "Add a short bio."
+        },
+        "savedDemo": "Saved (demo). Check the console.",
+        "saveError": "Error while saving."
+      },
+      "settings": {
+        "title": "Account Settings",
+        "sections": {
+          "account": "Account Information",
+          "security": "Security",
+          "notifications": "Notifications",
+          "preferences": "Preferences",
+          "accountControls": "Account controls"
+        },
+        "fields": {
+          "currentEmail": "Current Email",
+          "newEmail": "New Email",
+          "confirmEmail": "Confirm New Email",
+          "currentPassword": "Current Password",
+          "newPassword": "New Password",
+          "confirmPassword": "Confirm New Password",
+          "phoneNumbers": "Phone Numbers",
+          "primaryPhone": "Primary Phone",
+          "additionalPhones": "Additional Phone Numbers",
+          "language": "Interface Language",
+          "timezone": "Timezone",
+          "emailNotifications": "Email Notifications",
+          "smsNotifications": "SMS Notifications",
+          "autoAcceptBookings": "Auto-accept bookings when slot is free",
+          "bookingReminders": "Booking reminders",
+          "lessonReminders": "Lesson reminders",
+          "changeNotifications": "Notify about booking changes",
+          "emailLanguage": "Email Language"
+        },
+        "placeholders": {
+          "newEmail": "Enter new email address",
+          "confirmEmail": "Confirm new email address",
+          "currentPassword": "Enter current password",
+          "newPassword": "Enter new password",
+          "confirmPassword": "Confirm new password",
+          "phoneNumber": "Enter phone number",
+          "phoneLabel": "Label (e.g., Work, Mobile)"
+        },
+        "actions": {
+          "changeEmail": "Change Email",
+          "changePassword": "Change Password",
+          "addPhone": "Add Phone Number",
+          "removePhone": "Remove",
+          "saveChanges": "Save Changes",
+          "cancel": "Cancel"
+        },
+        "errors": {
+          "emailRequired": "Email is required",
+          "emailInvalid": "Invalid email format",
+          "emailsMismatch": "Email addresses do not match",
+          "passwordRequired": "Password is required",
+          "passwordShort": "Password must be at least 8 characters",
+          "passwordsMismatch": "Passwords do not match",
+          "currentPasswordRequired": "Current password is required",
+          "phoneRequired": "Phone number is required",
+          "phoneInvalid": "Invalid phone number format"
+        },
+        "success": {
+          "emailChanged": "Email changed successfully",
+          "passwordChanged": "Password changed successfully",
+          "phoneAdded": "Phone number added successfully",
+          "phoneRemoved": "Phone number removed successfully",
+          "settingsSaved": "Settings saved successfully"
+        },
+        "confirmations": {
+          "changeEmail": "Are you sure you want to change your email address?",
+          "changePassword": "Are you sure you want to change your password?",
+          "removePhone": "Are you sure you want to remove this phone number?"
+        },
+        "languages": {
+          "polish": "Polish",
+          "english": "English"
+        }
+      },
+      "availability": {
+        "title": "Availability Settings",
+        "sections": {
+          "schedule": "Schedule Settings",
+          "calendar": "Calendar Integration",
+          "days": "Available Days",
+          "notes": "Additional Notes"
+        },
+        "fields": {
+          "calendarUrl": "Calendar Embed URL"
+        },
+        "placeholders": {
+          "calendarUrl": "https://calendar.google.com/calendar/embed?src=...",
+          "calendarName": "Calendar name (optional)"
+        },
+        "hints": {
+          "calendarUrl": "Supported calendars: Google Calendar, Outlook Calendar, Apple iCal, or any calendar with public embed URL. To get Google Calendar URL: Settings → Integrate calendar → Copy embed URL. For Outlook: Calendar → Share → Get a link → Embed code."
+        },
+        "calendarPreview": "Calendar Preview",
+        "calendarsList": "Your Calendars",
+        "actions": {
+          "save": "Save Availability",
+          "addCalendar": "Add Calendar",
+          "remove": "Remove",
+          "syncAll": "Sync All Calendars"
+        },
+        "errors": {
+          "maxLessonsRequired": "Maximum lessons per day is required",
+          "maxLessonsInvalid": "Please enter a valid number (minimum 1)",
+          "bufferRequired": "Buffer time is required",
+          "bufferInvalid": "Please enter a valid number (minimum 0)"
+        },
+        "success": {
+          "saved": "Availability settings saved successfully",
+          "calendarSynced": "Calendar synchronized successfully. Found {{count}} events."
+        },
+        "calendarSynced": "Calendar synchronized successfully. Found {{count}} events."
+      }
+    },
+    "student": {
+      "title": "Student dashboard",
+      "overview": {
+        "title": "Overview",
+        "sections": {
+          "upcoming": "Upcoming lessons",
+          "history": "Lesson history",
+          "attention": "Needs your attention",
+          "newTutors": "New tutors",
+          "quickActions": "Quick actions"
+        },
+        "empty": {
+          "upcoming": "Nothing scheduled yet. Book your first lesson!",
+          "history": "No lessons completed yet.",
+          "attention": "All set! No pending changes.",
+          "newTutors": "No new tutors at the moment."
+        },
+        "actions": {
+          "bookTitle": "Book a lesson",
+          "bookDescription": "Pick a tutor and time that suits you best.",
+          "bookButton": "Book now",
+          "browseButton": "Browse tutors"
+        },
+        "errors": {
+          "load": "Failed to load your overview."
+        },
+        "tutorUnknown": "Tutor"
+      },
+      "calendar": { "title": "Calendar" },
+      "lessons": { 
+        "title": "Lessons",
+        "joinMeeting": "Join meeting",
+        "joinUnavailable": "Meeting link will appear after confirmation.",
+        "leaveReview": "Leave Review",
+        "reviewSuccess": "Thank you! Review submitted.",
+        "reviewError": "Could not submit the review.",
+        "reschedule": "Reschedule",
+        "cancel": "Cancel lesson",
+        "cancelConfirm": "Are you sure you want to cancel this lesson?",
+        "rescheduleFormTitle": "Reschedule lesson",
+        "rescheduleDate": "Date",
+        "rescheduleTime": "Time",
+        "rescheduleDuration": "Duration",
+        "rescheduleSave": "Save",
+        "rescheduleCancel": "Close",
+        "rescheduleSuccess": "Lesson rescheduled.",
+        "cancelSuccess": "Lesson cancelled.",
+        "rescheduleError": "Could not reschedule the lesson.",
+        "cancelError": "Could not cancel the lesson.",
+        "mode": {
+          "online": "Online",
+          "onsite": "Onsite"
+        },
+        "locationLabel": "Location",
+        "joinInPerson": "This lesson is in person. Meet at the specified address.",
+        "joinUnavailableHost": "Link becomes active once the tutor confirms the booking.",
+        "reviewSubmitted": "Review submitted. Thank you!",
+        "noLessons": "No lessons booked yet.",
+        "section": {
+          "awaiting": "Awaiting confirmation",
+          "inProgress": "In progress",
+          "scheduled": "Scheduled",
+          "rescheduled": "Rescheduled",
+          "completed": "Completed (to review)",
+          "reviewed": "Reviewed",
+          "cancelled": "Cancelled"
+        },
+        "list": {
+          "searchPlaceholder": "Search by tutor name…",
+          "sortLabel": "Sort",
+          "sortNewest": "Newest first",
+          "sortOldest": "Oldest first"
+        }
+      },
+      "tutors": {
+        "title": "Tutors",
+        "lead": "Search & filter tutors. Click a card to view profile or book.",
+        "filters": {
+          "search": "Search (name, subject)",
+          "subject": "Subject (e.g. Math)",
+          "city": "City",
+          "maxPrice": "Max price",
+          "reset": "Reset filters"
+        },
+        "apply": "Show tutors",
+        "viewProfile": "View profile",
+        "book": "Book",
+        "empty": "No tutors match your filters.",
+        "results": {
+          "title": "Available tutors",
+          "meta": "{{count}} tutor{{count, plural, one {} other {s}}} found",
+          "days": "Day filter: {{count}}"
+        },
+        "loading": "Loading…",
+        "errors": {
+          "list": "Could not load tutor list.",
+          "profile": "Could not load tutor profile.",
+          "schedule": "Could not load tutor schedule.",
+          "booking": "Booking failed."
+        },
+        "card": {
+          "price": "{{value}} PLN / h",
+          "duration": "{{value}} min"
+        },
+        "detail": {
+          "busySlot": "Tutor busy",
+          "hourlyRate": "Hourly rate",
+          "lessonDuration": "Lesson length",
+          "experience": "Experience [years]",
+          "experienceValue": "{{count}}",
+          "subjects": "Subjects",
+          "languages": "Teaching languages",
+          "lessonModes": "Lesson mode",
+          "education": "Education",
+          "examResults": "Exam results",
+          "travelRadius": "Travel radius",
+          "travelRadiusValue": "{{value}} km",
+          "certificates": "Certificates & achievements",
+          "website": "Website",
+          "linkedin": "LinkedIn",
+          "openLink": "Open link",
+          "lessonModeLabels": {
+            "online": "Online",
+            "onsite": "On-site",
+            "hybrid": "Hybrid"
+          },
+          "deliveryModeLabel": "How do you want to meet?",
+          "deliveryModeOptions": {
+            "online": "Online",
+            "onsite": "Onsite"
+          },
+          "deliveryModeRequired": "Select the lesson mode.",
+          "onsiteLead": "Provide the address where the lesson should take place.",
+          "onsiteCity": "City",
+          "onsiteCityPlaceholder": "e.g. Warsaw",
+          "onsitePostalCode": "Postal code",
+          "onsitePostalPlaceholder": "e.g. 00-001",
+          "onsiteStreet": "Street",
+          "onsiteStreetPlaceholder": "e.g. Marszałkowska",
+          "onsiteBuilding": "Building number",
+          "onsiteBuildingPlaceholder": "e.g. 10A",
+          "onsiteApartment": "Apartment (optional)",
+          "onsiteApartmentPlaceholder": "e.g. 12",
+          "onsiteAddressRequired": "Please provide the full address: city, postal code, street and building number.",
+          "preferredDays": "Preferred days",
+          "teachingMethods": "Teaching methods",
+          "bookingTitle": "Book a lesson",
+          "bookingSubtitle": "Pick the date and time that suits you. The tutor will confirm it shortly.",
+          "date": "Date",
+          "time": "Time",
+          "notes": "Message for tutor (optional)",
+          "notesPlaceholder": "Describe what you want to focus on or any important details…",
+          "duration": "Duration: {{value}} min",
+          "durationLabel": "Lesson length",
+          "minutesSuffix": "min",
+          "formRequired": "Please select date and time.",
+          "bookSuccess": "Booking request sent! The tutor will confirm soon.",
+          "bookError": "Failed to send booking request. {{error}}",
+          "requiresLogin": "You must be logged in as a student to book lessons.",
+          "bookingSubmitting": "Sending booking…",
+          "bookingWaiting": "Sending…",
+          "bookCta": "Send booking request",
+          "close": "Close",
+          "loadingProfile": "Loading profile…",
+          "scheduleTitle": "Busy slots",
+          "scheduleEmpty": "No busy slots – lots of free time!",
+          "busyLoading": "Loading schedule…",
+          "busyError": "Failed to load calendar."
+        }
+      },
+      "profile": {
+        "title": "Student profile",
+        "subtitle": "Fill in your info to match tutors and time slots better.",
+        "savedDemo": "Profile saved (demo).",
+        "save": "Save profile",
+        "sections": {
+          "basic": "Basic",
+          "about": "About me",
+          "subjects": "Subjects",
+          "preferences": "Learning preferences",
+          "availability": "Availability",
+          "guardian": "Guardian (optional)",
+          "notifications": "Notifications & consents",
+          "consent": "Consent"
+        },
+        "fields": {
+          "school": "School",
+          "grade": "Class / level",
+          "track": "Track / advanced",
+          "phone": "Phone (optional)",
+          "languages": "Languages (comma-separated)",
+          "timezone": "Time zone",
+          "aboutMe": "About me",
+          "goals": "Learning goals",
+          "strengths": "My strengths",
+          "difficulties": "What I find difficult",
+          "preferredSubjects": "I want to learn (comma-separated)",
+          "avoidSubjects": "Prefer to avoid (optional)",
+          "learningStyle": "Learning style",
+          "city": "City (for on-site lessons)",
+          "meetingMode": "Preferred lesson mode",
+          "preferredTools": "Preferred meeting tools",
+          "otherTool": "Other tool",
+          "preferredDays": "Preferred days",
+          "availabilityNote": "Additional info (optional)",
+          "guardianName": "Guardian full name",
+          "guardianEmail": "Guardian e-mail",
+          "notifEmail": "Email notifications",
+          "notifSms": "SMS notifications",
+          "notifReminders": "Lesson reminders",
+          "notifChanges": "Notify about booking changes",
+          "shareProfile": "I agree to share my profile with tutors after sending a request.",
+          "save": "Save profile"
+        },
+        "placeholders": {
+          "school": "School name / city",
+          "grade": "e.g. 10th grade / 2 HS",
+          "track": "e.g. math-physics",
+          "phone": "+48 …",
+          "languages": "e.g. Polish, English",
+          "aboutMe": "Interests, how you like to learn…",
+          "goals": "E.g. exam preparation…",
+          "strengths": "e.g. arithmetic problems",
+          "difficulties": "e.g. word problems",
+          "preferredSubjects": "e.g. math, physics, English",
+          "avoidSubjects": "e.g. chemistry",
+          "city": "e.g. Warsaw",
+          "otherTool": "e.g. Jitsi, Discord",
+          "availabilityNote": "E.g. Mon–Thu after 5pm, Saturdays until noon…",
+          "guardianName": "For users < 18",
+          "guardianEmail": "guardian@example.com"
+        },
+        "learningStyleOptions": {
+          "visual": "Visual",
+          "auditory": "Auditory",
+          "kinesthetic": "Kinesthetic",
+          "mixed": "Mixed"
+        },
+        "meetingModeLabels": {
+          "online": "online",
+          "onsite": "on-site",
+          "hybrid": "hybrid"
+        },
+        "toolsLabels": {
+          "meet": "Google Meet",
+          "zoom": "Zoom",
+          "teams": "Microsoft Teams",
+          "other": "Other"
+        },
+        "dayLabels": {
+          "mon": "Mon",
+          "tue": "Tue",
+          "wed": "Wed",
+          "thu": "Thu",
+          "fri": "Fri",
+          "sat": "Sat",
+          "sun": "Sun"
+        },
+        "photo": {
+          "alt": "Student photo",
+          "placeholder": "No photo yet",
+          "helper": "Add a friendly photo so tutors recognize you faster. You can change or remove it anytime.",
+          "requirements": "Accepted formats: JPG, PNG, WEBP. Max size 3 MB.",
+          "upload": "Upload photo",
+          "uploading": "Uploading…",
+          "remove": "Remove photo"
+        },
+        "errors": {
+          "school": "Please provide your school.",
+          "grade": "Please provide your class/level.",
+          "timezone": "Please select a time zone.",
+          "guardianEmail": "Invalid guardian e-mail.",
+          "photoType": "Please pick an image file.",
+          "photoUpload": "Could not update the photo. Try again.",
+          "server": "Something went wrong. Try again later."
+        }
+      },
+      "settings": { 
+        "title": "Account Settings",
+        "sections": {
+          "account": "Account Information",
+          "security": "Security",
+          "notifications": "Notifications",
+          "preferences": "Preferences"
+        },
+        "fields": {
+          "currentEmail": "Current Email",
+          "newEmail": "New Email",
+          "confirmEmail": "Confirm New Email",
+          "currentPassword": "Current Password",
+          "newPassword": "New Password",
+          "confirmPassword": "Confirm New Password",
+          "phoneNumbers": "Phone Numbers",
+          "primaryPhone": "Primary Phone",
+          "additionalPhones": "Additional Phone Numbers",
+          "language": "Interface Language",
+          "timezone": "Timezone",
+          "emailNotifications": "Email Notifications",
+          "smsNotifications": "SMS Notifications",
+          "lessonReminders": "Lesson reminders",
+          "changeNotifications": "Notify about booking changes",
+          "emailLanguage": "Email Language"
+        },
+        "placeholders": {
+          "newEmail": "Enter new email address",
+          "confirmEmail": "Confirm new email address",
+          "currentPassword": "Enter current password",
+          "newPassword": "Enter new password",
+          "confirmPassword": "Confirm new password",
+          "phoneNumber": "Enter phone number",
+          "phoneLabel": "Label (e.g., Work, Mobile)"
+        },
+        "actions": {
+          "changeEmail": "Change Email",
+          "changePassword": "Change Password",
+          "addPhone": "Add Phone Number",
+          "removePhone": "Remove",
+          "saveChanges": "Save Changes",
+          "cancel": "Cancel"
+        },
+        "errors": {
+          "emailRequired": "Email is required",
+          "emailInvalid": "Invalid email format",
+          "emailsMismatch": "Email addresses do not match",
+          "passwordRequired": "Password is required",
+          "passwordShort": "Password must be at least 8 characters",
+          "passwordsMismatch": "Passwords do not match",
+          "currentPasswordRequired": "Current password is required",
+          "phoneRequired": "Phone number is required",
+          "phoneInvalid": "Invalid phone number format"
+        },
+        "success": {
+          "emailChanged": "Email changed successfully",
+          "passwordChanged": "Password changed successfully",
+          "phoneAdded": "Phone number added successfully",
+          "phoneRemoved": "Phone number removed successfully",
+          "settingsSaved": "Settings saved successfully"
+        },
+        "confirmations": {
+          "changeEmail": "Are you sure you want to change your email address?",
+          "changePassword": "Are you sure you want to change your password?",
+          "removePhone": "Are you sure you want to remove this phone number?"
+        },
+        "languages": {
+          "polish": "Polish",
+          "english": "English"
+        }
+      },
+      "availability": {
+        "title": "Availability Settings",
+        "sections": {
+          "calendar": "Calendar Integration",
+          "days": "Available Days",
+          "notes": "Additional Notes"
+        },
+        "fields": {
+          "calendarUrl": "Calendar Embed URL"
+        },
+        "placeholders": {
+          "calendarUrl": "https://calendar.google.com/calendar/embed?src=...",
+          "calendarName": "Calendar name (optional)"
+        },
+        "hints": {
+          "calendarUrl": "Supported calendars: Google Calendar, Outlook Calendar, Apple iCal, or any calendar with public embed URL. To get Google Calendar URL: Settings → Integrate calendar → Copy embed URL. For Outlook: Calendar → Share → Get a link → Embed code."
+        },
+        "calendarPreview": "Calendar Preview",
+        "calendarsList": "Your Calendars",
+        "noCalendars": "No calendars added yet. Add one above to sync your busy times.",
+        "actions": {
+          "save": "Save Availability",
+          "addCalendar": "Add Calendar",
+          "remove": "Remove",
+          "syncAll": "Sync All Calendars"
+        },
+        "success": {
+          "saved": "Availability settings saved successfully",
+          "calendarSynced": "Calendar synchronized successfully. Found {{count}} events."
+        },
+        "calendarSynced": "Calendar synchronized successfully. Found {{count}} events."
+      }
+    },
+    "admin": {
+      "title": "Admin Dashboard",
+      "nav": {
+        "users": "Users",
+        "messages": "Messages",
+        "reviews": "Reviews"
+      },
+      "overview": {
+        "title": "Dashboard",
+        "totalUsers": "Total Users",
+        "tutors": "Tutors",
+        "students": "Students",
+        "totalLessons": "Total Lessons",
+        "totalReviews": "Total Reviews",
+        "loading": "Loading statistics..."
+      },
+      "users": {
+        "title": "User Management",
+        "tutorsTitle": "Tutors",
+        "studentsTitle": "Students",
+        "banUser": "Ban",
+        "banConfirm": "Are you sure you want to ban this user?",
+        "unbanUser": "Unban",
+        "unbanConfirm": "Are you sure you want to unban this user?",
+        "noTutors": "No tutors found.",
+        "noStudents": "No students found.",
+        "userDetails": "User Details",
+        "lessonsCount": "Lessons Count",
+        "reviewsCount": "Reviews Count",
+        "email": "Email",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "registered": "Registered",
+        "emailVerified": "Email Verified",
+        "viewLessons": "View Lessons",
+        "viewReviews": "View Reviews",
+        "close": "Close"
+      },
+      "messages": {
+        "title": "Contact Messages",
+        "noMessages": "No messages found.",
+        "reply": "Reply",
+        "replied": "Replied",
+        "replyTo": "Reply to:",
+        "replyPlaceholder": "Enter your reply message...",
+        "sendReply": "Send Reply",
+        "cancel": "Cancel",
+        "subject": "Subject",
+        "message": "Message",
+        "replySent": "Reply sent successfully",
+        "replyFailed": "Failed to send reply"
+      },
+      "reviews": {
+        "title": "All Reviews",
+        "noReviews": "No reviews found.",
+        "student": "Student",
+        "tutor": "Tutor",
+        "tutorRating": "Tutor Rating",
+        "platformRating": "Platform Rating",
+      "studentBehaviorRating": "Student Behavior Rating",
+      "tutorPlatformRating": "Tutor Platform Rating",
+      "tutorComment": "Tutor Comment",
+        "comment": "Comment",
+        "created": "Created"
+      }
+    }
+  },
+  "components": {
+    "reviewForm": {
+      "title": "Leave a Review",
+      "question": "How was your lesson with {{tutorName}}?",
+      "date": "Date",
+      "meetingLink": "Join meeting",
+      "ratingLabel": "Your Rating for Tutor",
+      "ratingText": "{{rating}} out of 5",
+      "platformRatingLabel": "Your Rating for EduScheduler Platform",
+      "platformRatingText": "{{rating}} out of 5",
+      "commentLabel": "Your Review",
+      "commentPlaceholder": "Share your experience with this tutor...",
+      "characters": "characters",
+      "cancel": "Cancel",
+      "submit": "Submit Review",
+      "errors": {
+        "rating": "Please select a rating",
+        "platformRating": "Please select a platform rating",
+        "commentLength": "Comment must be at least 10 characters"
+      }
+    },
+    "tutorReviewForm": {
+      "title": "Rate the student",
+      "question": "How would you rate your lesson with {{studentName}}?",
+      "date": "Date",
+      "studentRatingLabel": "Student rating",
+      "studentRatingText": "{{rating}} out of 5",
+      "platformRatingLabel": "EduScheduler platform rating",
+      "platformRatingText": "{{rating}} out of 5",
+      "commentLabel": "Your feedback",
+      "commentPlaceholder": "Share how the lesson went and any tips for the student...",
+      "errors": {
+        "studentRating": "Please select a student rating",
+        "platformRating": "Please select a platform rating",
+        "commentLength": "Feedback must be at least 10 characters"
+      }
+    }
+  },
+  "errors": {
+    "server": "An error occurred. Please try again later."
+  }
+}

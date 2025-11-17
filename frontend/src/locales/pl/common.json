@@ -1,0 +1,828 @@
+{
+  "actions": {
+    "edit": "Edytuj",
+    "cancel": "Anuluj"
+  },
+  "loading": "Ładowanie…",
+  "auth": {
+    "required": "Musisz być zalogowany, aby kontynuować.",
+    "tutorOnly": "Ta sekcja wymaga konta korepetytora."
+  },
+  "status": {
+    "requested": "Oczekuje",
+    "scheduled": "Zaplanowana",
+    "rescheduled": "Przełożona",
+    "in_progress": "W trakcie",
+    "cancelled": "Anulowana",
+    "completed": "Zakończona"
+  },
+  "header": {
+    "logo": "📚 EduScheduler",
+    "nav": {
+      "features": "Funkcje",
+      "forStudent": "Dla ucznia",
+      "forTutor": "Dla korepetytora",
+      "about": "O nas",
+      "contact": "Kontakt"
+    },
+    "actions": {
+      "login": "Zaloguj się",
+      "register": "Zarejestruj się"
+    }
+  },
+  "hero": {
+    "title": "Znajdź idealnego korepetytora<br/>i zaplanuj zajęcia w prosty sposób",
+    "description": "Nasza platforma łączy korepetytorów z uczniami,<br />oferując inteligentne planowanie i synchronizację kalendarzy,<br />aby nauka była przyjemna i skuteczna.",
+    "actions": {
+      "startLearning": "Rozpocznij naukę",
+      "becomeTutor": "Zostań korepetytorem"
+    },
+    "stats": {
+      "tutors": "Korepetytorzy",
+      "monthlyLessons": "Zajęcia miesięcznie",
+      "satisfiedStudents": "Zadowoleni uczniowie"
+    }
+  },
+  "features": {
+    "title": "Dlaczego warto wybrać EduScheduler?",
+    "description": "Platforma oferuje wszystko, czego potrzebujesz do efektywnej nauki i nauczania",
+    "list": {
+      "smartScheduling": {
+        "title": "Inteligentne harmonogramowanie",
+        "description": "Automatyczne rozwiązywanie konfliktów i synchronizacja kalendarzy."
+      },
+      "tutorSearch": {
+        "title": "Wyszukiwanie korepetytorów",
+        "description": "Znajdź właściwego nauczyciela po przedmiocie i ocenach."
+      },
+      "ratingSystem": {
+        "title": "Oceny i opinie",
+        "description": "Czytaj opinie i wystawiaj ocenę po zajęciach."
+      },
+      "notifications": {
+        "title": "Powiadomienia",
+        "description": "Przypomnienia o nadchodzących zajęciach i terminach."
+      },
+      "communication": {
+        "title": "Komunikacja",
+        "description": "Bezpośrednie wiadomości z korepetytorem."
+      },
+      "progressStats": {
+        "title": "Statystyki postępów",
+        "description": "Śledź swoje osiągnięcia i postępy."
+      }
+    }
+  },
+  "footer": {
+    "description": "EduScheduler",
+    "subtitle": "Platforma do harmonogramowania korepetycji",
+    "forStudents": "Dla uczniów",
+    "forTutors": "Dla korepetytorów",
+    "company": "Firma",
+    "links": {
+      "findTutor": "Znajdź korepetytora",
+      "howItWorks": "Jak to działa",
+      "pricing": "Cennik",
+      "help": "Pomoc",
+      "becomeTutor": "Zostań korepetytorem",
+      "manageSchedule": "Zarządzaj grafikiem",
+      "earnings": "Zarobki",
+      "support": "Wsparcie",
+      "about": "O nas",
+      "contact": "Kontakt"
+    },
+    "copyright": "© 2024 EduScheduler. Wszelkie prawa zastrzeżone.",
+    "legal": {
+      "privacy": "Polityka prywatności",
+      "terms": "Regulamin",
+      "cookies": "Cookies"
+    }
+  },
+  "register": {
+    "title": "Utwórz konto",
+    "firstName": "Imię",
+    "firstNamePlaceholder": "Wpisz imię",
+    "lastName": "Nazwisko",
+    "lastNamePlaceholder": "Wpisz nazwisko",
+    "birthDate": "Data urodzenia",
+    "email": "Adres e-mail",
+    "emailPlaceholder": "Wpisz e-mail jan@example.com",
+    "password": "Hasło",
+    "passwordPlaceholder": "Wpisz hasło",
+    "confirmPassword": "Potwierdź hasło",
+    "confirmPasswordPlaceholder": "Powtórz hasło",
+    "button": "Zarejestruj się",
+    "submitting": "Rejestrowanie…",
+    "haveAccount": "Masz już konto?",
+    "loginLink": "Zaloguj się",
+    "success": "Rejestracja zakończona sukcesem!",
+    "verifyInfo": "Rejestracja zakończona pomyślnie. Sprawdź swoją skrzynkę e-mail, aby potwierdzić konto.",
+    "birthDatePlaceholder": "dd.mm.rrrr",
+    "role": "Zarejestruj jako",
+    "rolePlaceholder": "Wybierz rolę",
+    "roleStudent": "Uczeń",
+    "roleTutor": "Korepetytor",
+    "errors": {
+      "firstName": "Imię jest wymagane",
+      "lastName": "Nazwisko jest wymagane",
+      "birthDate": "Data urodzenia jest wymagana",
+      "age": "Aby się zarejestrować, musisz mieć co najmniej 13 lat",
+      "email": "Adres e-mail jest wymagany",
+      "emailInvalid": "Nieprawidłowy format e-maila",
+      "password": "Hasło jest wymagane",
+      "passwordShort": "Hasło musi mieć co najmniej 8 znaków",
+      "confirmPassword": "Potwierdź hasło",
+      "passwordsMismatch": "Hasła nie są identyczne",
+      "role": "Wybierz rolę",
+      "ageStudent": "Aby zarejestrować się jako uczeń, musisz mieć co najmniej 13 lat.",
+      "ageTutor": "Aby zarejestrować się jako korepetytor, musisz mieć co najmniej 18 lat.",
+      "server": "Błąd serwera. Spróbuj ponownie później."
+    },
+    "hints": {
+      "role": {
+        "general": "Uczeń: 13+ • Korepetytor: 18+",
+        "student": "Aby zarejestrować się jako uczeń, musisz mieć co najmniej 13 lat.",
+        "tutor": "Aby zarejestrować się jako korepetytor, musisz mieć co najmniej 18 lat."
+      },
+      "birthDate": {
+        "general": "Wybierz datę urodzenia. Wymagania zależą od roli.",
+        "student": "Wymagane: co najmniej 13 lat.",
+        "tutor": "Wymagane: co najmniej 18 lat."
+      }
+    }
+  },
+  "login": {
+    "title": "Zaloguj się",
+    "email": "Adres e-mail",
+    "password": "Hasło",
+    "button": "Zaloguj się",
+    "noAccount": "Nie masz konta?",
+    "registerLink": "Zarejestruj się",
+    "forgotPassword": "Zapomniałeś hasła?",
+    "submitting": "Logowanie…",
+    "errors": {
+      "email": "E-mail jest wymagany",
+      "emailInvalid": "Nieprawidłowy adres e-mail",
+      "password": "Hasło jest wymagane",
+      "invalid": "Nieprawidłowy e-mail lub hasło",
+      "server": "Logowanie nie powiodło się. Sprawdź dane i spróbuj ponownie."
+    }
+  },
+  "verify": {
+    "verifying": "Weryfikacja e-maila",
+    "verifyingText": "Proszę czekać, trwa weryfikacja Twojego adresu e-mail...",
+    "success": "E-mail zweryfikowany!",
+    "successText": "Twój e-mail został pomyślnie zweryfikowany.",
+    "redirecting": "Przekierowywanie do logowania",
+    "seconds": "sekund",
+    "goToLogin": "Przejdź do logowania",
+    "errorTitle": "Weryfikacja nie powiodła się",
+    "error": {
+      "noToken": "Brak tokenu weryfikacyjnego",
+      "server": "Błąd serwera. Spróbuj ponownie później."
+    },
+    "errorText": "Link weryfikacyjny jest nieprawidłowy lub wygasł."
+  },
+   "forgotPassword": {
+    "title": "Resetowanie hasła",
+    "subtitle": "Wprowadź swój adres e-mail, a wyślemy Ci link do resetowania hasła.",
+    "sendLink": "Wyślij link resetujący",
+    "submitting": "Wysyłanie...",
+    "success": "Jeśli konto z tym adresem e-mail istnieje, link do resetowania hasła został wysłany.",
+    "backToLogin": "Powrót do logowania",
+    "remember": "Pamiętasz hasło?",
+    "loginLink": "Powrót do logowania"
+  },
+  "resetPassword": {
+    "title": "Resetowanie hasła",
+    "subtitle": "Wprowadź nowe hasło poniżej.",
+    "newPassword": "Nowe hasło",
+    "confirmPassword": "Potwierdź hasło",
+    "reset": "Resetuj hasło",
+    "submitting": "Resetowanie...",
+    "loading": "Weryfikowanie linku resetującego...",
+    "invalidToken": "Nieprawidłowy lub wygasły link resetujący. Proszę poprosić o nowy link resetujący.",
+    "requestNew": "Poproś o nowy link resetujący",
+    "success": "Twoje hasło zostało pomyślnie zresetowane. Przekierowywanie do logowania...",
+    "goToLogin": "Przejdź do logowania",
+    "remember": "Pamiętasz hasło?",
+    "loginLink": "Powrót do logowania",
+    "errors": {
+      "password": "Hasło jest wymagane",
+      "passwordShort": "Hasło musi mieć co najmniej 8 znaków",
+      "confirmPassword": "Proszę potwierdzić hasło",
+      "mismatch": "Hasła nie są zgodne"
+    }
+  },
+  "about": {
+    "title": "O nas",
+    "lead": "Pomagamy szybko i bez stresu łączyć uczniów z najlepszymi korepetytorami.",
+    "blocks": {
+      "mission": {
+        "title": "Nasza misja",
+        "text": "Ułatwić planowanie i współpracę dzięki sprytnym narzędziom i przejrzystemu interfejsowi."
+      },
+      "how": {
+        "title": "Jak działamy",
+        "text": "Znajdujesz korepetytora, rezerwujesz termin, a system synchronizuje kalendarze i przypomina o lekcjach."
+      },
+      "values": {
+        "title": "Wartości",
+        "items": [
+          "Transparentność",
+          "Jakość nauczania",
+          "Szacunek do czasu"
+        ]
+      }
+    },
+    "thesis": {
+      "title": "Praca inżynierska",
+      "desc": "Aplikacja EduScheduler jest częścią pracy inżynierskiej Miłosza Markowskiego."
+    },
+    "ageNotice": {
+      "title": "Wymagania wiekowe przy rejestracji:",
+      "student": "Uczeń — co najmniej 13 lat.",
+      "tutor": "Korepetytor — co najmniej 18 lat."
+    },
+    "payments": {
+      "title": "Płatności",
+      "desc": "Płatności online nie są jeszcze dostępne. Obecnie rozliczenia odbywają się poza platformą (bezpośrednio z korepetytorem). Planujemy wkrótce dodać bezpieczne płatności online."
+    }
+  },
+  "contact": {
+    "title": "Kontakt",
+    "lead": "Masz pytanie lub sugestię? Napisz do nas — odpiszemy jak najszybciej.",
+    "form": {
+      "name": "Imię i nazwisko",
+      "email": "Adres e-mail",
+      "topic": "Temat (opcjonalnie)",
+      "message": "Wiadomość",
+      "send": "Wyślij"
+    },
+    "placeholders": {
+      "name": "Wpisz swoje imię i nazwisko",
+      "topic": "Czego dotyczy wiadomość?",
+      "message": "Krótko opisz temat…"
+    },
+    "errors": {
+      "name": "Podaj imię i nazwisko",
+      "email": "Podaj adres e-mail",
+      "emailInvalid": "Nieprawidłowy format e-maila",
+      "message": "Wpisz treść wiadomości",
+      "server": "Wystąpił błąd podczas wysyłania wiadomości. Spróbuj ponownie."
+    },
+    "success": "Dziękujemy! Twoja wiadomość została wysłana.",
+    "info": {
+      "title": "Jak jeszcze możemy pomóc?",
+      "desc": "Zanim napiszesz, sprawdź te częste tematy:",
+      "items": [
+        "Problemy z logowaniem lub rejestracją",
+        "Sugestie nowych funkcji",
+        "Współpraca lub partnerstwo"
+      ]
+    }
+  },
+  "student": {
+    "title": "Dla uczniów",
+    "lead": "Jeśli masz co najmniej 13 lat, możesz korzystać z platformy i rezerwować lekcje z najlepszymi korepetytorami.",
+    "blocks": {
+      "age": {
+        "title": "Wymaganie wiekowe",
+        "rule": "Aby korzystać z serwisu jako uczeń, musisz mieć co najmniej 13 lat."
+      },
+      "profile": {
+        "title": "Profil ucznia",
+        "desc": "Po rejestracji uzupełnij podstawowe informacje, aby dopasować korepetytorów i materiały.",
+        "school": "Gdzie się uczysz (szkoła/miasto).",
+        "class": "Twoja klasa/poziom lub poziom edukacji.",
+        "track": "Profil/przedmioty rozszerzone (np. matematyczno-fizyczny, biologiczno-chemiczny).",
+        "goals": "Cele naukowe (np. lepsze oceny, przygotowanie do egzaminów)."
+      },
+      "booking": {
+        "title": "Rezerwacja i przypomnienia",
+        "email": "Po rezerwacji otrzymasz e-mail z datą, godziną i szczegółami.",
+        "calendar": "Po potwierdzeniu przez korepetytora lekcja pojawi się w Twoim kalendarzu z gotowym linkiem dołączenia.",
+        "reschedule": "Możesz przełożyć do 24 godzin przed lekcją.",
+        "cancel": "Późne anulowania mogą być oznaczone jako nieobecność."
+      },
+      "reviews": {
+        "title": "Opinie",
+        "afterLesson": "Po każdej lekcji możesz wystawić ocenę i opinię.",
+        "editWindow": "Masz krótki okres na edycję opinii po jej opublikowaniu.",
+        "guidelines": "Bądź konstruktywny i szanujący — pomagamy filtrować nadużycia."
+      },
+      "extras": {
+        "title": "Dodatki",
+        "favourites": "Ulubieni korepetytorzy i szybka ponowna rezerwacja.",
+        "materials": "Udostępnione pliki z lekcji i notatki w jednym miejscu.",
+        "progress": "Statystyki postępów i cele semestru.",
+        "reminders": "Przypomnienia e-mail o nadchodzących lekcjach."
+      }
+    },
+    "cta": {
+      "title": "Gotowy na start?",
+      "desc": "Utwórz konto i zarezerwuj pierwszą lekcję w kilka kliknięć.",
+      "button": "Zarejestruj się"
+    }
+  },
+  "tutor": {
+    "title": "Dla korepetytorów",
+    "lead": "Zbuduj profesjonalny profil, zarządzaj dostępnością i łatwo potwierdzaj rezerwacje.",
+    "blocks": {
+      "profile": {
+        "title": "Profil korepetytora",
+        "desc": "Uzupełnij profil, aby uczniowie mogli Cię znaleźć.",
+        "education": "Wykształcenie / ukończone studia lub kierunek.",
+        "exams": "Wyniki egzaminów (np. matura) — opcjonalnie.",
+        "subjects": "Przedmioty i poziomy, których uczysz.",
+        "methods": "Twoje podejście do nauczania (np. zadania problemowe, przygotowanie do egzaminów).",
+        "photo": "Zdjęcie profilowe — mile widziane, ale niewymagane."
+      },
+      "availability": {
+        "title": "Dostępność",
+        "calendarSync": "Synchronizacja kalendarzy (Google/Outlook/Apple).",
+        "slots": "Zdefiniuj okienka i maks. liczbę lekcji dziennie.",
+        "buffer": "Bufor między lekcjami (np. 10–15 min)."
+      },
+      "booking": {
+        "title": "Obsługa rezerwacji",
+        "requests": "Odbieraj prośby o rezerwację i weryfikuj szczegóły.",
+        "confirmation": "Po potwierdzeniu wysyłamy e-mail do ucznia i dodajemy lekcję do kalendarza.",
+        "link": "Link do spotkania generujemy automatycznie i pokazujemy na karcie lekcji.",
+        "policy": "Zasada 24 godzin: zmiany/anulacje po tym czasie mogą być oznaczone jako nieobecność."
+      },
+      "payments": {
+        "title": "Płatności",
+        "desc": "Płatności online nie są jeszcze dostępne — rozliczenia odbywają się poza platformą. Planujemy wkrótce dodać bezpieczne płatności."
+      },
+      "extras": {
+        "title": "Dodatki",
+        "materials": "Udostępniaj materiały i zadania.",
+        "homework": "Przydzielaj prace domowe z terminami.",
+        "reviews": "Buduj wiarygodność dzięki opiniom uczniów.",
+        "analytics": "Tygodniowe podsumowania i analityka obłożenia kalendarza."
+      }
+    },
+    "cta": {
+      "title": "Dołącz jako korepetytor?",
+      "desc": "Załóż konto, uzupełnij profil i zacznij przyjmować rezerwacje.",
+      "button": "Zarejestruj się"
+    },
+    "overview": {
+      "upcomingTitle": "Najbliższe lekcje",
+      "noUpcoming": "Nic w najbliższym czasie.",
+      "requestsTitle": "Prośby o rezerwację",
+      "noRequests": "Brak oczekujących próśb.",
+      "reviewsTitle": "Najnowsze opinie",
+      "noReviews": "Brak opinii.",
+      "newTutorsTitle": "Nowi korepetytorzy",
+      "noNewTutors": "Brak nowych korepetytorów.",
+      "viewAll": "Zobacz wszystkie",
+      "anonymous": "Anonim"
+    }
+  },
+  "sidebar": {
+    "brand": "EduScheduler",
+    "user": {
+      "role": {
+        "student": "Uczeń",
+        "tutor": "Korepetytor"
+      }
+    },
+    "nav": {
+      "overview": "Przegląd",
+      "calendar": "Kalendarz",
+      "lessons": "Zajęcia",
+      "profile": "Profil",
+      "availability": "Dostępność",
+      "reviews": "Opinie",
+      "settings": "Ustawienia konta",
+      "tutors": "Korepetytorzy"
+    },
+    "actions": {
+      "settings": "Ustawienia",
+      "logout": "Wyloguj"
+    },
+    "lang": {
+      "label": "Język",
+      "pl": "PL",
+      "en": "EN"
+    }
+  },
+  "app": {
+    "settings": {
+      "sections": { "accountControls": "Kontrola konta" },
+      "actions": {
+        "deactivate": "Wyłącz konto",
+        "activate": "Włącz konto",
+        "delete": "Usuń konto"
+      },
+      "confirmations": {
+        "deactivate": "Wyłączyć tymczasowo konto? Zawsze możesz je włączyć ponownie.",
+        "activate": "Włączyć ponownie konto teraz?",
+        "delete": "Trwale usunąć konto? Tej operacji nie można cofnąć."
+      },
+      "success": {
+        "deactivated": "Konto zostało wyłączone.",
+        "activated": "Konto zostało włączone.",
+        "deleted": "Konto zostało usunięte."
+      }
+    },
+    "tutor": {
+      "title": "Panel korepetytora",
+      "overview": {
+        "title": "Przegląd"
+      },
+      "calendar": {
+        "title": "Kalendarz"
+      },
+      "availability": {
+        "title": "Ustawienia dostępności",
+        "sections": {
+          "schedule": "Ustawienia harmonogramu",
+          "calendar": "Integracja kalendarza",
+          "days": "Dostępne dni",
+          "notes": "Dodatkowe notatki"
+        },
+        "fields": {
+          "calendarUrl": "URL do osadzenia kalendarza"
+        },
+        "placeholders": {
+          "calendarName": "Nazwa kalendarza (opcjonalnie)",
+          "calendarUrl": "https://calendar.google.com/calendar/embed?src=..."
+        },
+        "hints": {
+          "calendarUrl": "Obsługiwane kalendarze: Google Calendar, Outlook Calendar, Apple iCal oraz inne kalendarze z publicznym URL do osadzenia. Google Calendar: Ustawienia → Kalendarz do osadzenia → Skopiuj URL. Outlook: Kalendarz → Udostępnij → Pobierz link → Kod osadzania."
+        },
+        "actions": {
+          "addCalendar": "Dodaj kalendarz",
+          "save": "Zapisz dostępność"
+        },
+        "noCalendars": "Brak dodanych kalendarzy. Dodaj kalendarz powyżej, aby zsynchronizować zajęte terminy."
+      },
+      "lessons": {
+        "title": "Zajęcia",
+        "requestsTitle": "Prośby o rezerwację",
+        "noRequests": "Brak nowych próśb.",
+        "confirmedTitle": "Potwierdzone lekcje",
+        "joinLink": "Link do dołączenia",
+        "empty": "Brak.",
+        "lessonLength": "Czas trwania",
+        "studentMessage": "Wiadomość od ucznia",
+        "mode": {
+          "online": "Online",
+          "onsite": "Stacjonarnie"
+        },
+        "locationLabel": "Miejsce",
+        "joinMeeting": "Dołącz do spotkania",
+        "reviewCta": "Wystaw opinię",
+        "reviewSubmitted": "Opinia wysłana",
+        "reviewSuccess": "Opinia została zapisana.",
+        "reviewError": "Nie udało się zapisać opinii.",
+        "joinUnavailableHost": "Link aktywuje się po potwierdzeniu lekcji i wygenerowaniu spotkania.",
+        "confirmSuccess": "Zajęcia potwierdzone.",
+        "confirmError": "Nie udało się potwierdzić zajęć.",
+        "declinePrompt": "Powód odrzucenia (opcjonalnie)",
+        "declineSuccess": "Zajęcia zostały odrzucone.",
+        "declineError": "Nie udało się odrzucić zajęć.",
+        "propose": "Zaproponuj inny termin",
+        "proposeFormTitle": "Zaproponuj nowy termin dla {{student}}",
+        "proposeDate": "Data",
+        "proposeTime": "Godzina",
+        "proposeDuration": "Czas trwania",
+        "proposeNote": "Wiadomość dla ucznia (opcjonalnie)",
+        "proposeSubmit": "Wyślij propozycję",
+        "proposeCancel": "Zamknij",
+        "proposeSuccess": "Nowy termin został zaproponowany.",
+        "proposeError": "Nie udało się zaproponować nowego terminu.",
+        "section": {
+          "awaiting": "Oczekujące na potwierdzenie",
+          "inProgress": "W trakcie",
+          "scheduled": "Zaplanowane",
+          "rescheduled": "Przełożone",
+          "completed": "Zakończone (do oceny)",
+          "reviewed": "Ocenione",
+          "cancelled": "Anulowane"
+        },
+        "list": {
+          "searchPlaceholder": "Szukaj po imieniu, nazwisku lub e-mailu…",
+          "sortLabel": "Sortowanie",
+          "sortNewest": "Najnowsze",
+          "sortOldest": "Najstarsze"
+        },
+        "actions": {
+          "confirm": "Potwierdź",
+          "decline": "Odrzuć",
+          "reschedule": "Przełóż",
+          "cancel": "Odwołaj"
+        }
+      },
+      "reviews": {
+        "title": "Opinie",
+        "review": "opinia",
+        "reviews": "opinie",
+        "sortBy": "Sortuj według",
+        "newest": "Najnowsze",
+        "oldest": "Najstarsze",
+        "noReviews": "Brak opinii",
+        "tutorNote": "Twoja notatka"
+      },
+      "profile": {
+        "title": "Profil korepetytora",
+        "basic": "Podstawowe",
+        "offer": "Oferta",
+        "methods": "Metody i bio",
+        "links": "Linki i dostępność",
+        "save": "Zapisz profil",
+        "education": "Wykształcenie",
+        "educationHint": "PW — Automatyka i Robotyka",
+        "experience": "Doświadczenie (lata)",
+        "photo": "Zdjęcie (URL)",
+        "subjects": "Przedmioty i poziomy",
+        "subjectsHintSelect": "Przytrzymaj Ctrl (Windows) lub Cmd (Mac), aby wybrać kilka przedmiotów z listy.",
+        "subjectsCustom": "Inny przedmiot (opcjonalnie)",
+        "subjectsCustomPlaceholder": "np. logistyka",
+        "subjectsCustomAdd": "Dodaj",
+        "subjectsCustomHint": "Jeśli nie widzisz przedmiotu na liście, wpisz jego nazwę i dodaj ją ręcznie.",
+        "exams": "Wyniki egzaminów (opcjonalnie)",
+        "examsHint": "Oddzielaj przecinkami, np. matura 90% matematyka, 85% fizyka",
+        "hourly": "Stawka godzinowa [PLN]",
+        "lessonDuration": "Czas trwania lekcji [min]",
+        "languages": "Języki nauczania",
+        "modes": "Tryb zajęć",
+        "city": "Miasto (stacjonarnie)",
+        "radius": "Promień dojazdu [km]",
+        "teachingMethods": "Metody nauczania",
+        "bio": "Krótkie bio",
+        "certs": "Certyfikaty / osiągnięcia (opcjonalnie)",
+        "website": "Strona WWW (opcjonalnie)",
+        "linkedin": "LinkedIn (opcjonalnie)",
+        "maxPerDay": "Maks. liczba lekcji dziennie",
+        "buffer": "Bufor między lekcjami [min]",
+        "preferredDays": "Preferowane dni",
+        "fields": {
+          "firstName": "Imię",
+          "lastName": "Nazwisko",
+          "education": "Wykształcenie",
+          "experienceYears": "Doświadczenie (lata)",
+          "subjects": "Przedmioty",
+          "exams": "Egzaminy",
+          "hourlyRate": "Stawka godzinowa",
+          "lessonDuration": "Czas trwania lekcji",
+          "modes": "Tryby",
+          "city": "Miasto",
+          "travelRadiusKm": "Promień dojazdu",
+          "languages": "Języki",
+          "methods": "Metody",
+          "bio": "Bio",
+          "certificates": "Certyfikaty",
+          "website": "Strona WWW",
+          "linkedin": "LinkedIn",
+          "maxPerDay": "Maks. lekcji dziennie",
+          "buffer": "Bufor między lekcjami",
+          "preferredDays": "Preferowane dni"
+        },
+        "placeholders": {
+          "firstName": "Wpisz imię",
+          "lastName": "Wpisz nazwisko",
+          "education": "np. Magister matematyki, Uniwersytet Warszawski",
+          "experience": "np. 5",
+          "experienceYears": "np. 5",
+          "subjects": "np. matematyka, fizyka, chemia",
+          "exams": "np. matura, egzamin ósmoklasisty",
+          "hourlyRate": "np. 80",
+          "hourly": "np. 80",
+          "lessonDuration": "np. 60",
+          "city": "np. Warszawa",
+          "travelRadiusKm": "np. 10",
+          "radius": "np. 10",
+          "languages": "np. polski, angielski",
+          "methods": "np. rozwiązywanie zadań, przygotowanie do egzaminów",
+          "bio": "Opisz swoje podejście do nauczania...",
+          "certificates": "np. certyfikat nauczyciela, kwalifikacje pedagogiczne",
+          "certs": "np. certyfikat nauczyciela, kwalifikacje pedagogiczne",
+          "website": "np. https://mojastrona.pl",
+          "linkedin": "np. https://linkedin.com/in/mojprofil",
+          "maxPerDay": "np. 4",
+          "buffer": "np. 10"
+        },
+        "affix": {
+          "pln": "PLN",
+          "min": "min",
+          "km": "km"
+        },
+        "modesLabels": {
+          "online": "online",
+          "onsite": "stacjonarnie",
+          "hybrid": "hybrydowo"
+        },
+        "days": {
+          "mon": "Pon",
+          "tue": "Wt",
+          "wed": "Śr",
+          "thu": "Czw",
+          "fri": "Pt",
+          "sat": "Sob",
+          "sun": "Nd"
+        },
+        "photoUpload": "Zdjęcie (upload)",
+        "photoAlt": "Podgląd",
+        "photoDrag": "Przeciągnij i upuść swoje zdjęcie tutaj",
+        "or": "albo",
+        "photoPick": "Wybierz z urządzenia",
+        "photoChange": "Zmień zdjęcie",
+        "photoRemove": "Usuń",
+        "photoHint": "JPG/PNG/WebP do 5 MB. Zalecane kadrowanie kwadratowe.",
+        "requiredNotice": "Uzupełnij wszystkie pola oznaczone * — tylko wtedy profil będzie widoczny dla uczniów.",
+        "requiredLabel": "Pole wymagane",
+        "optionalTag": "opcjonalne",
+        "modesHint": "Zaznacz wszystkie tryby zajęć, które oferujesz. Tryb stacjonarny lub hybrydowy wymaga podania miasta i promienia dojazdu.",
+        "cityHintRequired": "Wymagane, ponieważ oferujesz zajęcia stacjonarne lub hybrydowe.",
+        "cityHintOptional": "Wymagane tylko, jeśli oferujesz zajęcia stacjonarne lub hybrydowe.",
+        "travelHintRequired": "Wymagane, ponieważ oferujesz zajęcia stacjonarne lub hybrydowe.",
+        "travelHintOptional": "Wymagane tylko, jeśli oferujesz zajęcia stacjonarne lub hybrydowe.",
+        "photoErrors": {
+          "invalidType": "Nieprawidłowy typ pliku. Dozwolone: JPG/PNG/WebP.",
+          "tooLarge": "Plik jest zbyt duży (maks. 5 MB)."
+        },
+        "validation": {
+          "education": "Podaj wykształcenie.",
+          "experienceYears": "Podaj liczbę lat doświadczenia.",
+          "subjects": "Wybierz co najmniej jeden przedmiot.",
+          "hourlyRate": "Podaj stawkę godzinową.",
+          "lessonDuration": "Podaj czas trwania lekcji w minutach.",
+          "languages": "Podaj przynajmniej jeden język nauczania.",
+          "lessonModes": "Wybierz przynajmniej jeden tryb zajęć.",
+          "city": "Miasto jest wymagane przy zajęciach stacjonarnych lub hybrydowych.",
+          "travelRadius": "Podaj promień dojazdu w kilometrach.",
+          "methods": "Opisz swoje metody nauczania.",
+          "bio": "Dodaj krótkie bio."
+        },
+        "savedDemo": "Zapisano (demo). Sprawdź konsolę.",
+        "saveError": "Błąd podczas zapisu."
+      },
+      "settings": {
+        "title": "Ustawienia konta",
+        "sections": {
+          "account": "Informacje o koncie",
+          "security": "Bezpieczeństwo",
+          "notifications": "Powiadomienia",
+          "preferences": "Preferencje"
+        },
+        "fields": {
+          "currentEmail": "Aktualny e-mail",
+          "newEmail": "Nowy e-mail",
+          "confirmEmail": "Potwierdź nowy e-mail",
+          "currentPassword": "Aktualne hasło",
+          "newPassword": "Nowe hasło",
+          "confirmPassword": "Potwierdź nowe hasło",
+          "phoneNumbers": "Numery telefonów",
+          "primaryPhone": "Główny numer",
+          "additionalPhones": "Dodatkowe numery",
+          "language": "Język interfejsu",
+          "timezone": "Strefa czasowa",
+          "emailNotifications": "Powiadomienia e-mail",
+          "smsNotifications": "Powiadomienia SMS",
+          "autoAcceptBookings": "Automatycznie akceptuj rezerwacje, gdy slot jest wolny",
+          "bookingReminders": "Przypomnienia o rezerwacjach",
+          "lessonReminders": "Przypomnienia o lekcjach",
+          "changeNotifications": "Informuj o zmianach rezerwacji",
+          "emailLanguage": "Język e-maili"
+        },
+        "placeholders": {
+          "newEmail": "Wpisz nowy adres e-mail",
+          "confirmEmail": "Potwierdź nowy adres e-mail",
+          "currentPassword": "Wpisz aktualne hasło",
+          "newPassword": "Wpisz nowe hasło",
+          "confirmPassword": "Potwierdź nowe hasło",
+          "phoneNumber": "Wpisz numer telefonu",
+          "phoneLabel": "Etykieta (np. Praca, Komórka)"
+        },
+        "actions": {
+          "changeEmail": "Zmień e-mail",
+          "changePassword": "Zmień hasło",
+          "addPhone": "Dodaj numer telefonu",
+          "removePhone": "Usuń",
+          "saveChanges": "Zapisz zmiany",
+          "cancel": "Anuluj"
+        },
+        "errors": {
+          "emailRequired": "E-mail jest wymagany",
+          "emailInvalid": "Nieprawidłowy format e-maila",
+          "emailsMismatch": "Adresy e-mail nie są identyczne",
+          "passwordRequired": "Hasło jest wymagane",
+          "passwordShort": "Hasło musi mieć co najmniej 8 znaków",
+          "passwordsMismatch": "Hasła nie są identyczne",
+          "currentPasswordRequired": "Aktualne hasło jest wymagane",
+          "phoneRequired": "Numer telefonu jest wymagany",
+          "phoneInvalid": "Nieprawidłowy format numeru telefonu"
+        },
+        "success": {
+          "emailChanged": "E-mail zmieniony pomyślnie",
+          "passwordChanged": "Hasło zmienione pomyślnie",
+          "phoneAdded": "Numer telefonu dodany pomyślnie",
+          "phoneRemoved": "Numer telefonu usunięty pomyślnie",
+          "settingsSaved": "Ustawienia zapisane pomyślnie"
+        },
+        "confirmations": {
+          "changeEmail": "Czy na pewno chcesz zmienić adres e-mail?",
+          "changePassword": "Czy na pewno chcesz zmienić hasło?",
+          "removePhone": "Czy na pewno chcesz usunąć ten numer telefonu?"
+        },
+        "languages": {
+          "polish": "Polski",
+          "english": "Angielski"
+        }
+      },
+      "availability": {
+        "title": "Ustawienia dostępności",
+        "sections": {
+          "schedule": "Ustawienia harmonogramu",
+          "calendar": "Integracja kalendarza",
+          "days": "Dostępne dni",
+          "notes": "Dodatkowe notatki"
+        },
+        "fields": {
+          "calendarUrl": "URL do osadzenia kalendarza"
+        },
+        "placeholders": {
+          "calendarUrl": "https://calendar.google.com/calendar/embed?src=...",
+          "calendarName": "Nazwa kalendarza (opcjonalnie)"
+        },
+        "hints": {
+          "calendarUrl": "Obsługiwane kalendarze: Google Calendar, Outlook Calendar, Apple iCal oraz inne kalendarze z publicznym URL do osadzenia. Google Calendar: Ustawienia → Kalendarz do osadzenia → Skopiuj URL. Outlook: Kalendarz → Udostępnij → Pobierz link → Kod osadzania."
+        },
+        "calendarPreview": "Podgląd kalendarza",
+        "calendarsList": "Twoje kalendarze",
+        "actions": {
+          "save": "Zapisz dostępność",
+          "addCalendar": "Dodaj kalendarz",
+          "remove": "Usuń",
+          "syncAll": "Synchronizuj wszystkie kalendarze"
+        },
+        "errors": {
+          "maxLessonsRequired": "Wymagana jest maksymalna liczba lekcji dziennie",
+          "maxLessonsInvalid": "Wprowadź prawidłową liczbę (minimum 1)",
+          "bufferRequired": "Wymagany jest czas buforowy",
+          "bufferInvalid": "Wprowadź prawidłową liczbę (minimum 0)"
+        },
+        "success": {
+          "saved": "Ustawienia dostępności zapisane pomyślnie",
+          "calendarSynced": "Kalendarz zsynchronizowany pomyślnie. Znaleziono {{count}} wydarzeń."
+        },
+        "calendarSynced": "Kalendarz zsynchronizowany pomyślnie. Znaleziono {{count}} wydarzeń."
+      },
+      "reviews": {
+        "title": "Opinie",
+        "review": "opinia",
+        "reviews": "opinii",
+        "sortBy": "Sortuj według",
+        "newest": "Najnowsze",
+        "oldest": "Najstarsze",
+        "noReviews": "Brak opinii",
+        "tutorNote": "Twoja notatka"
+      }
+    }
+  },
+  "components": {
+    "reviewForm": {
+      "title": "Wystaw opinię",
+      "question": "Jak oceniasz lekcję z {{tutorName}}?",
+      "date": "Data",
+      "meetingLink": "Dołącz do spotkania",
+      "ratingLabel": "Twoja ocena korepetytora",
+      "ratingText": "{{rating}} z 5",
+      "platformRatingLabel": "Twoja ocena platformy EduScheduler",
+      "platformRatingText": "{{rating}} z 5",
+      "commentLabel": "Twoja opinia",
+      "commentPlaceholder": "Podziel się wrażeniami z tej lekcji...",
+      "characters": "znaków",
+      "cancel": "Anuluj",
+      "submit": "Wyślij opinię",
+      "errors": {
+        "rating": "Wybierz ocenę",
+        "platformRating": "Wybierz ocenę platformy",
+        "commentLength": "Komentarz musi mieć co najmniej 10 znaków"
+      }
+    },
+    "tutorReviewForm": {
+      "title": "Oceń ucznia",
+      "question": "Jak oceniasz współpracę z {{studentName}}?",
+      "date": "Data",
+      "studentRatingLabel": "Ocena ucznia",
+      "studentRatingText": "{{rating}} z 5",
+      "platformRatingLabel": "Ocena platformy EduScheduler",
+      "platformRatingText": "{{rating}} z 5",
+      "commentLabel": "Twoja opinia",
+      "commentPlaceholder": "Opisz przebieg zajęć oraz sugestie dla ucznia...",
+      "errors": {
+        "studentRating": "Wybierz ocenę ucznia",
+        "platformRating": "Wybierz ocenę platformy",
+        "commentLength": "Komentarz musi mieć co najmniej 10 znaków"
+      }
+    }
+  },
+  "errors": {
+    "server": "Wystąpił błąd. Spróbuj ponownie później."
+  }
+}

@@ -1,0 +1,369 @@
+/* ========== Design tokens (zgodne z resztą aplikacji) ========== */
+:root{
+    --bg-card: rgba(255,255,255,.10);
+    --bg-input: rgba(255,255,255,.96);
+    --brd: rgba(255,255,255,.22);
+    --muted: rgba(255,255,255,.85);
+    --white: #fff;
+    --shadow: 0 14px 36px rgba(0,0,0,.28);
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --radius-sm: 10px;
+    --gap: 18px;
+    --primary: #2f6fff;
+}
+
+/* ========== Główny kontener ========== */
+.tutor-settings {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/* ========== Nagłówek ========== */
+.settings-header {
+    margin-bottom: 24px;
+}
+
+.settings-header h2 {
+    color: var(--white);
+    margin: 0 0 12px 0;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.success-message {
+    background: rgba(40, 167, 69, 0.2);
+    color: #d4edda;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+/* ========== Sekcje ustawień ========== */
+.settings-section {
+    background: var(--bg-card);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--brd);
+    box-shadow: var(--shadow);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+    color: var(--white);
+}
+
+.settings-section h3 {
+    color: var(--white);
+    margin: 0 0 20px 0;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    opacity: 0.95;
+    padding-bottom: 8px;
+}
+
+/* ========== Grupy formularzy ========== */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--white);
+    font-size: 15px;
+    opacity: 0.95;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: none;
+    outline: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    background: var(--bg-input);
+    color: #222;
+    box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    transition: all 0.2s ease;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border: none;
+    outline: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    background: var(--bg-input);
+    color: #222;
+    box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    transition: all 0.2s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23444' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 18px;
+    padding-right: 45px;
+    cursor: pointer;
+}
+
+.form-group select {
+    background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.95) 100%);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.form-group select:hover {
+    background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,250,252,0.98) 100%);
+    box-shadow: 0 4px 15px rgba(0,0,0,.12);
+    transform: translateY(-1px);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    box-shadow: 0 2px 15px rgba(47, 111, 255, 0.2);
+}
+
+.disabled-input {
+    background-color: rgba(255,255,255,.7) !important;
+    color: #6c757d !important;
+    cursor: not-allowed;
+}
+
+.error-message {
+    color: #ffd0ce;
+    font-size: 13px;
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+/* ========== Zarządzanie numerami telefonów ========== */
+.additional-phones {
+    margin-top: 20px;
+}
+
+.additional-phones h4 {
+    color: var(--white);
+    margin-bottom: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    opacity: 0.95;
+}
+
+.phone-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255,255,255,.06);
+    border-radius: var(--radius-sm);
+    margin-bottom: 12px;
+    border: 1px solid var(--brd);
+}
+
+.phone-label {
+    font-weight: 500;
+    color: var(--white);
+    min-width: 80px;
+    opacity: 0.9;
+}
+
+.phone-number {
+    flex: 1;
+    color: var(--muted);
+}
+
+.add-phone-form {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    margin-top: 16px;
+    justify-content: center;
+}
+
+.phone-label-input {
+    flex: 1;
+    padding: 12px 14px;
+    border: none;
+    outline: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    background: var(--bg-input);
+    color: #222;
+    box-shadow: 0 2px 10px rgba(0,0,0,.08);
+}
+
+.phone-number-input {
+    flex: 2;
+    padding: 12px 14px;
+    border: none;
+    outline: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    background: var(--bg-input);
+    color: #222;
+    box-shadow: 0 2px 10px rgba(0,0,0,.08);
+}
+
+/* ========== Language Toggle ========== */
+.language-toggle {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.language-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,.1);
+    color: var(--white);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.language-btn:hover {
+    background: rgba(255,255,255,.2);
+    border-color: rgba(255,255,255,.5);
+    transform: translateY(-1px);
+}
+
+.language-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--white);
+    box-shadow: 0 2px 10px rgba(47, 111, 255, 0.3);
+}
+
+.language-btn.active:hover {
+    background: #1e5ae8;
+    border-color: #1e5ae8;
+    box-shadow: 0 4px 15px rgba(47, 111, 255, 0.4);
+}
+
+/* ========== Ustawienia powiadomień ========== */
+.notification-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s ease;
+    border: 1px solid var(--brd);
+    background: rgba(255,255,255,.06);
+}
+
+.checkbox-label:hover {
+    background: rgba(255,255,255,.12);
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary);
+}
+
+/* ========== Przyciski ========== */
+.settings-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 10px rgba(47, 111, 255, 0.3);
+}
+
+.btn-primary:hover {
+    background: #1e5ae8;
+    box-shadow: 0 4px 15px rgba(47, 111, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: rgba(255,255,255,.12);
+    color: var(--white);
+    border: 1px solid var(--brd);
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: rgba(255,255,255,.2);
+    border-color: var(--primary);
+}
+
+.btn-danger {
+    background: rgba(255, 99, 99, 0.2);
+    color: #ffd0ce;
+    border: 1px solid rgba(255, 99, 99, 0.5);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+    background: rgba(255, 99, 99, 0.3);
+    border-color: rgba(255, 99, 99, 0.7);
+}
+
+/* ========== Responsywność ========== */
+@media (max-width: 768px) {
+    .tutor-settings {
+        padding: 16px;
+    }
+    
+    .settings-section {
+        padding: 20px;
+    }
+    
+    .add-phone-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .phone-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .notification-settings {
+        gap: 12px;
+    }
+    
+    .settings-header h2 {
+        font-size: 20px;
+    }
+}
