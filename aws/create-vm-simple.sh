@@ -2,22 +2,21 @@
 set -e
 
 KEY_NAME=${1:-""}
-INSTANCE_TYPE=${2:-"t3.small"}
+INSTANCE_TYPE=${2:-"c7i-flex.large"}
 REGION=${AWS_REGION:-"eu-north-1"}
 
 if [ -z "$KEY_NAME" ]; then
   echo "Usage: $0 <key-pair-name> [instance-type]"
   echo "Example: $0 my-key-pair"
-  echo "Example: $0 my-key-pair t3.small"
-  echo "Example: $0 my-key-pair t3.medium"
+  echo "Example: $0 my-key-pair c7i-flex.large"
   echo ""
-  echo "Instance types:"
-  echo "  t3.small   - 2 vCPU, 2GB RAM (default)"
-  echo "  t4g.small  - 2 vCPU, 2GB RAM (ARM)"
-  echo "  t3.micro   - 2 vCPU, 1GB RAM"
+  echo "Recommended instance types:"
+  echo "  c7i-flex.large - 2 vCPU, 4GB RAM (default, recommended for Minikube)"
+  echo "  m7i-flex.large - 2 vCPU, 8GB RAM (for heavier workloads)"
   echo ""
-  echo "Paid instances:"
-  echo "  t3.medium  - 2 vCPU, 4GB RAM"
+  echo "Other options (may have insufficient RAM for Minikube):"
+  echo "  t3.small   - 2 vCPU, 2GB RAM (WARNING: insufficient for Minikube - needs 1800MB+)"
+  echo "  t3.medium  - 2 vCPU, 4GB RAM (may work but not recommended)"
   echo ""
   echo "To list available key pairs:"
   echo "  aws ec2 describe-key-pairs --region $REGION --query 'KeyPairs[*].KeyName' --output table"
@@ -131,10 +130,12 @@ fi
 echo ""
 
 echo "Creating EC2 instance ($INSTANCE_TYPE)..."
-if [ "$INSTANCE_TYPE" = "t3.micro" ]; then
-  echo "WARNING: t3.micro (1GB RAM) has insufficient RAM for minikube!"
-  echo "Minikube requires minimum 2GB RAM. Use t3.small instead:"
-  echo "$0 $KEY_NAME t3.small"
+
+if [[ "$INSTANCE_TYPE" =~ ^t3\.(micro|small)$ ]] || [[ "$INSTANCE_TYPE" =~ ^t4g\.(micro|small)$ ]]; then
+  echo "WARNING: $INSTANCE_TYPE has insufficient RAM for Minikube!"
+  echo "Minikube requires minimum 1800MB RAM (recommended 3000MB+)."
+  echo "Use c7i-flex.large (4GB RAM) or m7i-flex.large (8GB RAM) instead:"
+  echo "$0 $KEY_NAME c7i-flex.large"
   echo ""
   read -p "Continue anyway? (y/N): " -n 1 -r
   echo
@@ -167,16 +168,47 @@ echo "Waiting for instance to be running..."
 
 aws ec2 wait instance-running --instance-ids "$INSTANCE_ID" --region $REGION
 
-PUBLIC_IP=$(aws ec2 describe-instances \
-  --instance-ids "$INSTANCE_ID" \
+echo "Allocating Elastic IP for static public IP..."
+ALLOCATION_ID=$(aws ec2 allocate-address \
+  --domain vpc \
   --region $REGION \
-  --query 'Reservations[0].Instances[0].PublicIpAddress' \
+  --tag-specifications "ResourceType=elastic-ip,Tags=[{Key=Name,Value=eduscheduler-minikube-eip}]" \
+  --query 'AllocationId' \
   --output text)
+
+if [ -z "$ALLOCATION_ID" ] || [ "$ALLOCATION_ID" == "None" ]; then
+  echo "WARNING: Failed to allocate Elastic IP. Using dynamic IP (will change after restart)."
+  PUBLIC_IP=$(aws ec2 describe-instances \
+    --instance-ids "$INSTANCE_ID" \
+    --region $REGION \
+    --query 'Reservations[0].Instances[0].PublicIpAddress' \
+    --output text)
+  ELASTIC_IP=""
+else
+  echo "Associating Elastic IP with instance..."
+  aws ec2 associate-address \
+    --instance-id "$INSTANCE_ID" \
+    --allocation-id "$ALLOCATION_ID" \
+    --region $REGION > /dev/null 2>&1 || echo "WARNING: Failed to associate Elastic IP"
+  
+  sleep 2
+  PUBLIC_IP=$(aws ec2 describe-addresses \
+    --allocation-ids "$ALLOCATION_ID" \
+    --region $REGION \
+    --query 'Addresses[0].PublicIp' \
+    --output text)
+  ELASTIC_IP="$PUBLIC_IP"
+fi
 
 echo ""
 echo "VM Ready!"
 echo "Instance ID: $INSTANCE_ID"
-echo "Public IP:   $PUBLIC_IP"
+if [ -n "$ELASTIC_IP" ]; then
+  echo "Public IP:   $PUBLIC_IP (Elastic IP - STATIC, won't change after restart)"
+  echo "Allocation ID: $ALLOCATION_ID"
+else
+  echo "Public IP:   $PUBLIC_IP (Dynamic - WILL CHANGE after stop/start)"
+fi
 echo ""
 echo "SSH:"
 echo "  chmod 400 ~/.ssh/${KEY_NAME}"
@@ -187,6 +219,11 @@ echo "  minikube status"
 echo "  kubectl get nodes"
 echo ""
 echo "Check logs: sudo cat /var/log/user-data-install.log"
+echo ""
+if [ -n "$ELASTIC_IP" ]; then
+  echo "Note: This Elastic IP will persist even if you stop/start the instance."
+  echo "To release it later: aws ec2 release-address --allocation-id $ALLOCATION_ID --region $REGION"
+fi
 echo ""
 
 
