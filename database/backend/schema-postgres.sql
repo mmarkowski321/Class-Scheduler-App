@@ -217,6 +217,8 @@ CREATE TABLE IF NOT EXISTS contact_messages (
     created_at      TIMESTAMP DEFAULT NOW()
 );
 
+
+
 -- =========================
 -- Minimal seed (optional)
 -- =========================
