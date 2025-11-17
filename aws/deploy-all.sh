@@ -14,7 +14,21 @@ echo ""
 echo "Deploying database..."
 kubectl apply -f $K8S_DIR/database/secret.yaml
 kubectl apply -f $K8S_DIR/database/service.yaml
-kubectl apply -f $K8S_DIR/database/schema-configmap.yaml
+
+# Create ConfigMap from schema SQL file
+SCHEMA_FILE="$SCRIPT_DIR/../database/backend/schema-postgres.sql"
+if [ ! -f "$SCHEMA_FILE" ]; then
+  SCHEMA_FILE="./database/backend/schema-postgres.sql"
+fi
+if [ -f "$SCHEMA_FILE" ]; then
+  echo "Creating ConfigMap from $SCHEMA_FILE..."
+  kubectl create configmap eduscheduler-schema \
+    --from-file=schema.sql="$SCHEMA_FILE" \
+    --dry-run=client -o yaml | kubectl apply -f -
+else
+  echo "WARNING: Schema file not found at $SCHEMA_FILE"
+  echo "Using existing ConfigMap if available..."
+fi
 
 echo "Checking storage classes..."
 kubectl get storageclass
