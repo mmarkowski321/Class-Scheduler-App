@@ -67,6 +67,11 @@ kubectl apply -f $K8S_DIR/frontend/deployment.yaml
 kubectl apply -f $K8S_DIR/frontend/hpa.yaml
 
 echo ""
+echo "To enable HTTPS:"
+echo "  ./setup-https.sh"
+echo ""
+
+echo ""
 echo "Deployment Complete!"
 echo ""
 echo "Check status:"

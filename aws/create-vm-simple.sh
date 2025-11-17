@@ -95,7 +95,7 @@ if [ -z "$SG_ID" ] || [ "$SG_ID" == "None" ]; then
     --query 'GroupId' \
     --output text)
   
-  echo "Opening ports 22 (SSH), 80 (HTTP), 30080 (Frontend NodePort), 8080 (Backend)..."
+  echo "Opening ports 22 (SSH), 80 (HTTP), 443 (HTTPS), 30080 (Frontend NodePort), 8080 (Backend)..."
   aws ec2 authorize-security-group-ingress \
     --group-id "$SG_ID" \
     --protocol tcp \
@@ -107,6 +107,13 @@ if [ -z "$SG_ID" ] || [ "$SG_ID" == "None" ]; then
     --group-id "$SG_ID" \
     --protocol tcp \
     --port 80 \
+    --cidr 0.0.0.0/0 \
+    --region $REGION 2>/dev/null || true
+  
+  aws ec2 authorize-security-group-ingress \
+    --group-id "$SG_ID" \
+    --protocol tcp \
+    --port 443 \
     --cidr 0.0.0.0/0 \
     --region $REGION 2>/dev/null || true
   
