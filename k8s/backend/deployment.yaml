@@ -43,6 +43,8 @@ spec:
               value: prod
             - name: CORS_ALLOWED_ORIGINS
               value: "http://localhost:5173,http://localhost:3000,http://localhost:80,http://localhost:8080,http://51.20.81.36:30080,http://13.62.198.13:30080"
+            - name: APP_BASE_URL
+              value: "http://13.62.198.13:30080"
             - name: SPRING_MAIL_PASSWORD
               valueFrom:
                 secretKeyRef:
