@@ -15,6 +15,11 @@ echo "Deploying database..."
 kubectl apply -f $K8S_DIR/database/secret.yaml
 kubectl apply -f $K8S_DIR/database/service.yaml
 kubectl apply -f $K8S_DIR/database/schema-configmap.yaml
+
+echo "Checking storage classes..."
+kubectl get storageclass
+
+echo "Applying StatefulSet..."
 kubectl apply -f $K8S_DIR/database/statefulset.yaml
 
 echo "Waiting for postgres to be ready..."
