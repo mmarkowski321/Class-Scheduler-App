@@ -129,9 +129,16 @@ export default function StudentLessons() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        let errorData;
+        try {
+          const text = await response.text();
+          errorData = text ? JSON.parse(text) : { error: "Failed to submit review" };
+        } catch (e) {
+          errorData = { error: "Failed to submit review" };
+        }
         console.error("Failed to submit review:", errorData);
-        setFeedback({ type: "error", message: t("app.student.lessons.reviewError") });
+        const errorMessage = errorData.error || errorData.message || t("app.student.lessons.reviewError");
+        setFeedback({ type: "error", message: errorMessage });
         return;
       }
 

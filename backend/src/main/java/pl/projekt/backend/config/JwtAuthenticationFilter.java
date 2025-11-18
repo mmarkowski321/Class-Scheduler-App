@@ -52,11 +52,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 }
 
-class JwtPrincipal {
+public class JwtPrincipal {
     public final Long userId;
     public final String role;
 
-    JwtPrincipal(Long userId, String role) {
+    public JwtPrincipal(Long userId, String role) {
         this.userId = userId;
         this.role = role;
     }

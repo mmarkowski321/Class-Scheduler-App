@@ -1,5 +1,6 @@
 package pl.projekt.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -7,6 +8,7 @@ import lombok.Data;
 @DiscriminatorValue("TUTOR")
 @Data
 @lombok.EqualsAndHashCode(callSuper = false)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Tutor extends User {
     
     // Basic profile fields
