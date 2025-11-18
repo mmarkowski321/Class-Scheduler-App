@@ -25,9 +25,13 @@ echo "   HTTP port: $HTTP_PORT -> 80"
 echo "   HTTPS port: $HTTPS_PORT -> 443"
 echo ""
 
-# Start port-forward in background with sudo (required for ports < 1024)
-echo "Starting port-forward with sudo (required for ports 80/443)..."
-nohup sudo kubectl port-forward --address 0.0.0.0 $INGRESS_SVC -n ingress-nginx 80:$HTTP_PORT 443:$HTTPS_PORT > /tmp/ingress-port-forward.log 2>&1 &
+# Start port-forward in background with sudo -E (preserves environment, including KUBECONFIG)
+echo "Starting port-forward with sudo -E (required for ports < 1024)..."
+echo "Note: This requires sudo access and kubeconfig for root user"
+echo ""
+
+# Try with sudo -E first (preserves environment)
+nohup sudo -E kubectl port-forward --address 0.0.0.0 $INGRESS_SVC -n ingress-nginx 80:$HTTP_PORT 443:$HTTPS_PORT > /tmp/ingress-port-forward.log 2>&1 &
 PORT_FORWARD_PID=$!
 
 echo "Port-forward started (PID: $PORT_FORWARD_PID)"
@@ -48,14 +52,23 @@ else
   echo "Note: Ports 80 and 443 require root privileges."
   echo "Trying alternative method with iptables..."
   
-  # Alternative: Use iptables to forward ports
-  # This requires sudo privileges
-  sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:$HTTP_PORT 2>/dev/null || echo "iptables rule for port 80 failed"
-  sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:$HTTPS_PORT 2>/dev/null || echo "iptables rule for port 443 failed"
+  # Get LoadBalancer IP or use NodePort
+  LB_IP=$(kubectl get $INGRESS_SVC -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "")
+  if [ -z "$LB_IP" ]; then
+    # Use ClusterIP if LoadBalancer doesn't have IP yet
+    LB_IP=$(kubectl get $INGRESS_SVC -n ingress-nginx -o jsonpath='{.spec.clusterIP}')
+  fi
   
-  # Start port-forward to localhost only (no sudo needed)
-  nohup kubectl port-forward $INGRESS_SVC -n ingress-nginx $HTTP_PORT:$HTTP_PORT $HTTPS_PORT:$HTTPS_PORT > /tmp/ingress-port-forward-local.log 2>&1 &
-  echo "Started port-forward to localhost with iptables forwarding"
+  echo "Using Ingress service IP: $LB_IP"
+  
+  # Alternative: Use iptables to forward ports to ClusterIP
+  # This requires sudo privileges but doesn't need kubectl from root
+  sudo iptables -t nat -C PREROUTING -p tcp --dport 80 -j DNAT --to-destination $LB_IP:$HTTP_PORT 2>/dev/null || \
+    sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination $LB_IP:$HTTP_PORT
+  sudo iptables -t nat -C PREROUTING -p tcp --dport 443 -j DNAT --to-destination $LB_IP:$HTTPS_PORT 2>/dev/null || \
+    sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination $LB_IP:$HTTPS_PORT
+  
+  echo "✓ iptables rules added for port forwarding"
 fi
 
 echo ""
