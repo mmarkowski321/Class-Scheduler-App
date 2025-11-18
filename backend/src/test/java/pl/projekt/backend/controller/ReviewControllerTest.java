@@ -73,8 +73,12 @@ class ReviewControllerTest {
         lesson.setTutor(tutor);
         lesson.setStudent(student);
         lesson.setStatus(LessonStatus.COMPLETED);
-
-        // Mock authentication
+        
+        // Clear SecurityContext before each test
+        SecurityContextHolder.clearContext();
+    }
+    
+    private void setupAuthentication() {
         JwtPrincipal principal = new JwtPrincipal(student.getId(), "STUDENT");
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 principal, null, null);
@@ -85,6 +89,7 @@ class ReviewControllerTest {
 
     @Test
     void createReview_shouldPersistWhenPayloadValid() throws Exception {
+        setupAuthentication();
         when(lessonRepository.findById(lesson.getId())).thenReturn(Optional.of(lesson));
         when(userRepository.findById(student.getId())).thenReturn(Optional.of(student));
         when(userRepository.findById(tutor.getId())).thenReturn(Optional.of(tutor));
@@ -112,8 +117,7 @@ class ReviewControllerTest {
 
     @Test
     void createReview_shouldRejectOutOfRangeRating() throws Exception {
-        when(lessonRepository.findById(lesson.getId())).thenReturn(Optional.of(lesson));
-        when(userRepository.findById(student.getId())).thenReturn(Optional.of(student));
+        setupAuthentication();
         
         mockMvc.perform(post("/api/reviews")
                         .contentType(MediaType.APPLICATION_JSON)
