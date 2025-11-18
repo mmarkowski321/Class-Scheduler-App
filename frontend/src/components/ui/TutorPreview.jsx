@@ -41,6 +41,82 @@ export default function TutorPreview({
   const [onsiteStreet, setOnsiteStreet] = useState("");
   const [onsiteBuilding, setOnsiteBuilding] = useState("");
   const [onsiteApartment, setOnsiteApartment] = useState("");
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+
+  // Star component
+  const Star = ({ className, size = 16 }) => (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  );
+
+  const renderStars = (rating) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`tutor-preview-star ${i < rating ? 'filled' : 'empty'}`}
+        size={16}
+      />
+    ));
+  };
+
+  const formatReviewDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return dateString;
+    return date.toLocaleDateString(i18n.language === "pl" ? "pl-PL" : "en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  useEffect(() => {
+    const loadReviews = async () => {
+      if (!tutor?.id) {
+        setReviews([]);
+        return;
+      }
+      setReviewsLoading(true);
+      try {
+        const response = await fetch(`/api/reviews/tutor/${tutor.id}`, {
+          headers: {
+            "Accept-Language": i18n.language || "pl",
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setReviews(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch tutor reviews:", error);
+        setReviews([]);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+
+    if (visible && tutor?.id) {
+      loadReviews();
+    }
+  }, [visible, tutor?.id, i18n.language]);
+
+  const averageRating = useMemo(() => {
+    if (!reviews.length) return null;
+    const sum = reviews.reduce((acc, review) => acc + (review.tutorRating || 0), 0);
+    return (sum / reviews.length).toFixed(1);
+  }, [reviews]);
 
   const durationOptions = useMemo(() => {
     const base = [30, 60, 90, 120];
@@ -378,6 +454,43 @@ export default function TutorPreview({
                 </>
               )}
             </dl>
+
+            {reviews.length > 0 && (
+              <div className="tutor-preview-reviews">
+                <h3>{t("app.tutor.reviews.title")}</h3>
+                {averageRating && (
+                  <div className="tutor-preview-rating-summary">
+                    <span className="tutor-preview-rating-number">{averageRating}</span>
+                    <div className="tutor-preview-rating-stars">
+                      {renderStars(Math.round(Number(averageRating)))}
+                    </div>
+                    <span className="tutor-preview-rating-count">
+                      ({reviews.length} {reviews.length === 1 ? t("app.tutor.reviews.review") : t("app.tutor.reviews.reviews")})
+                    </span>
+                  </div>
+                )}
+                <div className="tutor-preview-reviews-list">
+                  {reviews.slice(0, 3).map((review) => (
+                    <div key={review.id} className="tutor-preview-review-item">
+                      <div className="tutor-preview-review-header">
+                        <span className="tutor-preview-review-author">
+                          {review.student?.firstName} {review.student?.lastName}
+                        </span>
+                        <span className="tutor-preview-review-date">
+                          {formatReviewDate(review.studentReviewAt || review.createdAt)}
+                        </span>
+                      </div>
+                      <div className="tutor-preview-review-stars">
+                        {renderStars(review.tutorRating || 0)}
+                      </div>
+                      {review.comment && (
+                        <p className="tutor-preview-review-comment">{review.comment}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <form className="tutor-preview-form" onSubmit={handleSubmit}>
               <h3>{tt("bookingTitle")}</h3>

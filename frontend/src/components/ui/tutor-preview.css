@@ -297,6 +297,103 @@
   font-size: 14px;
 }
 
+/* Reviews section */
+.tutor-preview-reviews {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(226, 232, 240, 0.1);
+}
+
+.tutor-preview-reviews h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0 0 16px 0;
+}
+
+.tutor-preview-rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.tutor-preview-rating-number {
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.tutor-preview-rating-stars {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.tutor-preview-star {
+  color: rgba(255, 255, 255, 0.25);
+  transition: color 0.2s;
+}
+
+.tutor-preview-star.filled {
+  color: #FFD700;
+  fill: #FFD700;
+}
+
+.tutor-preview-rating-count {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-left: auto;
+}
+
+.tutor-preview-reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tutor-preview-review-item {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.08);
+}
+
+.tutor-preview-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.tutor-preview-review-author {
+  font-weight: 600;
+  color: #e2e8f0;
+  font-size: 15px;
+}
+
+.tutor-preview-review-date {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.tutor-preview-review-stars {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 8px;
+}
+
+.tutor-preview-review-comment {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+}
+
 .tutor-preview-message--error {
   color: #f87171;
 }

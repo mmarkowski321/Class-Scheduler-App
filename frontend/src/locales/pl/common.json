@@ -782,6 +782,72 @@
         "noReviews": "Brak opinii",
         "tutorNote": "Twoja notatka"
       }
+    },
+    "admin": {
+      "title": "Panel administratora",
+      "nav": {
+        "users": "Użytkownicy",
+        "messages": "Wiadomości",
+        "reviews": "Opinie"
+      },
+      "overview": {
+        "title": "Panel główny",
+        "totalUsers": "Wszyscy użytkownicy",
+        "tutors": "Korepetytorzy",
+        "students": "Uczniowie",
+        "totalLessons": "Wszystkie lekcje",
+        "totalReviews": "Wszystkie opinie",
+        "loading": "Ładowanie statystyk..."
+      },
+      "users": {
+        "title": "Zarządzanie użytkownikami",
+        "tutorsTitle": "Korepetytorzy",
+        "studentsTitle": "Uczniowie",
+        "banUser": "Zablokuj",
+        "banConfirm": "Czy na pewno chcesz zablokować tego użytkownika?",
+        "unbanUser": "Odblokuj",
+        "unbanConfirm": "Czy na pewno chcesz odblokować tego użytkownika?",
+        "noTutors": "Nie znaleziono korepetytorów.",
+        "noStudents": "Nie znaleziono uczniów.",
+        "userDetails": "Szczegóły użytkownika",
+        "lessonsCount": "Liczba lekcji",
+        "reviewsCount": "Liczba opinii",
+        "email": "E-mail",
+        "firstName": "Imię",
+        "lastName": "Nazwisko",
+        "registered": "Zarejestrowano",
+        "emailVerified": "E-mail zweryfikowany",
+        "viewLessons": "Zobacz lekcje",
+        "viewReviews": "Zobacz opinie",
+        "close": "Zamknij"
+      },
+      "messages": {
+        "title": "Wiadomości kontaktowe",
+        "noMessages": "Nie znaleziono wiadomości.",
+        "reply": "Odpowiedz",
+        "replied": "Odpowiedziano",
+        "replyTo": "Odpowiedz do:",
+        "replyPlaceholder": "Wpisz swoją odpowiedź...",
+        "sendReply": "Wyślij odpowiedź",
+        "cancel": "Anuluj",
+        "subject": "Temat",
+        "message": "Wiadomość",
+        "replySent": "Odpowiedź wysłana pomyślnie",
+        "replyFailed": "Nie udało się wysłać odpowiedzi"
+      },
+      "reviews": {
+        "title": "Wszystkie opinie",
+        "noReviews": "Nie znaleziono opinii.",
+        "student": "Uczeń",
+        "tutor": "Korepetytor",
+        "tutorRating": "Ocena korepetytora",
+        "platformRating": "Ocena platformy",
+        "studentBehaviorRating": "Ocena zachowania ucznia",
+        "tutorPlatformRating": "Ocena platformy przez korepetytora",
+        "tutorComment": "Komentarz korepetytora",
+        "comment": "Komentarz",
+        "created": "Utworzono"
+      }
     }
   },
   "components": {
