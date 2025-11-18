@@ -42,14 +42,18 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}-${{ hashFiles('backend/src/**/*.java') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}-
+            ${{ runner.os }}-m2-
 
       - name: Run tests
         working-directory: backend
         env:
           SPRING_MAIL_PASSWORD: ${{ secrets.SPRING_MAIL_PASSWORD }}
-        run: mvn clean test
+        run: |
+          mvn clean compile
+          mvn test
 
   build-and-push:
     name: Build & Push Docker Images
