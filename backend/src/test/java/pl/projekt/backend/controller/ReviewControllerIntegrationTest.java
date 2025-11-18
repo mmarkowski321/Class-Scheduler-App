@@ -7,7 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
+import pl.projekt.backend.config.JwtPrincipal;
 import pl.projekt.backend.model.Lesson;
 import pl.projekt.backend.model.LessonDeliveryMode;
 import pl.projekt.backend.model.LessonStatus;
@@ -81,6 +85,14 @@ class ReviewControllerIntegrationTest {
         lesson.setStatus(LessonStatus.COMPLETED);
         lesson.setDeliveryMode(LessonDeliveryMode.ONLINE);
         lesson = lessonRepository.save(lesson);
+
+        // Mock authentication
+        JwtPrincipal principal = new JwtPrincipal(student.getId(), "STUDENT");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                principal, null, null);
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(auth);
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test

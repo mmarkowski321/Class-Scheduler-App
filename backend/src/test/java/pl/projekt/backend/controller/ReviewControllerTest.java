@@ -9,9 +9,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import pl.projekt.backend.config.JwtPrincipal;
 import pl.projekt.backend.model.Lesson;
+import pl.projekt.backend.model.LessonStatus;
 import pl.projekt.backend.model.Review;
 import pl.projekt.backend.model.Student;
 import pl.projekt.backend.model.Tutor;
@@ -24,8 +29,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -68,6 +72,15 @@ class ReviewControllerTest {
 
         lesson.setTutor(tutor);
         lesson.setStudent(student);
+        lesson.setStatus(LessonStatus.COMPLETED);
+
+        // Mock authentication
+        JwtPrincipal principal = new JwtPrincipal(student.getId(), "STUDENT");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                principal, null, null);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
@@ -99,6 +112,9 @@ class ReviewControllerTest {
 
     @Test
     void createReview_shouldRejectOutOfRangeRating() throws Exception {
+        when(lessonRepository.findById(lesson.getId())).thenReturn(Optional.of(lesson));
+        when(userRepository.findById(student.getId())).thenReturn(Optional.of(student));
+        
         mockMvc.perform(post("/api/reviews")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
