@@ -60,7 +60,7 @@ else
   echo "WARNING: setup-ingress-access.sh not found. Setting up manually..."
   
   # Kill existing port-forward
-  pkill -f "kubectl port-forward.*ingress-nginx-controller" || true
+  sudo pkill -f "kubectl port-forward.*ingress-nginx-controller" || pkill -f "kubectl port-forward.*ingress-nginx-controller" || true
   sleep 2
   
   # Get Ingress service
@@ -68,8 +68,8 @@ else
   HTTP_PORT=$(kubectl get $INGRESS_SVC -n ingress-nginx -o jsonpath='{.spec.ports[?(@.name=="http")].port}')
   HTTPS_PORT=$(kubectl get $INGRESS_SVC -n ingress-nginx -o jsonpath='{.spec.ports[?(@.name=="https")].port}')
   
-  # Start port-forward
-  nohup kubectl port-forward --address 0.0.0.0 $INGRESS_SVC -n ingress-nginx 80:$HTTP_PORT 443:$HTTPS_PORT > /tmp/ingress-port-forward.log 2>&1 &
+  # Start port-forward with sudo (required for ports < 1024)
+  nohup sudo kubectl port-forward --address 0.0.0.0 $INGRESS_SVC -n ingress-nginx 80:$HTTP_PORT 443:$HTTPS_PORT > /tmp/ingress-port-forward.log 2>&1 &
   sleep 5
 fi
 
