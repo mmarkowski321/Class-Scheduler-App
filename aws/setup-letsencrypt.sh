@@ -52,11 +52,33 @@ kubectl apply -f /tmp/cluster-issuer.yaml
 rm -f /tmp/cluster-issuer.yaml
 
 echo ""
-echo "4. Updating Ingress to use Let's Encrypt..."
+echo "4. Setting up external access for Ingress..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/setup-ingress-access.sh" ]; then
+  bash $SCRIPT_DIR/setup-ingress-access.sh
+else
+  echo "WARNING: setup-ingress-access.sh not found. Setting up manually..."
+  
+  # Kill existing port-forward
+  pkill -f "kubectl port-forward.*ingress-nginx-controller" || true
+  sleep 2
+  
+  # Get Ingress service
+  INGRESS_SVC=$(kubectl get svc -n ingress-nginx -l app.kubernetes.io/component=controller -o name | head -1)
+  HTTP_PORT=$(kubectl get $INGRESS_SVC -n ingress-nginx -o jsonpath='{.spec.ports[?(@.name=="http")].port}')
+  HTTPS_PORT=$(kubectl get $INGRESS_SVC -n ingress-nginx -o jsonpath='{.spec.ports[?(@.name=="https")].port}')
+  
+  # Start port-forward
+  nohup kubectl port-forward --address 0.0.0.0 $INGRESS_SVC -n ingress-nginx 80:$HTTP_PORT 443:$HTTPS_PORT > /tmp/ingress-port-forward.log 2>&1 &
+  sleep 5
+fi
+
+echo ""
+echo "5. Updating Ingress to use Let's Encrypt..."
 kubectl apply -f $K8S_DIR/ingress/ingress-letsencrypt.yaml
 
 echo ""
-echo "5. Waiting for certificate to be issued..."
+echo "6. Waiting for certificate to be issued..."
 echo "This may take 1-5 minutes..."
 kubectl wait --for=condition=ready certificate eduscheduler-tls-secret \
   --timeout=600s || echo "Certificate may still be issuing..."
