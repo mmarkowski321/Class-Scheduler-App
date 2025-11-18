@@ -1,5 +1,6 @@
 package pl.projekt.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -7,6 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "reviews")
 @Data
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Review {
     
     @Id

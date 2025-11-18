@@ -111,6 +111,18 @@ public class AdminController {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid user type"));
         }
         
+        // Force lazy loading of tutor and student before serialization
+        lessons.forEach(lesson -> {
+            if (lesson.getTutor() != null) {
+                lesson.getTutor().getId();
+                lesson.getTutor().getEmail();
+            }
+            if (lesson.getStudent() != null) {
+                lesson.getStudent().getId();
+                lesson.getStudent().getEmail();
+            }
+        });
+        
         return ResponseEntity.ok(lessons);
     }
     

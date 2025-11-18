@@ -1,5 +1,6 @@
 package pl.projekt.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 @DiscriminatorValue("STUDENT")
 @Data
 @lombok.EqualsAndHashCode(callSuper = false)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Student extends User {
     
     // Profile fields from registration form
