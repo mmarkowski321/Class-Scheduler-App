@@ -25,8 +25,9 @@ echo "   HTTP port: $HTTP_PORT -> 80"
 echo "   HTTPS port: $HTTPS_PORT -> 443"
 echo ""
 
-# Start port-forward in background, binding to all interfaces (0.0.0.0)
-nohup kubectl port-forward --address 0.0.0.0 $INGRESS_SVC -n ingress-nginx 80:$HTTP_PORT 443:$HTTPS_PORT > /tmp/ingress-port-forward.log 2>&1 &
+# Start port-forward in background with sudo (required for ports < 1024)
+echo "Starting port-forward with sudo (required for ports 80/443)..."
+nohup sudo kubectl port-forward --address 0.0.0.0 $INGRESS_SVC -n ingress-nginx 80:$HTTP_PORT 443:$HTTPS_PORT > /tmp/ingress-port-forward.log 2>&1 &
 PORT_FORWARD_PID=$!
 
 echo "Port-forward started (PID: $PORT_FORWARD_PID)"
@@ -36,13 +37,25 @@ echo ""
 # Wait a moment for port-forward to establish
 sleep 3
 
-# Check if port-forward is running
-if ps -p $PORT_FORWARD_PID > /dev/null; then
+# Check if port-forward is running (need to check with sudo ps or check process name)
+sleep 2
+if pgrep -f "kubectl port-forward.*ingress-nginx-controller" > /dev/null || sudo pgrep -f "kubectl port-forward.*ingress-nginx-controller" > /dev/null; then
   echo "✓ Port-forward is running"
 else
   echo "✗ Port-forward failed to start. Check logs:"
-  tail -20 /tmp/ingress-port-forward.log
-  exit 1
+  sudo tail -20 /tmp/ingress-port-forward.log
+  echo ""
+  echo "Note: Ports 80 and 443 require root privileges."
+  echo "Trying alternative method with iptables..."
+  
+  # Alternative: Use iptables to forward ports
+  # This requires sudo privileges
+  sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:$HTTP_PORT 2>/dev/null || echo "iptables rule for port 80 failed"
+  sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:$HTTPS_PORT 2>/dev/null || echo "iptables rule for port 443 failed"
+  
+  # Start port-forward to localhost only (no sudo needed)
+  nohup kubectl port-forward $INGRESS_SVC -n ingress-nginx $HTTP_PORT:$HTTP_PORT $HTTPS_PORT:$HTTPS_PORT > /tmp/ingress-port-forward-local.log 2>&1 &
+  echo "Started port-forward to localhost with iptables forwarding"
 fi
 
 echo ""
@@ -70,10 +83,15 @@ echo ""
 echo "IMPORTANT: Make sure Security Group allows ports 80 and 443"
 echo ""
 echo "To stop port-forward:"
-echo "  pkill -f 'kubectl port-forward.*ingress-nginx-controller'"
+echo "  sudo pkill -f 'kubectl port-forward.*ingress-nginx-controller'"
+echo "  Or: pkill -f 'kubectl port-forward.*ingress-nginx-controller'"
 echo ""
 echo "To check status:"
-echo "  ps aux | grep 'kubectl port-forward.*ingress-nginx-controller'"
-echo "  tail -f /tmp/ingress-port-forward.log"
+echo "  sudo ps aux | grep 'kubectl port-forward.*ingress-nginx-controller'"
+echo "  sudo tail -f /tmp/ingress-port-forward.log"
+echo ""
+echo "To remove iptables rules (if used):"
+echo "  sudo iptables -t nat -D PREROUTING -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:$HTTP_PORT"
+echo "  sudo iptables -t nat -D PREROUTING -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:$HTTPS_PORT"
 echo ""
 
