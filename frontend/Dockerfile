@@ -1,7 +1,6 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 
-# Install dependencies and build Vite app
 COPY package*.json ./
 COPY . .
 RUN npm install && npm run build

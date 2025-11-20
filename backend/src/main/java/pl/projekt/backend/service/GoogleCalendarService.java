@@ -20,8 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import pl.projekt.backend.model.Lesson;
 import pl.projekt.backend.model.Student;
@@ -161,9 +164,23 @@ public class GoogleCalendarService {
         try {
             String ics = restTemplate.getForObject(resolvedUrl, String.class);
             return parseIcs(ics);
+        } catch (HttpClientErrorException ex) {
+            // For 404 (calendar not public or doesn't exist), log as debug and return empty list
+            if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                log.debug("Calendar not accessible (404) from {}: calendar may not be public", resolvedUrl);
+                return Collections.emptyList();
+            }
+            // For other HTTP errors, log as debug (non-critical)
+            log.debug("Failed to fetch busy times from {}: {} ({})", resolvedUrl, ex.getMessage(), ex.getStatusCode());
+            return Collections.emptyList();
+        } catch (RestClientException ex) {
+            // For connection/timeout errors, log as debug (non-critical)
+            log.debug("Failed to fetch busy times from {}: {}", resolvedUrl, ex.getMessage());
+            return Collections.emptyList();
         } catch (Exception ex) {
-            log.warn("Failed to fetch busy times from {}: {}", resolvedUrl, ex.getMessage());
-            throw new RuntimeException(ex);
+            // For other unexpected errors, log as debug
+            log.debug("Failed to fetch busy times from {}: {}", resolvedUrl, ex.getMessage());
+            return Collections.emptyList();
         }
     }
 

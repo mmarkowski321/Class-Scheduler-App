@@ -14,6 +14,24 @@ spec:
     spec:
       imagePullSecrets:
         - name: ecr-registry-secret
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:15-alpine
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h postgres -p 5432 -U eduscheduler_app; do
+                echo "Waiting for PostgreSQL to be ready..."
+                sleep 2
+              done
+              echo "PostgreSQL is ready!"
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
       containers:
         - name: backend
           image: 619613970416.dkr.ecr.eu-north-1.amazonaws.com/eduscheduler-backend:develop

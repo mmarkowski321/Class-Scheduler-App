@@ -2,7 +2,10 @@ package pl.projekt.backend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import pl.projekt.backend.config.JwtPrincipal;
 import pl.projekt.backend.model.Lesson;
 import pl.projekt.backend.model.Review;
 import pl.projekt.backend.model.Student;
@@ -31,6 +34,14 @@ public class ReviewController {
     
     @PostMapping
     public ResponseEntity<?> createReview(@RequestBody Map<String, Object> request) {
+        // Check authentication
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof JwtPrincipal)) {
+            return ResponseEntity.status(403).body(Map.of("error", "Authentication required"));
+        }
+        
+        JwtPrincipal principal = (JwtPrincipal) auth.getPrincipal();
+        Long authenticatedUserId = principal.userId;
         try {
             Long lessonId = Long.valueOf(request.get("lessonId").toString());
             Long studentId = Long.valueOf(request.get("studentId").toString());
@@ -65,6 +76,21 @@ public class ReviewController {
             
             Student student = (Student) studentOpt.get();
             Tutor tutor = (Tutor) tutorOpt.get();
+            
+            // Verify that the authenticated user is the student
+            if (!student.getId().equals(authenticatedUserId)) {
+                return ResponseEntity.status(403).body(Map.of("error", "You can only submit reviews for your own lessons"));
+            }
+            
+            // Verify that the lesson belongs to this student
+            if (!lesson.getStudent().getId().equals(studentId)) {
+                return ResponseEntity.status(403).body(Map.of("error", "This lesson does not belong to you"));
+            }
+            
+            // Verify that the lesson is completed
+            if (lesson.getStatus() != pl.projekt.backend.model.LessonStatus.COMPLETED) {
+                return ResponseEntity.badRequest().body(Map.of("error", "You can only review completed lessons"));
+            }
             
             // Create or update review
             Review review = reviewRepository.findByLessonId(lessonId)

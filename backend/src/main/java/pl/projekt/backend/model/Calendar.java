@@ -24,8 +24,8 @@ public class Calendar {
     @Column(nullable = false)
     private Boolean active = true; // Can be disabled without deleting
     
-    // Optional name for the calendar (not in DB schema but used in code)
-    @jakarta.persistence.Transient
+    // Optional name for the calendar
+    @Column(name = "name", length = 255)
     private String name;
 }
 

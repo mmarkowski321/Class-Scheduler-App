@@ -26,6 +26,7 @@ import pl.projekt.backend.service.EmailService;
 import pl.projekt.backend.service.GoogleCalendarService;
 import pl.projekt.backend.util.JwtUtil;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -122,7 +123,16 @@ class BookingFlowIntegrationTest {
         calendar.setActive(true);
         calendarRepository.save(calendar);
 
-        busyStart = LocalDateTime.now().plusDays(3).withHour(10).withMinute(0).withSecond(0).withNano(0);
+        // Find next Monday (or next weekday if today is Monday-Friday)
+        LocalDateTime candidateStart = LocalDateTime.now().plusDays(3).withHour(10).withMinute(0).withSecond(0).withNano(0);
+        // If the day is Saturday or Sunday, move to next Monday
+        DayOfWeek dayOfWeek = candidateStart.getDayOfWeek();
+        if (dayOfWeek == DayOfWeek.SATURDAY) {
+            candidateStart = candidateStart.plusDays(2); // Move to Monday
+        } else if (dayOfWeek == DayOfWeek.SUNDAY) {
+            candidateStart = candidateStart.plusDays(1); // Move to Monday
+        }
+        busyStart = candidateStart;
         busyEnd = busyStart.plusHours(1);
 
         when(googleCalendarService.fetchBusyTimes(calendar.getCalendarUrl()))
@@ -154,6 +164,13 @@ class BookingFlowIntegrationTest {
                 .andExpect(jsonPath("$.error").exists());
 
         LocalDateTime freeSlotStart = busyEnd.plusHours(1);
+        // Ensure freeSlotStart is also on a weekday (Mon-Fri)
+        DayOfWeek freeSlotDay = freeSlotStart.getDayOfWeek();
+        if (freeSlotDay == DayOfWeek.SATURDAY) {
+            freeSlotStart = freeSlotStart.plusDays(2); // Move to Monday
+        } else if (freeSlotDay == DayOfWeek.SUNDAY) {
+            freeSlotStart = freeSlotStart.plusDays(1); // Move to Monday
+        }
         long lessonId = createBooking(freeSlotStart);
 
         mockMvc.perform(post("/api/tutors/" + tutor.getId() + "/bookings/" + lessonId + "/confirm")

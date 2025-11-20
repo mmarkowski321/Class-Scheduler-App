@@ -893,7 +893,8 @@
           "scheduleTitle": "Busy slots",
           "scheduleEmpty": "No busy slots – lots of free time!",
           "busyLoading": "Loading schedule…",
-          "busyError": "Failed to load calendar."
+          "busyError": "Failed to load calendar.",
+          "reviews": "Reviews"
         }
       },
       "profile": {
