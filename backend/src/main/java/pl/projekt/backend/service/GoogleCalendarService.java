@@ -365,7 +365,7 @@ public class GoogleCalendarService {
         if (trimmed.startsWith("webcal://")) {
             return "https://" + trimmed.substring("webcal://".length());
         }
-        // If already an iCal URL (ends with .ics or contains /ical/), check if it's private
+        // If already an iCal URL (ends with .ics or contains /ical/), normalize it
         if (trimmed.endsWith(".ics") || trimmed.contains("/ical/")) {
             // Convert private URLs to public URLs (private URLs require auth which we don't support)
             if (trimmed.contains("/private-")) {
@@ -385,6 +385,28 @@ public class GoogleCalendarService {
                 String publicUrl = trimmed.replace("/private-", "/public/");
                 log.info("Converted private calendar URL to public (simple replacement): {} -> {}", trimmed, publicUrl);
                 return publicUrl;
+            }
+            // Normalize public iCal URLs: decode, extract calendar ID, re-encode
+            if (trimmed.contains("calendar.google.com") && trimmed.contains("/ical/")) {
+                String calendarId = extractGoogleCalendarId(trimmed);
+                log.debug("Extracted calendar ID from URL {}: {}", trimmed, calendarId);
+                if (StringUtils.hasText(calendarId) && !calendarId.startsWith("http")) {
+                    try {
+                        // Re-encode the calendar ID to ensure proper URL encoding
+                        String encoded = URLEncoder.encode(calendarId, StandardCharsets.UTF_8);
+                        String normalizedUrl = "https://calendar.google.com/calendar/ical/" + encoded + "/public/basic.ics";
+                        if (!normalizedUrl.equals(trimmed)) {
+                            log.info("Normalized calendar URL: {} -> {} (calendar ID: {})", trimmed, normalizedUrl, calendarId);
+                        } else {
+                            log.debug("Calendar URL already normalized: {} (calendar ID: {})", trimmed, calendarId);
+                        }
+                        return normalizedUrl;
+                    } catch (Exception ex) {
+                        log.warn("Failed to normalize calendar URL {}: {}", trimmed, ex.getMessage());
+                    }
+                } else {
+                    log.warn("Could not extract valid calendar ID from URL: {} (extracted: {})", trimmed, calendarId);
+                }
             }
             return trimmed;
         }
@@ -431,19 +453,28 @@ public class GoogleCalendarService {
                     String remainder = segments[1];
                     int slash = remainder.indexOf('/');
                     if (slash > 0) {
-                        String calendarId = URLDecoder.decode(remainder.substring(0, slash), StandardCharsets.UTF_8);
-                        // Only return if it looks like a calendar ID (not a full URL)
-                        if (calendarId != null && !calendarId.startsWith("http")) {
-                            return calendarId;
+                        // Decode the calendar ID part (before the slash)
+                        String encodedCalendarId = remainder.substring(0, slash);
+                        try {
+                            String calendarId = URLDecoder.decode(encodedCalendarId, StandardCharsets.UTF_8);
+                            // Only return if it looks like a calendar ID (not a full URL)
+                            if (calendarId != null && !calendarId.startsWith("http") && !calendarId.contains("/")) {
+                                log.debug("Extracted calendar ID from path: {} -> {}", encodedCalendarId, calendarId);
+                                return calendarId;
+                            }
+                        } catch (Exception ex) {
+                            log.debug("Failed to decode calendar ID from path segment {}: {}", encodedCalendarId, ex.getMessage());
                         }
                     } else {
                         // If no slash after /ical/, try to decode the whole remainder
                         try {
                             String calendarId = URLDecoder.decode(remainder, StandardCharsets.UTF_8);
                             if (calendarId != null && !calendarId.startsWith("http") && !calendarId.contains("/")) {
+                                log.debug("Extracted calendar ID from path (no slash): {} -> {}", remainder, calendarId);
                                 return calendarId;
                             }
-                        } catch (Exception ignored) {
+                        } catch (Exception ex) {
+                            log.debug("Failed to decode calendar ID from remainder {}: {}", remainder, ex.getMessage());
                         }
                     }
                 }
