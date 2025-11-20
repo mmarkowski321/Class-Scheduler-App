@@ -163,15 +163,19 @@ public class GoogleCalendarService {
             log.debug("Could not resolve calendar URL: {}", calendarUrl);
             return Collections.emptyList();
         }
-        log.debug("Fetching busy times from resolved URL: {}", resolvedUrl);
+        log.info("Fetching busy times from resolved URL: {}", resolvedUrl);
         try {
             String ics = restTemplate.getForObject(resolvedUrl, String.class);
             if (!StringUtils.hasText(ics)) {
-                log.debug("Empty iCal content received from: {}", resolvedUrl);
+                log.warn("Empty iCal content received from: {}", resolvedUrl);
                 return Collections.emptyList();
             }
+            log.debug("Received iCal content (first 200 chars): {}", ics.length() > 200 ? ics.substring(0, 200) : ics);
             List<BusyTime> busyTimes = parseIcs(ics);
-            log.debug("Parsed {} busy times from: {}", busyTimes.size(), resolvedUrl);
+            log.info("Parsed {} busy times from: {}", busyTimes.size(), resolvedUrl);
+            if (busyTimes.isEmpty() && ics.length() > 100) {
+                log.warn("Parsed 0 busy times but received {} bytes of iCal content from: {}. Content may not be valid iCal format.", ics.length(), resolvedUrl);
+            }
             return busyTimes;
         } catch (HttpClientErrorException ex) {
             // For 404 (calendar not public or doesn't exist), log as warning for user visibility
@@ -355,14 +359,33 @@ public class GoogleCalendarService {
         if (trimmed.startsWith("webcal://")) {
             return "https://" + trimmed.substring("webcal://".length());
         }
-        // If already an iCal URL (ends with .ics or contains /ical/), return as-is
+        // If already an iCal URL (ends with .ics or contains /ical/), check if it's private
         if (trimmed.endsWith(".ics") || trimmed.contains("/ical/")) {
+            // Convert private URLs to public URLs (private URLs require auth which we don't support)
+            if (trimmed.contains("/private-")) {
+                // Extract calendar ID from private URL and create public URL
+                String calendarId = extractGoogleCalendarId(trimmed);
+                if (StringUtils.hasText(calendarId) && !calendarId.startsWith("http")) {
+                    try {
+                        String encoded = URLEncoder.encode(calendarId, StandardCharsets.UTF_8);
+                        String publicUrl = "https://calendar.google.com/calendar/ical/" + encoded + "/public/basic.ics";
+                        log.info("Converted private calendar URL to public: {} -> {}", trimmed, publicUrl);
+                        return publicUrl;
+                    } catch (Exception ex) {
+                        log.warn("Failed to convert private calendar URL to public: {}", trimmed, ex);
+                    }
+                }
+                // If extraction failed, try simple string replacement
+                String publicUrl = trimmed.replace("/private-", "/public/");
+                log.info("Converted private calendar URL to public (simple replacement): {} -> {}", trimmed, publicUrl);
+                return publicUrl;
+            }
             return trimmed;
         }
         if (trimmed.contains("calendar.google.com")) {
             String calendarId = extractGoogleCalendarId(trimmed);
             // Only convert if we successfully extracted a calendar ID and it's not already an iCal URL
-            if (StringUtils.hasText(calendarId) && !calendarId.contains("/ical/") && !calendarId.endsWith(".ics")) {
+            if (StringUtils.hasText(calendarId) && !calendarId.contains("/ical/") && !calendarId.endsWith(".ics") && !calendarId.startsWith("http")) {
                 try {
                     String encoded = URLEncoder.encode(calendarId, StandardCharsets.UTF_8);
                     return "https://calendar.google.com/calendar/ical/" + encoded + "/public/basic.ics";
@@ -428,6 +451,7 @@ public class GoogleCalendarService {
 
     private List<BusyTime> parseIcs(String icsContent) {
         if (!StringUtils.hasText(icsContent)) {
+            log.debug("Empty iCal content provided to parseIcs");
             return Collections.emptyList();
         }
         String normalized = icsContent.replace("\r\n", "\n");
@@ -438,9 +462,12 @@ public class GoogleCalendarService {
         LocalDateTime end = null;
         String title = null;
         String description = null;
+        int eventCount = 0;
+        int parsedCount = 0;
 
         for (String line : unfolded) {
             if ("BEGIN:VEVENT".equalsIgnoreCase(line)) {
+                eventCount++;
                 start = null;
                 end = null;
                 title = null;
@@ -450,6 +477,9 @@ public class GoogleCalendarService {
             if ("END:VEVENT".equalsIgnoreCase(line)) {
                 if (start != null && end != null) {
                     result.add(new BusyTime(start, end, title, description));
+                    parsedCount++;
+                } else {
+                    log.debug("Skipping VEVENT with missing start/end. Start: {}, End: {}", start, end);
                 }
                 start = null;
                 end = null;
@@ -459,8 +489,14 @@ public class GoogleCalendarService {
             }
             if (line.startsWith("DTSTART")) {
                 start = parseIcsDate(line);
+                if (start == null) {
+                    log.debug("Failed to parse DTSTART: {}", line);
+                }
             } else if (line.startsWith("DTEND")) {
                 end = parseIcsDate(line);
+                if (end == null) {
+                    log.debug("Failed to parse DTEND: {}", line);
+                }
             } else if (line.startsWith("SUMMARY:")) {
                 title = line.substring("SUMMARY:".length()).trim();
             } else if (line.startsWith("DESCRIPTION:")) {
@@ -468,6 +504,7 @@ public class GoogleCalendarService {
             }
         }
 
+        log.info("Parsed iCal: found {} VEVENT blocks, successfully parsed {} busy times", eventCount, parsedCount);
         return result;
     }
 
