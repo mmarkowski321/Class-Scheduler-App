@@ -21,16 +21,14 @@ public class DataLoader implements CommandLineRunner {
     
     @Override
     public void run(String... args) {
-        // Create default admin if it doesn't exist
         if (!userRepository.existsByEmail("admin@eduscheduler.com")) {
             Admin admin = new Admin();
             admin.setEmail("admin@eduscheduler.com");
-            // Strong default password - change this in production!
             admin.setPassword(passwordEncoder.encode("EduScheduler2024!Admin"));
             admin.setFirstName("Admin");
             admin.setLastName("EduScheduler");
             admin.setBirthDate(LocalDate.of(1990, 1, 1));
-            admin.setEmailVerified(true); // Admin doesn't need email verification
+            admin.setEmailVerified(true);
             
             userRepository.save(admin);
             System.out.println("Default admin created");

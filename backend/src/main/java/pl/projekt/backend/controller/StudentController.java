@@ -545,9 +545,11 @@ public class StudentController {
             return status;
         }
         LocalDateTime now = LocalDateTime.now();
-        if (now.isAfter(end) && status != LessonStatus.COMPLETED) {
+        // If lesson has ended (now >= end), mark as COMPLETED
+        if (!now.isBefore(end) && status != LessonStatus.COMPLETED) {
             return LessonStatus.COMPLETED;
         }
+        // If lesson is currently happening (start <= now < end), mark as IN_PROGRESS
         if (!now.isBefore(start) && now.isBefore(end)
                 && (status == LessonStatus.SCHEDULED || status == LessonStatus.RESCHEDULED || status == LessonStatus.IN_PROGRESS)) {
             return LessonStatus.IN_PROGRESS;
