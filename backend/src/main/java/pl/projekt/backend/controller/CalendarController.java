@@ -83,13 +83,9 @@ public class CalendarController {
             // Fetch busy times from all calendars
             List<GoogleCalendarService.BusyTime> allBusyTimes = new ArrayList<>();
             for (String url : calendarUrls) {
-                try {
-                    List<GoogleCalendarService.BusyTime> busyTimes = googleCalendarService.fetchBusyTimes(url);
-                    allBusyTimes.addAll(busyTimes);
-                } catch (Exception e) {
-                    // Log error but continue with other calendars
-                    System.err.println("Error syncing calendar " + url + ": " + e.getMessage());
-                }
+                // fetchBusyTimes now returns empty list on error instead of throwing
+                List<GoogleCalendarService.BusyTime> busyTimes = googleCalendarService.fetchBusyTimes(url);
+                allBusyTimes.addAll(busyTimes);
             }
             
             // Convert to JSON-friendly format with event details
@@ -352,39 +348,36 @@ public class CalendarController {
             List<Calendar> calendars = calendarRepository.findByUserIdAndActiveTrue(userId);
             for (Calendar cal : calendars) {
                 if (cal.getCalendarUrl() != null && !cal.getCalendarUrl().isBlank()) {
-                    try {
-                        List<GoogleCalendarService.BusyTime> googleBusyTimes = googleCalendarService.fetchBusyTimes(cal.getCalendarUrl());
-                        List<Map<String, String>> googleBusyJson = googleBusyTimes.stream()
-                            .filter(bt -> {
-                                if (bt.getStart() == null) {
-                                    return true;
-                                }
-                                LocalDate date = bt.getStart().toLocalDate();
-                                if (!limitReachedDays.isEmpty() && limitReachedDays.contains(date)) {
-                                    return false;
-                                }
-                                if (effectivePreferredDays.isEmpty()) {
-                                    return true;
-                                }
-                                return effectivePreferredDays.contains(bt.getStart().getDayOfWeek());
-                            })
-                            .map(bt -> {
-                                Map<String, String> map = new HashMap<>();
-                                LocalDateTime start = bt.getStart();
-                                LocalDateTime end = bt.getEnd();
-                                if (start != null && end != null && effectiveBufferMinutes > 0) {
-                                    start = start.minusMinutes(effectiveBufferMinutes);
-                                    end = end.plusMinutes(effectiveBufferMinutes);
-                                }
-                                map.put("start", start != null ? start.toString() : "");
-                                map.put("end", end != null ? end.toString() : "");
-                                return map;
-                            })
-                            .collect(Collectors.toList());
-                        busySlots.addAll(googleBusyJson);
-                    } catch (Exception e) {
-                        // If Google Calendar sync fails, just continue with other calendars
-                    }
+                    // fetchBusyTimes now returns empty list on error instead of throwing
+                    List<GoogleCalendarService.BusyTime> googleBusyTimes = googleCalendarService.fetchBusyTimes(cal.getCalendarUrl());
+                    List<Map<String, String>> googleBusyJson = googleBusyTimes.stream()
+                        .filter(bt -> {
+                            if (bt.getStart() == null) {
+                                return true;
+                            }
+                            LocalDate date = bt.getStart().toLocalDate();
+                            if (!limitReachedDays.isEmpty() && limitReachedDays.contains(date)) {
+                                return false;
+                            }
+                            if (effectivePreferredDays.isEmpty()) {
+                                return true;
+                            }
+                            return effectivePreferredDays.contains(bt.getStart().getDayOfWeek());
+                        })
+                        .map(bt -> {
+                            Map<String, String> map = new HashMap<>();
+                            LocalDateTime start = bt.getStart();
+                            LocalDateTime end = bt.getEnd();
+                            if (start != null && end != null && effectiveBufferMinutes > 0) {
+                                start = start.minusMinutes(effectiveBufferMinutes);
+                                end = end.plusMinutes(effectiveBufferMinutes);
+                            }
+                            map.put("start", start != null ? start.toString() : "");
+                            map.put("end", end != null ? end.toString() : "");
+                            return map;
+                        })
+                        .collect(Collectors.toList());
+                    busySlots.addAll(googleBusyJson);
                 }
             }
             
@@ -450,9 +443,11 @@ public class CalendarController {
             return status;
         }
         LocalDateTime now = LocalDateTime.now();
-        if (now.isAfter(end) && status != LessonStatus.COMPLETED) {
+        // If lesson has ended (now >= end), mark as COMPLETED
+        if (!now.isBefore(end) && status != LessonStatus.COMPLETED) {
             return LessonStatus.COMPLETED;
         }
+        // If lesson is currently happening (start <= now < end), mark as IN_PROGRESS
         if (!now.isBefore(start) && now.isBefore(end)
                 && (status == LessonStatus.SCHEDULED || status == LessonStatus.RESCHEDULED || status == LessonStatus.IN_PROGRESS)) {
             return LessonStatus.IN_PROGRESS;

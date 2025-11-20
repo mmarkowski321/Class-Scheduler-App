@@ -1,12 +1,4 @@
--- PostgreSQL bootstrap schema for EduScheduler
--- Safe to run multiple times (uses IF NOT EXISTS where possible).
--- Encoding/locale should be UTF-8.
 
--- =========================
--- Database objects
--- =========================
-
--- Users - SINGLE_TABLE inheritance with discriminator 'user_type'
 CREATE TABLE IF NOT EXISTS app_users (
     id                  BIGSERIAL PRIMARY KEY,
     user_type           VARCHAR(32) NOT NULL,            -- 'STUDENT' | 'TUTOR' | 'ADMIN' (if any)
@@ -121,9 +113,7 @@ CREATE TABLE IF NOT EXISTS calendars (
 );
 CREATE INDEX IF NOT EXISTS idx_calendars_user ON calendars (user_id);
 
--- Lessons
--- status: REQUESTED, SCHEDULED, RESCHEDULED, IN_PROGRESS, CANCELLED, COMPLETED, DECLINED
--- delivery_mode: ONLINE, ONSITE
+
 CREATE TABLE IF NOT EXISTS lessons (
     id              BIGSERIAL PRIMARY KEY,
     student_id      BIGINT NOT NULL REFERENCES app_users(id) ON DELETE RESTRICT,
@@ -228,19 +218,6 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 );
 
 
-
--- =========================
--- Minimal seed (optional)
--- =========================
--- Insert an admin or demo entries here if needed.
--- INSERT INTO app_users (user_type, email, password, first_name, last_name, birth_date, email_verified)
--- VALUES ('TUTOR', 'tutor@example.com', '{bcrypt}', 'Anna', 'Nowak', '1990-01-01', true);
-
--- =========================
--- Roles & Grants (optional)
--- =========================
--- NOTE: adjust database name/role/password as needed before running.
--- Creates application role and grants limited privileges.
 DO $$
 BEGIN
    IF NOT EXISTS (

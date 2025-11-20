@@ -410,6 +410,396 @@
     }
   },
   "app": {
+    "student": {
+      "title": "Panel ucznia",
+      "overview": {
+        "title": "Przegląd",
+        "sections": {
+          "upcoming": "Najbliższe lekcje",
+          "history": "Historia lekcji",
+          "attention": "Wymaga uwagi",
+          "newTutors": "Nowi korepetytorzy",
+          "quickActions": "Szybkie akcje"
+        },
+        "empty": {
+          "upcoming": "Brak zaplanowanych lekcji. Zarezerwuj pierwszą lekcję!",
+          "history": "Brak ukończonych lekcji.",
+          "attention": "Wszystko w porządku! Brak oczekujących zmian.",
+          "newTutors": "Brak nowych korepetytorów w tym momencie."
+        },
+        "actions": {
+          "bookTitle": "Zarezerwuj lekcję",
+          "bookDescription": "Wybierz korepetytora i czas, który Ci odpowiada.",
+          "bookButton": "Zarezerwuj teraz",
+          "browseButton": "Przeglądaj korepetytorów"
+        },
+        "errors": {
+          "load": "Nie udało się załadować przeglądu."
+        },
+        "tutorUnknown": "Korepetytor"
+      },
+      "calendar": {
+        "title": "Kalendarz"
+      },
+      "lessons": {
+        "title": "Zajęcia",
+        "joinMeeting": "Dołącz do spotkania",
+        "joinUnavailable": "Link do spotkania pojawi się po potwierdzeniu.",
+        "leaveReview": "Wystaw opinię",
+        "reviewSuccess": "Dziękujemy! Opinia została wysłana.",
+        "reviewError": "Nie udało się wysłać opinii.",
+        "reschedule": "Przełóż",
+        "cancel": "Anuluj lekcję",
+        "cancelConfirm": "Czy na pewno chcesz anulować tę lekcję?",
+        "rescheduleFormTitle": "Przełóż lekcję",
+        "rescheduleDate": "Data",
+        "rescheduleTime": "Godzina",
+        "rescheduleDuration": "Czas trwania",
+        "rescheduleSave": "Zapisz",
+        "rescheduleCancel": "Zamknij",
+        "rescheduleSuccess": "Lekcja przełożona.",
+        "cancelSuccess": "Lekcja anulowana.",
+        "rescheduleError": "Nie udało się przełożyć lekcji.",
+        "cancelError": "Nie udało się anulować lekcji.",
+        "mode": {
+          "online": "Online",
+          "onsite": "Stacjonarnie"
+        },
+        "locationLabel": "Miejsce",
+        "joinInPerson": "Ta lekcja jest stacjonarna. Spotkajcie się pod wskazanym adresem.",
+        "joinUnavailableHost": "Link stanie się aktywny po potwierdzeniu rezerwacji przez korepetytora.",
+        "reviewSubmitted": "Opinia wysłana. Dziękujemy!",
+        "noLessons": "Brak zarezerwowanych lekcji.",
+        "section": {
+          "awaiting": "Oczekujące na potwierdzenie",
+          "inProgress": "W trakcie",
+          "scheduled": "Zaplanowane",
+          "rescheduled": "Przełożone",
+          "completed": "Zakończone (do oceny)",
+          "reviewed": "Ocenione",
+          "cancelled": "Anulowane"
+        },
+        "list": {
+          "searchPlaceholder": "Szukaj po imieniu korepetytora…",
+          "sortLabel": "Sortuj",
+          "sortNewest": "Najnowsze",
+          "sortOldest": "Najstarsze"
+        }
+      },
+      "tutors": {
+        "title": "Korepetytorzy",
+        "lead": "Wyszukuj i filtruj korepetytorów. Kliknij kartę, aby zobaczyć profil lub zarezerwować.",
+        "filters": {
+          "search": "Szukaj (imię, przedmiot)",
+          "subject": "Przedmiot (np. Matematyka)",
+          "city": "Miasto",
+          "maxPrice": "Maks. cena",
+          "reset": "Resetuj filtry"
+        },
+        "apply": "Pokaż korepetytorów",
+        "viewProfile": "Zobacz profil",
+        "book": "Zarezerwuj",
+        "empty": "Brak korepetytorów pasujących do filtrów.",
+        "results": {
+          "title": "Dostępni korepetytorzy",
+          "meta": "Znaleziono {{count}} korepetytor{{count, plural, one {} other {ów}}}",
+          "days": "Filtr dni: {{count}}"
+        },
+        "loading": "Ładowanie…",
+        "errors": {
+          "list": "Nie udało się załadować listy korepetytorów.",
+          "profile": "Nie udało się załadować profilu korepetytora.",
+          "schedule": "Nie udało się załadować harmonogramu korepetytora.",
+          "booking": "Rezerwacja nie powiodła się."
+        },
+        "card": {
+          "price": "{{value}} PLN / h",
+          "duration": "{{value}} min"
+        },
+        "detail": {
+          "busySlot": "Korepetytor zajęty",
+          "hourlyRate": "Stawka godzinowa",
+          "lessonDuration": "Czas trwania lekcji",
+          "experience": "Doświadczenie [lata]",
+          "experienceValue": "{{count}}",
+          "subjects": "Przedmioty",
+          "languages": "Języki nauczania",
+          "lessonModes": "Tryb zajęć",
+          "education": "Wykształcenie",
+          "examResults": "Wyniki egzaminów",
+          "travelRadius": "Promień dojazdu",
+          "travelRadiusValue": "{{value}} km",
+          "certificates": "Certyfikaty i osiągnięcia",
+          "website": "Strona WWW",
+          "linkedin": "LinkedIn",
+          "openLink": "Otwórz link",
+          "lessonModeLabels": {
+            "online": "Online",
+            "onsite": "Stacjonarnie",
+            "hybrid": "Hybrydowo"
+          },
+          "deliveryModeLabel": "W jaki sposób chcesz się spotkać?",
+          "deliveryModeOptions": {
+            "online": "Online",
+            "onsite": "Stacjonarnie"
+          },
+          "deliveryModeRequired": "Wybierz tryb zajęć.",
+          "onsiteLead": "Podaj adres, gdzie ma się odbyć lekcja.",
+          "onsiteCity": "Miasto",
+          "onsiteCityPlaceholder": "np. Warszawa",
+          "onsitePostalCode": "Kod pocztowy",
+          "onsitePostalPlaceholder": "np. 00-001",
+          "onsiteStreet": "Ulica",
+          "onsiteStreetPlaceholder": "np. Marszałkowska",
+          "onsiteBuilding": "Numer budynku",
+          "onsiteBuildingPlaceholder": "np. 10A",
+          "onsiteApartment": "Mieszkanie (opcjonalnie)",
+          "onsiteApartmentPlaceholder": "np. 12",
+          "onsiteAddressRequired": "Proszę podać pełny adres: miasto, kod pocztowy, ulica i numer budynku.",
+          "preferredDays": "Preferowane dni",
+          "teachingMethods": "Metody nauczania",
+          "bookingTitle": "Zarezerwuj lekcję",
+          "bookingSubtitle": "Wybierz datę i godzinę, która Ci odpowiada. Korepetytor potwierdzi to wkrótce.",
+          "date": "Data",
+          "time": "Godzina",
+          "notes": "Wiadomość dla korepetytora (opcjonalnie)",
+          "notesPlaceholder": "Opisz, na czym chcesz się skupić lub inne ważne szczegóły…",
+          "duration": "Czas trwania: {{value}} min",
+          "durationLabel": "Czas trwania lekcji",
+          "minutesSuffix": "min",
+          "formRequired": "Proszę wybrać datę i godzinę.",
+          "bookSuccess": "Prośba o rezerwację wysłana! Korepetytor potwierdzi wkrótce.",
+          "bookError": "Nie udało się wysłać prośby o rezerwację. {{error}}",
+          "requiresLogin": "Musisz być zalogowany jako uczeń, aby rezerwować lekcje.",
+          "bookingSubmitting": "Wysyłanie rezerwacji…",
+          "bookingWaiting": "Wysyłanie…",
+          "bookCta": "Wyślij prośbę o rezerwację",
+          "close": "Zamknij",
+          "loadingProfile": "Ładowanie profilu…",
+          "scheduleTitle": "Zajęte terminy",
+          "scheduleEmpty": "Brak zajętych terminów – dużo wolnego czasu!",
+          "busyLoading": "Ładowanie harmonogramu…",
+          "busyError": "Nie udało się załadować kalendarza.",
+          "reviews": "Opinie"
+        }
+      },
+      "profile": {
+        "title": "Profil ucznia",
+        "subtitle": "Uzupełnij swoje dane, aby lepiej dopasować korepetytorów i terminy.",
+        "savedDemo": "Profil zapisany (demo).",
+        "save": "Zapisz profil",
+        "sections": {
+          "basic": "Podstawowe",
+          "about": "O mnie",
+          "subjects": "Przedmioty",
+          "preferences": "Preferencje nauki",
+          "availability": "Dostępność",
+          "guardian": "Opiekun (opcjonalnie)",
+          "notifications": "Powiadomienia i zgody",
+          "consent": "Zgoda"
+        },
+        "fields": {
+          "school": "Szkoła",
+          "grade": "Klasa / poziom",
+          "track": "Profil / rozszerzenia",
+          "phone": "Telefon (opcjonalnie)",
+          "languages": "Języki (oddzielone przecinkami)",
+          "timezone": "Strefa czasowa",
+          "aboutMe": "O mnie",
+          "goals": "Cele naukowe",
+          "strengths": "Moje mocne strony",
+          "difficulties": "Co sprawia mi trudność",
+          "preferredSubjects": "Chcę się uczyć (oddzielone przecinkami)",
+          "avoidSubjects": "Wolę unikać (opcjonalnie)",
+          "learningStyle": "Styl uczenia się",
+          "city": "Miasto (dla zajęć stacjonarnych)",
+          "meetingMode": "Preferowany tryb zajęć",
+          "preferredTools": "Preferowane narzędzia do spotkań",
+          "otherTool": "Inne narzędzie",
+          "preferredDays": "Preferowane dni",
+          "availabilityNote": "Dodatkowe informacje (opcjonalnie)",
+          "guardianName": "Imię i nazwisko opiekuna",
+          "guardianEmail": "E-mail opiekuna",
+          "notifEmail": "Powiadomienia e-mail",
+          "notifSms": "Powiadomienia SMS",
+          "notifReminders": "Przypomnienia o lekcjach",
+          "notifChanges": "Informuj o zmianach rezerwacji",
+          "shareProfile": "Wyrażam zgodę na udostępnienie mojego profilu korepetytorom po wysłaniu prośby.",
+          "save": "Zapisz profil"
+        },
+        "placeholders": {
+          "school": "Nazwa szkoły / miasto",
+          "grade": "np. 10 klasa / 2 LO",
+          "track": "np. matematyczno-fizyczny",
+          "phone": "+48 …",
+          "languages": "np. polski, angielski",
+          "aboutMe": "Zainteresowania, jak lubisz się uczyć…",
+          "goals": "Np. przygotowanie do egzaminów…",
+          "strengths": "np. zadania arytmetyczne",
+          "difficulties": "np. zadania tekstowe",
+          "preferredSubjects": "np. matematyka, fizyka, angielski",
+          "avoidSubjects": "np. chemia",
+          "city": "np. Warszawa",
+          "otherTool": "np. Jitsi, Discord",
+          "availabilityNote": "Np. pon–czw po 17:00, soboty do południa…",
+          "guardianName": "Dla użytkowników < 18",
+          "guardianEmail": "opiekun@przyklad.pl"
+        },
+        "learningStyleOptions": {
+          "visual": "Wizualny",
+          "auditory": "Słuchowy",
+          "kinesthetic": "Kinestetyczny",
+          "mixed": "Mieszany"
+        },
+        "meetingModeLabels": {
+          "online": "online",
+          "onsite": "stacjonarnie",
+          "hybrid": "hybrydowo"
+        },
+        "toolsLabels": {
+          "meet": "Google Meet",
+          "zoom": "Zoom",
+          "teams": "Microsoft Teams",
+          "other": "Inne"
+        },
+        "dayLabels": {
+          "mon": "Pon",
+          "tue": "Wt",
+          "wed": "Śr",
+          "thu": "Czw",
+          "fri": "Pt",
+          "sat": "Sob",
+          "sun": "Nd"
+        },
+        "photo": {
+          "alt": "Zdjęcie ucznia",
+          "placeholder": "Brak zdjęcia",
+          "helper": "Dodaj przyjazne zdjęcie, aby korepetytorzy szybciej Cię rozpoznali. Możesz je zmienić lub usunąć w każdej chwili.",
+          "requirements": "Akceptowane formaty: JPG, PNG, WEBP. Maksymalny rozmiar 3 MB.",
+          "upload": "Prześlij zdjęcie",
+          "uploading": "Przesyłanie…",
+          "remove": "Usuń zdjęcie"
+        },
+        "errors": {
+          "school": "Proszę podać szkołę.",
+          "grade": "Proszę podać klasę/poziom.",
+          "timezone": "Proszę wybrać strefę czasową.",
+          "guardianEmail": "Nieprawidłowy e-mail opiekuna.",
+          "photoType": "Proszę wybrać plik obrazu.",
+          "photoUpload": "Nie udało się zaktualizować zdjęcia. Spróbuj ponownie.",
+          "server": "Coś poszło nie tak. Spróbuj ponownie później."
+        }
+      },
+      "availability": {
+        "title": "Ustawienia dostępności",
+        "sections": {
+          "calendar": "Integracja kalendarza",
+          "days": "Dostępne dni",
+          "notes": "Dodatkowe notatki"
+        },
+        "fields": {
+          "calendarUrl": "URL do osadzenia kalendarza"
+        },
+        "placeholders": {
+          "calendarUrl": "https://calendar.google.com/calendar/embed?src=...",
+          "calendarName": "Nazwa kalendarza (opcjonalnie)"
+        },
+        "hints": {
+          "calendarUrl": "Obsługiwane kalendarze: Google Calendar, Outlook Calendar, Apple iCal oraz inne kalendarze z publicznym URL do osadzenia. Google Calendar: Ustawienia → Kalendarz do osadzenia → Skopiuj URL. Outlook: Kalendarz → Udostępnij → Pobierz link → Kod osadzania."
+        },
+        "calendarPreview": "Podgląd kalendarza",
+        "calendarsList": "Twoje kalendarze",
+        "noCalendars": "Brak dodanych kalendarzy. Dodaj jeden powyżej, aby zsynchronizować zajęte terminy.",
+        "actions": {
+          "save": "Zapisz dostępność",
+          "addCalendar": "Dodaj kalendarz",
+          "remove": "Usuń",
+          "syncAll": "Synchronizuj wszystkie kalendarze"
+        },
+        "errors": {
+          "maxLessonsRequired": "Wymagana jest maksymalna liczba lekcji dziennie",
+          "maxLessonsInvalid": "Wprowadź prawidłową liczbę (minimum 1)",
+          "bufferRequired": "Wymagany jest czas buforowy",
+          "bufferInvalid": "Wprowadź prawidłową liczbę (minimum 0)"
+        },
+        "success": {
+          "saved": "Ustawienia dostępności zapisane pomyślnie",
+          "calendarSynced": "Kalendarz zsynchronizowany pomyślnie. Znaleziono {{count}} wydarzeń."
+        },
+        "calendarSynced": "Kalendarz zsynchronizowany pomyślnie. Znaleziono {{count}} wydarzeń."
+      },
+      "settings": {
+        "title": "Ustawienia konta",
+        "sections": {
+          "account": "Informacje o koncie",
+          "security": "Bezpieczeństwo",
+          "notifications": "Powiadomienia",
+          "preferences": "Preferencje"
+        },
+        "fields": {
+          "currentEmail": "Aktualny e-mail",
+          "newEmail": "Nowy e-mail",
+          "confirmEmail": "Potwierdź nowy e-mail",
+          "currentPassword": "Aktualne hasło",
+          "newPassword": "Nowe hasło",
+          "confirmPassword": "Potwierdź nowe hasło",
+          "phoneNumbers": "Numery telefonów",
+          "primaryPhone": "Główny numer",
+          "additionalPhones": "Dodatkowe numery",
+          "language": "Język interfejsu",
+          "timezone": "Strefa czasowa",
+          "emailNotifications": "Powiadomienia e-mail",
+          "smsNotifications": "Powiadomienia SMS",
+          "lessonReminders": "Przypomnienia o lekcjach",
+          "changeNotifications": "Informuj o zmianach rezerwacji",
+          "emailLanguage": "Język e-maili"
+        },
+        "placeholders": {
+          "newEmail": "Wpisz nowy adres e-mail",
+          "confirmEmail": "Potwierdź nowy adres e-mail",
+          "currentPassword": "Wpisz aktualne hasło",
+          "newPassword": "Wpisz nowe hasło",
+          "confirmPassword": "Potwierdź nowe hasło",
+          "phoneNumber": "Wpisz numer telefonu",
+          "phoneLabel": "Etykieta (np. Praca, Komórka)"
+        },
+        "actions": {
+          "changeEmail": "Zmień e-mail",
+          "changePassword": "Zmień hasło",
+          "addPhone": "Dodaj numer telefonu",
+          "removePhone": "Usuń",
+          "saveChanges": "Zapisz zmiany",
+          "cancel": "Anuluj"
+        },
+        "errors": {
+          "emailRequired": "E-mail jest wymagany",
+          "emailInvalid": "Nieprawidłowy format e-maila",
+          "emailsMismatch": "Adresy e-mail nie są identyczne",
+          "passwordRequired": "Hasło jest wymagane",
+          "passwordShort": "Hasło musi mieć co najmniej 8 znaków",
+          "passwordsMismatch": "Hasła nie są identyczne",
+          "currentPasswordRequired": "Aktualne hasło jest wymagane",
+          "phoneRequired": "Numer telefonu jest wymagany",
+          "phoneInvalid": "Nieprawidłowy format numeru telefonu"
+        },
+        "success": {
+          "emailChanged": "E-mail zmieniony pomyślnie",
+          "passwordChanged": "Hasło zmienione pomyślnie",
+          "phoneAdded": "Numer telefonu dodany pomyślnie",
+          "phoneRemoved": "Numer telefonu usunięty pomyślnie",
+          "settingsSaved": "Ustawienia zapisane pomyślnie"
+        },
+        "confirmations": {
+          "changeEmail": "Czy na pewno chcesz zmienić adres e-mail?",
+          "changePassword": "Czy na pewno chcesz zmienić hasło?",
+          "removePhone": "Czy na pewno chcesz usunąć ten numer telefonu?"
+        },
+        "languages": {
+          "polish": "Polski",
+          "english": "Angielski"
+        }
+      }
+    },
     "settings": {
       "sections": { "accountControls": "Kontrola konta" },
       "actions": {
@@ -733,54 +1123,6 @@
           "polish": "Polski",
           "english": "Angielski"
         }
-      },
-      "availability": {
-        "title": "Ustawienia dostępności",
-        "sections": {
-          "schedule": "Ustawienia harmonogramu",
-          "calendar": "Integracja kalendarza",
-          "days": "Dostępne dni",
-          "notes": "Dodatkowe notatki"
-        },
-        "fields": {
-          "calendarUrl": "URL do osadzenia kalendarza"
-        },
-        "placeholders": {
-          "calendarUrl": "https://calendar.google.com/calendar/embed?src=...",
-          "calendarName": "Nazwa kalendarza (opcjonalnie)"
-        },
-        "hints": {
-          "calendarUrl": "Obsługiwane kalendarze: Google Calendar, Outlook Calendar, Apple iCal oraz inne kalendarze z publicznym URL do osadzenia. Google Calendar: Ustawienia → Kalendarz do osadzenia → Skopiuj URL. Outlook: Kalendarz → Udostępnij → Pobierz link → Kod osadzania."
-        },
-        "calendarPreview": "Podgląd kalendarza",
-        "calendarsList": "Twoje kalendarze",
-        "actions": {
-          "save": "Zapisz dostępność",
-          "addCalendar": "Dodaj kalendarz",
-          "remove": "Usuń",
-          "syncAll": "Synchronizuj wszystkie kalendarze"
-        },
-        "errors": {
-          "maxLessonsRequired": "Wymagana jest maksymalna liczba lekcji dziennie",
-          "maxLessonsInvalid": "Wprowadź prawidłową liczbę (minimum 1)",
-          "bufferRequired": "Wymagany jest czas buforowy",
-          "bufferInvalid": "Wprowadź prawidłową liczbę (minimum 0)"
-        },
-        "success": {
-          "saved": "Ustawienia dostępności zapisane pomyślnie",
-          "calendarSynced": "Kalendarz zsynchronizowany pomyślnie. Znaleziono {{count}} wydarzeń."
-        },
-        "calendarSynced": "Kalendarz zsynchronizowany pomyślnie. Znaleziono {{count}} wydarzeń."
-      },
-      "reviews": {
-        "title": "Opinie",
-        "review": "opinia",
-        "reviews": "opinii",
-        "sortBy": "Sortuj według",
-        "newest": "Najnowsze",
-        "oldest": "Najstarsze",
-        "noReviews": "Brak opinii",
-        "tutorNote": "Twoja notatka"
       }
     },
     "admin": {
