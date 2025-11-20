@@ -170,11 +170,17 @@ public class GoogleCalendarService {
                 log.warn("Empty iCal content received from: {}", resolvedUrl);
                 return Collections.emptyList();
             }
-            log.debug("Received iCal content (first 200 chars): {}", ics.length() > 200 ? ics.substring(0, 200) : ics);
+            log.info("Received iCal content: {} bytes from: {}", ics.length(), resolvedUrl);
+            // Log first 500 chars for debugging
+            String preview = ics.length() > 500 ? ics.substring(0, 500) + "..." : ics;
+            log.debug("iCal content preview (first 500 chars): {}", preview.replace("\r", "\\r").replace("\n", "\\n"));
             List<BusyTime> busyTimes = parseIcs(ics);
             log.info("Parsed {} busy times from: {}", busyTimes.size(), resolvedUrl);
             if (busyTimes.isEmpty() && ics.length() > 100) {
-                log.warn("Parsed 0 busy times but received {} bytes of iCal content from: {}. Content may not be valid iCal format.", ics.length(), resolvedUrl);
+                log.warn("Parsed 0 busy times but received {} bytes of iCal content from: {}. Content may not be valid iCal format or calendar may be empty.", ics.length(), resolvedUrl);
+                // Log a sample of VEVENT blocks to debug
+                int eventCount = (int) ics.lines().filter(l -> l.trim().equalsIgnoreCase("BEGIN:VEVENT")).count();
+                log.warn("Found {} BEGIN:VEVENT blocks in iCal content", eventCount);
             }
             return busyTimes;
         } catch (HttpClientErrorException ex) {
@@ -530,10 +536,15 @@ public class GoogleCalendarService {
     private LocalDateTime parseIcsDate(String line) {
         String[] parts = line.split(":", 2);
         if (parts.length < 2) {
+            log.debug("Invalid ICS date line (no colon): {}", line);
             return null;
         }
         String property = parts[0];
         String value = parts[1].trim();
+        
+        // Check if this is a DATE value (all-day event) or DATE-TIME
+        boolean isDateOnly = property.contains("VALUE=DATE") || property.contains(";VALUE=DATE");
+        
         ZoneId zoneId = ZoneId.systemDefault();
         if (property.contains("TZID=")) {
             String tzId = property.substring(property.indexOf("TZID=") + 5);
@@ -547,23 +558,31 @@ public class GoogleCalendarService {
             }
             try {
                 zoneId = ZoneId.of(tzId);
-            } catch (Exception ignored) {
+            } catch (Exception ex) {
+                log.debug("Failed to parse timezone {}: {}", tzId, ex.getMessage());
                 zoneId = ZoneId.systemDefault();
             }
         }
 
         try {
+            // Handle UTC time (ends with Z)
             if (value.endsWith("Z")) {
                 ZonedDateTime zdt = ZonedDateTime.parse(value, ICS_UTC);
                 return zdt.withZoneSameInstant(zoneId).toLocalDateTime();
             }
-            if (value.length() == 8) {
+            // Handle date-only format (YYYYMMDD) or VALUE=DATE
+            if (isDateOnly || value.length() == 8) {
                 LocalDate date = LocalDate.parse(value, DateTimeFormatter.BASIC_ISO_DATE);
                 return date.atStartOfDay();
             }
-            return LocalDateTime.parse(value, ICS_LOCAL);
+            // Handle local date-time format (YYYYMMDDTHHMMSS or YYYYMMDDTHHMM)
+            if (value.length() >= 8) {
+                return LocalDateTime.parse(value, ICS_LOCAL);
+            }
+            log.debug("Unknown date format: {} (property: {})", value, property);
+            return null;
         } catch (DateTimeParseException ex) {
-            log.debug("Failed to parse ICS date {}: {}", value, ex.getMessage());
+            log.warn("Failed to parse ICS date {} (property: {}): {}", value, property, ex.getMessage());
             return null;
         }
     }
