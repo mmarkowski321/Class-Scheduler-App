@@ -627,7 +627,40 @@ public class GoogleCalendarService {
             }
             // Handle local date-time format (YYYYMMDDTHHMMSS or YYYYMMDDTHHMM)
             if (value.length() >= 8) {
-                return LocalDateTime.parse(value, ICS_LOCAL);
+                // Try standard format first
+                try {
+                    return LocalDateTime.parse(value, ICS_LOCAL);
+                } catch (DateTimeParseException e) {
+                    // If standard format fails, try manual parsing for formats like 20251120T104500
+                    if (value.length() == 15 && value.contains("T")) {
+                        // Format: YYYYMMDDTHHMMSS
+                        try {
+                            int year = Integer.parseInt(value.substring(0, 4));
+                            int month = Integer.parseInt(value.substring(4, 6));
+                            int day = Integer.parseInt(value.substring(6, 8));
+                            int hour = Integer.parseInt(value.substring(9, 11));
+                            int minute = Integer.parseInt(value.substring(11, 13));
+                            int second = Integer.parseInt(value.substring(13, 15));
+                            return LocalDateTime.of(year, month, day, hour, minute, second);
+                        } catch (Exception ex) {
+                            log.debug("Failed to manually parse date {}: {}", value, ex.getMessage());
+                        }
+                    } else if (value.length() == 13 && value.contains("T")) {
+                        // Format: YYYYMMDDTHHMM (without seconds)
+                        try {
+                            int year = Integer.parseInt(value.substring(0, 4));
+                            int month = Integer.parseInt(value.substring(4, 6));
+                            int day = Integer.parseInt(value.substring(6, 8));
+                            int hour = Integer.parseInt(value.substring(9, 11));
+                            int minute = Integer.parseInt(value.substring(11, 13));
+                            return LocalDateTime.of(year, month, day, hour, minute, 0);
+                        } catch (Exception ex) {
+                            log.debug("Failed to manually parse date {} (no seconds): {}", value, ex.getMessage());
+                        }
+                    }
+                    // Re-throw original exception if manual parsing failed
+                    throw e;
+                }
             }
             log.debug("Unknown date format: {} (property: {})", value, property);
             return null;
