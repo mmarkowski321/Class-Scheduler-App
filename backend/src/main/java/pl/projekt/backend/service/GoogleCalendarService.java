@@ -155,31 +155,40 @@ public class GoogleCalendarService {
 
     public List<BusyTime> fetchBusyTimes(String calendarUrl) {
         if (!StringUtils.hasText(calendarUrl)) {
+            log.debug("Empty calendar URL provided");
             return Collections.emptyList();
         }
         String resolvedUrl = resolveCalendarUrl(calendarUrl);
         if (!StringUtils.hasText(resolvedUrl)) {
+            log.debug("Could not resolve calendar URL: {}", calendarUrl);
             return Collections.emptyList();
         }
+        log.debug("Fetching busy times from resolved URL: {}", resolvedUrl);
         try {
             String ics = restTemplate.getForObject(resolvedUrl, String.class);
-            return parseIcs(ics);
-        } catch (HttpClientErrorException ex) {
-            // For 404 (calendar not public or doesn't exist), log as debug and return empty list
-            if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
-                log.debug("Calendar not accessible (404) from {}: calendar may not be public", resolvedUrl);
+            if (!StringUtils.hasText(ics)) {
+                log.debug("Empty iCal content received from: {}", resolvedUrl);
                 return Collections.emptyList();
             }
-            // For other HTTP errors, log as debug (non-critical)
-            log.debug("Failed to fetch busy times from {}: {} ({})", resolvedUrl, ex.getMessage(), ex.getStatusCode());
+            List<BusyTime> busyTimes = parseIcs(ics);
+            log.debug("Parsed {} busy times from: {}", busyTimes.size(), resolvedUrl);
+            return busyTimes;
+        } catch (HttpClientErrorException ex) {
+            // For 404 (calendar not public or doesn't exist), log as warning for user visibility
+            if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                log.warn("Calendar not accessible (404) from {}: calendar may not be public or URL is incorrect", resolvedUrl);
+                return Collections.emptyList();
+            }
+            // For other HTTP errors, log as warning
+            log.warn("Failed to fetch busy times from {}: {} ({})", resolvedUrl, ex.getMessage(), ex.getStatusCode());
             return Collections.emptyList();
         } catch (RestClientException ex) {
-            // For connection/timeout errors, log as debug (non-critical)
-            log.debug("Failed to fetch busy times from {}: {}", resolvedUrl, ex.getMessage());
+            // For connection/timeout errors, log as warning
+            log.warn("Failed to fetch busy times from {}: {}", resolvedUrl, ex.getMessage());
             return Collections.emptyList();
         } catch (Exception ex) {
-            // For other unexpected errors, log as debug
-            log.debug("Failed to fetch busy times from {}: {}", resolvedUrl, ex.getMessage());
+            // For other unexpected errors, log as warning with stack trace
+            log.warn("Failed to fetch busy times from {}: {}", resolvedUrl, ex.getMessage(), ex);
             return Collections.emptyList();
         }
     }
@@ -346,12 +355,14 @@ public class GoogleCalendarService {
         if (trimmed.startsWith("webcal://")) {
             return "https://" + trimmed.substring("webcal://".length());
         }
-        if (trimmed.endsWith(".ics")) {
+        // If already an iCal URL (ends with .ics or contains /ical/), return as-is
+        if (trimmed.endsWith(".ics") || trimmed.contains("/ical/")) {
             return trimmed;
         }
         if (trimmed.contains("calendar.google.com")) {
             String calendarId = extractGoogleCalendarId(trimmed);
-            if (StringUtils.hasText(calendarId)) {
+            // Only convert if we successfully extracted a calendar ID and it's not already an iCal URL
+            if (StringUtils.hasText(calendarId) && !calendarId.contains("/ical/") && !calendarId.endsWith(".ics")) {
                 try {
                     String encoded = URLEncoder.encode(calendarId, StandardCharsets.UTF_8);
                     return "https://calendar.google.com/calendar/ical/" + encoded + "/public/basic.ics";
@@ -391,14 +402,28 @@ public class GoogleCalendarService {
                     String remainder = segments[1];
                     int slash = remainder.indexOf('/');
                     if (slash > 0) {
-                        return URLDecoder.decode(remainder.substring(0, slash), StandardCharsets.UTF_8);
+                        String calendarId = URLDecoder.decode(remainder.substring(0, slash), StandardCharsets.UTF_8);
+                        // Only return if it looks like a calendar ID (not a full URL)
+                        if (calendarId != null && !calendarId.startsWith("http")) {
+                            return calendarId;
+                        }
+                    } else {
+                        // If no slash after /ical/, try to decode the whole remainder
+                        try {
+                            String calendarId = URLDecoder.decode(remainder, StandardCharsets.UTF_8);
+                            if (calendarId != null && !calendarId.startsWith("http") && !calendarId.contains("/")) {
+                                return calendarId;
+                            }
+                        } catch (Exception ignored) {
+                        }
                     }
                 }
             }
         } catch (Exception ex) {
             log.debug("Failed to extract calendar id from {}: {}", url, ex.getMessage());
         }
-        return url;
+        // Return null instead of full URL if calendar ID could not be extracted
+        return null;
     }
 
     private List<BusyTime> parseIcs(String icsContent) {
