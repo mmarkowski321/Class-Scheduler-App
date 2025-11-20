@@ -615,56 +615,83 @@ public class GoogleCalendarService {
         }
 
         try {
-            // Handle UTC time (ends with Z)
+            // 1. Handle UTC time (ends with Z) - Google Calendar and other formats
             if (value.endsWith("Z")) {
                 ZonedDateTime zdt = ZonedDateTime.parse(value, ICS_UTC);
                 return zdt.withZoneSameInstant(zoneId).toLocalDateTime();
             }
-            // Handle date-only format (YYYYMMDD) or VALUE=DATE
+            
+            // 2. Handle date-only format (YYYYMMDD) or VALUE=DATE
             if (isDateOnly || value.length() == 8) {
                 LocalDate date = LocalDate.parse(value, DateTimeFormatter.BASIC_ISO_DATE);
                 return date.atStartOfDay();
             }
-            // Handle local date-time format (YYYYMMDDTHHMMSS or YYYYMMDDTHHMM)
-            if (value.length() >= 8) {
-                // Try standard format first
-                try {
-                    return LocalDateTime.parse(value, ICS_LOCAL);
-                } catch (DateTimeParseException e) {
-                    // If standard format fails, try manual parsing for formats like 20251120T104500
-                    if (value.length() == 15 && value.contains("T")) {
-                        // Format: YYYYMMDDTHHMMSS
-                        try {
-                            int year = Integer.parseInt(value.substring(0, 4));
-                            int month = Integer.parseInt(value.substring(4, 6));
-                            int day = Integer.parseInt(value.substring(6, 8));
-                            int hour = Integer.parseInt(value.substring(9, 11));
-                            int minute = Integer.parseInt(value.substring(11, 13));
-                            int second = Integer.parseInt(value.substring(13, 15));
-                            return LocalDateTime.of(year, month, day, hour, minute, second);
-                        } catch (Exception ex) {
-                            log.debug("Failed to manually parse date {}: {}", value, ex.getMessage());
-                        }
-                    } else if (value.length() == 13 && value.contains("T")) {
-                        // Format: YYYYMMDDTHHMM (without seconds)
-                        try {
-                            int year = Integer.parseInt(value.substring(0, 4));
-                            int month = Integer.parseInt(value.substring(4, 6));
-                            int day = Integer.parseInt(value.substring(6, 8));
-                            int hour = Integer.parseInt(value.substring(9, 11));
-                            int minute = Integer.parseInt(value.substring(11, 13));
-                            return LocalDateTime.of(year, month, day, hour, minute, 0);
-                        } catch (Exception ex) {
-                            log.debug("Failed to manually parse date {} (no seconds): {}", value, ex.getMessage());
-                        }
+            
+            // 3. Handle date-time formats - try multiple parsing strategies
+            if (value.length() >= 8 && value.contains("T")) {
+                // 3a. Try manual parsing for USOS format: YYYYMMDDTHHMMSS (15 chars, no separators)
+                if (value.length() == 15) {
+                    try {
+                        int year = Integer.parseInt(value.substring(0, 4));
+                        int month = Integer.parseInt(value.substring(4, 6));
+                        int day = Integer.parseInt(value.substring(6, 8));
+                        int hour = Integer.parseInt(value.substring(9, 11));
+                        int minute = Integer.parseInt(value.substring(11, 13));
+                        int second = Integer.parseInt(value.substring(13, 15));
+                        log.debug("Manually parsed USOS date {}: {}-{}-{} {}:{}:{}", value, year, month, day, hour, minute, second);
+                        return LocalDateTime.of(year, month, day, hour, minute, second);
+                    } catch (Exception ex) {
+                        // Continue to try other formats
                     }
-                    // Re-throw original exception if manual parsing failed
-                    throw e;
+                }
+                // 3b. Try manual parsing for format without seconds: YYYYMMDDTHHMM (13 chars)
+                else if (value.length() == 13) {
+                    try {
+                        int year = Integer.parseInt(value.substring(0, 4));
+                        int month = Integer.parseInt(value.substring(4, 6));
+                        int day = Integer.parseInt(value.substring(6, 8));
+                        int hour = Integer.parseInt(value.substring(9, 11));
+                        int minute = Integer.parseInt(value.substring(11, 13));
+                        log.debug("Manually parsed date {} (no seconds): {}-{}-{} {}:{}", value, year, month, day, hour, minute);
+                        return LocalDateTime.of(year, month, day, hour, minute, 0);
+                    } catch (Exception ex) {
+                        // Continue to try other formats
+                    }
+                }
+                
+                // 3c. Try standard iCal format: yyyyMMdd'T'HHmmss (Google Calendar, standard iCal)
+                try {
+                    LocalDateTime result = LocalDateTime.parse(value, ICS_LOCAL);
+                    log.debug("Parsed date using standard iCal format: {}", value);
+                    return result;
+                } catch (DateTimeParseException e) {
+                    // Continue to try other formats
+                }
+                
+                // 3d. Try ISO format with separators: yyyy-MM-dd'T'HH:mm:ss (some calendars)
+                try {
+                    LocalDateTime result = LocalDateTime.parse(value);
+                    log.debug("Parsed date using ISO format: {}", value);
+                    return result;
+                } catch (DateTimeParseException e) {
+                    // Continue to try other formats
+                }
+                
+                // 3e. Try format with colons: yyyyMMdd'T'HH:mm:ss (some variations)
+                try {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HH:mm:ss");
+                    LocalDateTime result = LocalDateTime.parse(value, formatter);
+                    log.debug("Parsed date using colon format: {}", value);
+                    return result;
+                } catch (DateTimeParseException e) {
+                    // All parsing attempts failed
+                    log.warn("Failed to parse date {} after trying all formats. Property: {}", value, property);
                 }
             }
-            log.debug("Unknown date format: {} (property: {})", value, property);
+            
+            log.debug("Unknown date format: {} (property: {}, length: {})", value, property, value.length());
             return null;
-        } catch (DateTimeParseException ex) {
+        } catch (Exception ex) {
             log.warn("Failed to parse ICS date {} (property: {}): {}", value, property, ex.getMessage());
             return null;
         }
