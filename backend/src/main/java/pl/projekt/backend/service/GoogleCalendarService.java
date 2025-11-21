@@ -33,6 +33,7 @@ import pl.projekt.backend.model.Tutor;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -41,6 +42,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -54,6 +56,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import net.fortuna.ical4j.data.CalendarBuilder;
+import net.fortuna.ical4j.data.ParserException;
+import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.property.DtStart;
+import net.fortuna.ical4j.model.property.DtEnd;
+import net.fortuna.ical4j.model.property.RRule;
+import net.fortuna.ical4j.model.property.Summary;
+import net.fortuna.ical4j.model.property.Description;
 
 @Service
 public class GoogleCalendarService {
@@ -184,9 +196,45 @@ public class GoogleCalendarService {
             }
             return busyTimes;
         } catch (HttpClientErrorException ex) {
-            // For 404 (calendar not public or doesn't exist), log as warning for user visibility
+            // For 404 (calendar not public or doesn't exist), try alternative formats for Google Calendar
             if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
-                log.warn("Calendar not accessible (404) from {}: calendar may not be public or URL is incorrect", resolvedUrl);
+                if (resolvedUrl.contains("calendar.google.com")) {
+                    // Try alternative iCal URL formats
+                    List<String> alternativeUrls = getAlternativeGoogleCalendarUrls(resolvedUrl);
+                    for (String altUrl : alternativeUrls) {
+                        if (altUrl != null && !altUrl.equals(resolvedUrl)) {
+                            log.info("Trying alternative Google Calendar URL format: {}", altUrl);
+                            try {
+                                String ics = restTemplate.getForObject(altUrl, String.class);
+                                if (StringUtils.hasText(ics)) {
+                                    log.info("Successfully fetched iCal content from alternative URL: {} bytes", ics.length());
+                                    List<BusyTime> busyTimes = parseIcs(ics);
+                                    log.info("Parsed {} busy times from alternative URL: {}", busyTimes.size(), altUrl);
+                                    return busyTimes;
+                                }
+                            } catch (Exception altEx) {
+                                log.debug("Alternative URL {} also failed: {}", altUrl, altEx.getMessage());
+                            }
+                        }
+                    }
+                    
+                    // If Google Calendar API is enabled, try using API to fetch events
+                    if (enabled && calendar != null) {
+                        List<BusyTime> apiBusyTimes = fetchBusyTimesFromGoogleCalendarApi(calendarUrl);
+                        if (!apiBusyTimes.isEmpty()) {
+                            log.info("Successfully fetched {} busy times from Google Calendar API", apiBusyTimes.size());
+                            return apiBusyTimes;
+                        }
+                    }
+                    
+                    log.warn("Google Calendar not accessible (404) from {}: " +
+                            "The calendar may not be public. " +
+                            "To make it public: Go to Google Calendar → Settings → Share with specific people → 'Make available to public'. " +
+                            "Or get the public iCal URL from: Google Calendar → Settings → Integrate calendar → Public URL to iCal format. " +
+                            "Note: Embed URLs require the calendar to be public to fetch events.", resolvedUrl);
+                } else {
+                    log.warn("Calendar not accessible (404) from {}: calendar may not be public or URL is incorrect", resolvedUrl);
+                }
                 return Collections.emptyList();
             }
             // For other HTTP errors, log as warning
@@ -365,26 +413,96 @@ public class GoogleCalendarService {
         if (trimmed.startsWith("webcal://")) {
             return "https://" + trimmed.substring("webcal://".length());
         }
-        // If already an iCal URL (ends with .ics or contains /ical/), check if it's private
+        
+        // Handle Google Calendar embed URLs - convert to iCal format
+        if (trimmed.contains("calendar.google.com") && (trimmed.contains("/embed") || trimmed.contains("?src="))) {
+            String calendarId = extractGoogleCalendarId(trimmed);
+            if (StringUtils.hasText(calendarId) && !calendarId.startsWith("http")) {
+                try {
+                    // Try public iCal URL first
+                    String encoded = URLEncoder.encode(calendarId, StandardCharsets.UTF_8);
+                    // Use full.ics to get all events instead of basic.ics which may be limited
+                    String iCalUrl = "https://calendar.google.com/calendar/ical/" + encoded + "/public/full.ics";
+                    log.info("Converting Google Calendar embed URL to iCal: {} -> {} (calendar ID: {})", trimmed, iCalUrl, calendarId);
+                    return iCalUrl;
+                } catch (Exception ex) {
+                    log.warn("Failed to convert embed URL {} to iCal: {}", trimmed, ex.getMessage());
+                }
+            }
+        }
+        
+        // If already an iCal URL (ends with .ics or contains /ical/), normalize it
         if (trimmed.endsWith(".ics") || trimmed.contains("/ical/")) {
-            // Convert private URLs to public URLs (private URLs require auth which we don't support)
+            // Handle private/secret iCal URLs (tajny adres iCal) - use them as-is, just convert basic.ics to full.ics
+            if (trimmed.contains("/private/")) {
+                // Private URLs work without making calendar public - use them directly
+                // Just convert basic.ics to full.ics to get all events
+                if (trimmed.contains("/basic.ics")) {
+                    String fullUrl = trimmed.replace("/basic.ics", "/full.ics");
+                    log.info("Converting private iCal URL from basic to full: {} -> {} (to get all events)", trimmed, fullUrl);
+                    return fullUrl;
+                }
+                log.info("Using private iCal URL as-is: {}", trimmed);
+                return trimmed;
+            }
+            
+            // Handle old format /private- (deprecated) - convert to /private/ format
             if (trimmed.contains("/private-")) {
-                // Extract calendar ID from private URL and create public URL
+                // Old format uses /private-xxx, try to convert to /private/xxx
+                String privateUrl = trimmed.replace("/private-", "/private/");
+                // Also convert basic.ics to full.ics
+                if (privateUrl.contains("/basic.ics")) {
+                    privateUrl = privateUrl.replace("/basic.ics", "/full.ics");
+                }
+                log.info("Converted old private- URL format: {} -> {}", trimmed, privateUrl);
+                return privateUrl;
+            }
+            // Normalize public iCal URLs: decode, extract calendar ID, re-encode
+            if (trimmed.contains("calendar.google.com") && trimmed.contains("/ical/")) {
                 String calendarId = extractGoogleCalendarId(trimmed);
+                log.info("Extracted calendar ID from URL {}: {}", trimmed, calendarId);
                 if (StringUtils.hasText(calendarId) && !calendarId.startsWith("http")) {
                     try {
+                        // Re-encode the calendar ID to ensure proper URL encoding
                         String encoded = URLEncoder.encode(calendarId, StandardCharsets.UTF_8);
-                        String publicUrl = "https://calendar.google.com/calendar/ical/" + encoded + "/public/basic.ics";
-                        log.info("Converted private calendar URL to public: {} -> {}", trimmed, publicUrl);
-                        return publicUrl;
+                        // Convert basic.ics to full.ics to get more events if it's basic.ics
+                        String normalizedUrl = trimmed.contains("/basic.ics") 
+                            ? trimmed.replace("/basic.ics", "/full.ics")
+                            : "https://calendar.google.com/calendar/ical/" + encoded + "/public/full.ics";
+                        if (!normalizedUrl.equals(trimmed)) {
+                            log.info("Normalized calendar URL: {} -> {} (calendar ID: {})", trimmed, normalizedUrl, calendarId);
+                        } else {
+                            log.info("Calendar URL already normalized: {} (calendar ID: {})", trimmed, calendarId);
+                        }
+                        return normalizedUrl;
                     } catch (Exception ex) {
-                        log.warn("Failed to convert private calendar URL to public: {}", trimmed, ex);
+                        log.warn("Failed to normalize calendar URL {}: {}", trimmed, ex.getMessage(), ex);
+                    }
+                } else {
+                    log.warn("Could not extract valid calendar ID from URL: {} (extracted: {})", trimmed, calendarId);
+                    // Try manual extraction from URL pattern
+                    try {
+                        int icalIndex = trimmed.indexOf("/ical/");
+                        if (icalIndex > 0) {
+                            String afterIcal = trimmed.substring(icalIndex + "/ical/".length());
+                            int slashIndex = afterIcal.indexOf('/');
+                            if (slashIndex > 0) {
+                                String encodedId = afterIcal.substring(0, slashIndex);
+                                String decodedId = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
+                                log.info("Manually extracted calendar ID: {} -> {}", encodedId, decodedId);
+                                String reencoded = URLEncoder.encode(decodedId, StandardCharsets.UTF_8);
+                                // Convert to full.ics to get all events
+                                String normalizedUrl = trimmed.contains("/basic.ics") 
+                                    ? trimmed.replace("/basic.ics", "/full.ics")
+                                    : "https://calendar.google.com/calendar/ical/" + reencoded + "/public/full.ics";
+                                log.info("Manually normalized calendar URL: {} -> {}", trimmed, normalizedUrl);
+                                return normalizedUrl;
+                            }
+                        }
+                    } catch (Exception ex) {
+                        log.warn("Failed to manually extract calendar ID from URL {}: {}", trimmed, ex.getMessage());
                     }
                 }
-                // If extraction failed, try simple string replacement
-                String publicUrl = trimmed.replace("/private-", "/public/");
-                log.info("Converted private calendar URL to public (simple replacement): {} -> {}", trimmed, publicUrl);
-                return publicUrl;
             }
             return trimmed;
         }
@@ -393,14 +511,119 @@ public class GoogleCalendarService {
             // Only convert if we successfully extracted a calendar ID and it's not already an iCal URL
             if (StringUtils.hasText(calendarId) && !calendarId.contains("/ical/") && !calendarId.endsWith(".ics") && !calendarId.startsWith("http")) {
                 try {
+                    // Google Calendar iCal feed requires the calendar ID to be URL-encoded
+                    // For email addresses, @ should be encoded as %40
                     String encoded = URLEncoder.encode(calendarId, StandardCharsets.UTF_8);
-                    return "https://calendar.google.com/calendar/ical/" + encoded + "/public/basic.ics";
+                    // Use full.ics instead of basic.ics to get more events (full calendar vs basic view)
+                    String iCalUrl = "https://calendar.google.com/calendar/ical/" + encoded + "/public/full.ics";
+                    log.info("Converted Google Calendar embed/settings URL to iCal: {} -> {} (calendar ID: {})", trimmed, iCalUrl, calendarId);
+                    return iCalUrl;
                 } catch (Exception ex) {
-                    log.debug("Failed to encode calendar ID {}: {}", calendarId, ex.getMessage());
+                    log.warn("Failed to encode calendar ID {}: {}", calendarId, ex.getMessage());
                 }
+            } else if (trimmed.contains("/embed") || trimmed.contains("?src=")) {
+                // If extraction failed but it's an embed/settings URL, log warning
+                log.warn("Could not extract calendar ID from Google Calendar URL: {}", trimmed);
             }
         }
         return trimmed;
+    }
+
+    private List<String> getAlternativeGoogleCalendarUrls(String url) {
+        List<String> alternatives = new ArrayList<>();
+        String calendarId = extractGoogleCalendarId(url);
+        if (StringUtils.hasText(calendarId) && !calendarId.startsWith("http")) {
+            try {
+                String encoded = URLEncoder.encode(calendarId, StandardCharsets.UTF_8);
+                
+                // Try different URL formats to get more events:
+                // Prefer full.ics over basic.ics to get all events (basic.ics may be limited)
+                // 1. Try full calendar URL first (all events)
+                if (url.contains("/basic.ics")) {
+                    // Try full.ics first
+                    alternatives.add(url.replace("/basic.ics", "/full.ics"));
+                    // Also try without /public/ prefix
+                    alternatives.add(url.replace("/public/basic.ics", "/full.ics"));
+                    alternatives.add(url.replace("/public/basic.ics", "/basic.ics"));
+                }
+                alternatives.add("https://calendar.google.com/calendar/ical/" + encoded + "/public/full.ics");
+                alternatives.add("https://calendar.google.com/calendar/ical/" + encoded + "/full.ics");
+                alternatives.add("https://calendar.google.com/calendar/ical/" + encoded + "/basic.ics");
+                
+                // 2. Try with /private/ prefix (for authenticated access if API is enabled)
+                if (enabled) {
+                    alternatives.add("https://calendar.google.com/calendar/ical/" + encoded + "/private/full.ics");
+                    alternatives.add("https://calendar.google.com/calendar/ical/" + encoded + "/private/basic.ics");
+                }
+                
+                // 3. Try with email as-is (sometimes Google accepts it)
+                if (calendarId.contains("@")) {
+                    // Prefer full.ics to get all events
+                    alternatives.add("https://calendar.google.com/calendar/ical/" + calendarId + "/public/full.ics");
+                    alternatives.add("https://calendar.google.com/calendar/ical/" + calendarId + "/full.ics");
+                    alternatives.add("https://calendar.google.com/calendar/ical/" + calendarId + "/public/basic.ics");
+                    alternatives.add("https://calendar.google.com/calendar/ical/" + calendarId + "/basic.ics");
+                }
+                
+                // 4. Try with primary calendar ID
+                alternatives.add("https://calendar.google.com/calendar/ical/primary/public/full.ics");
+                alternatives.add("https://calendar.google.com/calendar/ical/primary/public/basic.ics");
+                
+            } catch (Exception ex) {
+                log.debug("Failed to create alternative URLs: {}", ex.getMessage());
+            }
+        }
+        return alternatives;
+    }
+    
+    private List<BusyTime> fetchBusyTimesFromGoogleCalendarApi(String calendarUrl) {
+        if (!enabled || calendar == null) {
+            return Collections.emptyList();
+        }
+        
+        try {
+            String calendarIdFromUrl = extractGoogleCalendarId(calendarUrl);
+            String targetCalendarId = StringUtils.hasText(calendarIdFromUrl) ? calendarIdFromUrl : this.calendarId;
+            
+            log.info("Attempting to fetch events from Google Calendar API for calendar: {}", targetCalendarId);
+            
+            // Get current time and fetch events for next 30 days
+            com.google.api.client.util.DateTime now = new com.google.api.client.util.DateTime(System.currentTimeMillis());
+            com.google.api.client.util.DateTime future = new com.google.api.client.util.DateTime(System.currentTimeMillis() + (30L * 24 * 60 * 60 * 1000));
+            
+            com.google.api.services.calendar.model.Events events = calendar.events()
+                    .list(targetCalendarId)
+                    .setTimeMin(now)
+                    .setTimeMax(future)
+                    .setSingleEvents(true)
+                    .setOrderBy("startTime")
+                    .execute();
+            
+            List<BusyTime> busyTimes = new ArrayList<>();
+            for (Event event : events.getItems()) {
+                EventDateTime start = event.getStart();
+                EventDateTime end = event.getEnd();
+                
+                if (start != null && end != null && start.getDateTime() != null && end.getDateTime() != null) {
+                    LocalDateTime startTime = LocalDateTime.ofInstant(
+                            java.time.Instant.ofEpochMilli(start.getDateTime().getValue()),
+                            ZoneId.systemDefault()
+                    );
+                    LocalDateTime endTime = LocalDateTime.ofInstant(
+                            java.time.Instant.ofEpochMilli(end.getDateTime().getValue()),
+                            ZoneId.systemDefault()
+                    );
+                    busyTimes.add(new BusyTime(startTime, endTime, event.getSummary(), event.getDescription()));
+                }
+            }
+            
+            log.info("Fetched {} events from Google Calendar API", busyTimes.size());
+            return busyTimes;
+            
+        } catch (Exception ex) {
+            log.debug("Failed to fetch events from Google Calendar API: {}", ex.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     private String extractGoogleCalendarId(String url) {
@@ -431,19 +654,28 @@ public class GoogleCalendarService {
                     String remainder = segments[1];
                     int slash = remainder.indexOf('/');
                     if (slash > 0) {
-                        String calendarId = URLDecoder.decode(remainder.substring(0, slash), StandardCharsets.UTF_8);
-                        // Only return if it looks like a calendar ID (not a full URL)
-                        if (calendarId != null && !calendarId.startsWith("http")) {
-                            return calendarId;
+                        // Decode the calendar ID part (before the slash)
+                        String encodedCalendarId = remainder.substring(0, slash);
+                        try {
+                            String calendarId = URLDecoder.decode(encodedCalendarId, StandardCharsets.UTF_8);
+                            // Only return if it looks like a calendar ID (not a full URL)
+                            if (calendarId != null && !calendarId.startsWith("http") && !calendarId.contains("/")) {
+                                log.debug("Extracted calendar ID from path: {} -> {}", encodedCalendarId, calendarId);
+                                return calendarId;
+                            }
+                        } catch (Exception ex) {
+                            log.debug("Failed to decode calendar ID from path segment {}: {}", encodedCalendarId, ex.getMessage());
                         }
                     } else {
                         // If no slash after /ical/, try to decode the whole remainder
                         try {
                             String calendarId = URLDecoder.decode(remainder, StandardCharsets.UTF_8);
                             if (calendarId != null && !calendarId.startsWith("http") && !calendarId.contains("/")) {
+                                log.debug("Extracted calendar ID from path (no slash): {} -> {}", remainder, calendarId);
                                 return calendarId;
                             }
-                        } catch (Exception ignored) {
+                        } catch (Exception ex) {
+                            log.debug("Failed to decode calendar ID from remainder {}: {}", remainder, ex.getMessage());
                         }
                     }
                 }
@@ -460,6 +692,322 @@ public class GoogleCalendarService {
             log.debug("Empty iCal content provided to parseIcs");
             return Collections.emptyList();
         }
+        
+        List<BusyTime> result = new ArrayList<>();
+        
+        try {
+            // Use iCal4j library to parse iCal content
+            CalendarBuilder builder = new CalendarBuilder();
+            net.fortuna.ical4j.model.Calendar calendar = builder.build(new StringReader(icsContent));
+            
+            int eventCount = 0;
+            int parsedCount = 0;
+            
+            // Iterate through all VEVENT components
+            for (Component component : calendar.getComponents()) {
+                if (component instanceof VEvent) {
+                    eventCount++;
+                    VEvent event = (VEvent) component;
+                    
+                    try {
+                        // Extract start date
+                        DtStart dtStart = event.getStartDate();
+                        if (dtStart == null) {
+                            log.debug("Skipping VEVENT with no DTSTART");
+                            continue;
+                        }
+                        
+                        // Extract end date
+                        DtEnd dtEnd = event.getEndDate();
+                        if (dtEnd == null) {
+                            log.debug("Skipping VEVENT with no DTEND");
+                            continue;
+                        }
+                        
+                        // Convert to LocalDateTime
+                        LocalDateTime start = convertToLocalDateTime(dtStart);
+                        LocalDateTime end = convertToLocalDateTime(dtEnd);
+                        
+                        if (start == null || end == null) {
+                            log.debug("Skipping VEVENT with invalid dates. Start: {}, End: {}", start, end);
+                            continue;
+                        }
+                        
+                        // Extract summary and description
+                        Summary summary = event.getSummary();
+                        Description desc = event.getDescription();
+                        String title = summary != null ? summary.getValue() : null;
+                        String description = desc != null ? desc.getValue() : null;
+                        
+                        // Check if event is recurring (has RRULE)
+                        RRule rrule = event.getProperty(RRule.RRULE);
+                        if (rrule != null && rrule.getRecur() != null) {
+                            // Expand recurring events to get all occurrences
+                            try {
+                                List<BusyTime> recurringEvents = expandRecurringEvent(event, start, end, title, description);
+                                result.addAll(recurringEvents);
+                                parsedCount += recurringEvents.size();
+                                log.debug("Expanded recurring VEVENT '{}' to {} occurrences", title, recurringEvents.size());
+                            } catch (Exception ex) {
+                                log.warn("Failed to expand recurring event '{}': {}. Adding single occurrence.", title, ex.getMessage());
+                                // If expansion fails, add at least the first occurrence
+                                result.add(new BusyTime(start, end, title, description));
+                                parsedCount++;
+                            }
+                        } else {
+                            // Non-recurring event - add single occurrence
+                            result.add(new BusyTime(start, end, title, description));
+                            parsedCount++;
+                            log.debug("Parsed VEVENT: {} to {} ({})", start, end, title);
+                        }
+                        
+                    } catch (Exception ex) {
+                        log.warn("Failed to parse VEVENT: {}", ex.getMessage());
+                    }
+                }
+            }
+            
+            log.info("Parsed iCal using iCal4j: found {} VEVENT blocks, successfully parsed {} busy times", eventCount, parsedCount);
+            return result;
+            
+        } catch (ParserException | IOException ex) {
+            log.warn("Failed to parse iCal content using iCal4j: {}. Falling back to manual parsing.", ex.getMessage());
+            // Fallback to manual parsing if iCal4j fails
+            return parseIcsManual(icsContent);
+        } catch (Exception ex) {
+            log.warn("Unexpected error parsing iCal content: {}. Falling back to manual parsing.", ex.getMessage());
+            // Fallback to manual parsing on any other error
+            return parseIcsManual(icsContent);
+        }
+    }
+    
+    private LocalDateTime convertToLocalDateTime(DtStart dtStart) {
+        if (dtStart == null || dtStart.getDate() == null) {
+            return null;
+        }
+        net.fortuna.ical4j.model.Date date = dtStart.getDate();
+        if (date instanceof net.fortuna.ical4j.model.DateTime dateTime) {
+            if (dateTime.isUtc()) {
+                return LocalDateTime.ofInstant(dateTime.toInstant(), ZoneId.of("UTC")).atZone(ZoneId.of("UTC"))
+                        .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+            }
+            return LocalDateTime.ofInstant(dateTime.toInstant(), ZoneId.systemDefault());
+        }
+        // For date-only values, treat as start of day in system timezone
+        return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).toLocalDate().atStartOfDay();
+    }
+    
+    private LocalDateTime convertToLocalDateTime(DtEnd dtEnd) {
+        if (dtEnd == null || dtEnd.getDate() == null) {
+            return null;
+        }
+        net.fortuna.ical4j.model.Date date = dtEnd.getDate();
+        if (date instanceof net.fortuna.ical4j.model.DateTime dateTime) {
+            if (dateTime.isUtc()) {
+                return LocalDateTime.ofInstant(dateTime.toInstant(), ZoneId.of("UTC")).atZone(ZoneId.of("UTC"))
+                        .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+            }
+            return LocalDateTime.ofInstant(dateTime.toInstant(), ZoneId.systemDefault());
+        }
+        // For date-only values, treat as start of day in system timezone
+        return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).toLocalDate().atStartOfDay();
+    }
+    
+    /**
+     * Expand recurring events to get all occurrences up to 2 years in the future
+     */
+    private List<BusyTime> expandRecurringEvent(VEvent event, LocalDateTime firstStart, LocalDateTime firstEnd,
+                                                String title, String description) {
+        List<BusyTime> occurrences = new ArrayList<>();
+        
+        try {
+            RRule rrule = event.getProperty(RRule.RRULE);
+            if (rrule == null || rrule.getRecur() == null) {
+                // Not a recurring event, return single occurrence
+                occurrences.add(new BusyTime(firstStart, firstEnd, title, description));
+                return occurrences;
+            }
+            
+            // Manually expand recurring events using RRULE
+            // iCal4j doesn't have a simple getRecurrenceDates method, so we'll use manual expansion
+            occurrences.addAll(manuallyExpandRecurringEvent(
+                event, firstStart, firstEnd, title, description, rrule
+            ));
+            
+            log.debug("Expanded recurring event '{}' to {} occurrences", title, occurrences.size());
+            
+            // Ensure at least one occurrence is returned
+            if (occurrences.isEmpty()) {
+                occurrences.add(new BusyTime(firstStart, firstEnd, title, description));
+            }
+            
+            return occurrences;
+            
+        } catch (Exception ex) {
+            log.warn("Failed to expand recurring event '{}': {}", title, ex.getMessage(), ex);
+            // Return at least the first occurrence if expansion fails
+            if (occurrences.isEmpty()) {
+                occurrences.add(new BusyTime(firstStart, firstEnd, title, description));
+            }
+            return occurrences;
+        }
+    }
+    
+    /**
+     * Manually expand recurring events when iCal4j's getRecurrenceDates doesn't work
+     * Only expands events for visible date range (current month +/- 1 month)
+     * Respects UNTIL limit from RRULE
+     */
+    private List<BusyTime> manuallyExpandRecurringEvent(VEvent event, LocalDateTime firstStart, LocalDateTime firstEnd,
+                                                        String title, String description, RRule rrule) {
+        List<BusyTime> occurrences = new ArrayList<>();
+        
+        try {
+            net.fortuna.ical4j.model.Recur recur = rrule.getRecur();
+            if (recur == null) {
+                // Not recurring, return single occurrence only if it's in visible range
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime visibleStart = now.minusMonths(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+                LocalDateTime visibleEnd = now.plusMonths(2).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).minusSeconds(1);
+                if (firstStart.isBefore(visibleEnd) && firstEnd.isAfter(visibleStart)) {
+                    occurrences.add(new BusyTime(firstStart, firstEnd, title, description));
+                }
+                return occurrences;
+            }
+            
+            // Check UNTIL limit from RRULE (if exists)
+            // UNTIL is stored in the Recur object, not in RRule directly
+            LocalDateTime untilDateTime = null;
+            if (recur.getUntil() != null) {
+                net.fortuna.ical4j.model.Date untilDate = recur.getUntil();
+                untilDateTime = convertToLocalDateTime(new DtStart(untilDate));
+            }
+            
+            // Calculate duration
+            long durationMinutes = java.time.Duration.between(firstStart, firstEnd).toMinutes();
+            
+            LocalDateTime now = LocalDateTime.now();
+            // Expand only for visible range: 1 month before current month start to 2 months in future
+            LocalDateTime visibleStart = now.minusMonths(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+            LocalDateTime visibleEnd = now.plusMonths(2).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).minusSeconds(1);
+            
+            // Use UNTIL as end limit if it's earlier than visibleEnd
+            LocalDateTime endExpansion = visibleEnd;
+            if (untilDateTime != null && untilDateTime.isBefore(visibleEnd)) {
+                endExpansion = untilDateTime;
+            }
+            
+            // Start from first occurrence
+            LocalDateTime current = firstStart;
+            
+            // If first occurrence is before visible start, skip forward
+            if (current.isBefore(visibleStart)) {
+                net.fortuna.ical4j.model.Recur.Frequency freq = recur.getFrequency();
+                int interval = recur.getInterval() > 0 ? recur.getInterval() : 1;
+                
+                if (freq != null) {
+                    // For WEEKLY with BYDAY, use the first occurrence's day of week
+                    // Since firstStart already has the correct day, we'll just skip forward by weeks
+                    if (freq == net.fortuna.ical4j.model.Recur.Frequency.WEEKLY) {
+                        // Calculate weeks to skip to get to visibleStart
+                        long daysToSkip = java.time.Duration.between(current, visibleStart).toDays();
+                        long weeksToSkip = Math.max(0, daysToSkip / (7 * interval));
+                        current = current.plusWeeks(weeksToSkip * interval);
+                        // If still before visibleStart, add one more week
+                        if (current.isBefore(visibleStart)) {
+                            current = current.plusWeeks(interval);
+                        }
+                    } else {
+                        // For other frequencies, skip intervals
+                        long daysToSkip = java.time.Duration.between(current, visibleStart).toDays();
+                        switch (freq) {
+                            case DAILY:
+                                long intervalsToSkip = daysToSkip / interval;
+                                current = current.plusDays(intervalsToSkip * interval);
+                                break;
+                            case WEEKLY:
+                                long weeksToSkip = daysToSkip / (7 * interval);
+                                current = current.plusWeeks(weeksToSkip * interval);
+                                break;
+                            case MONTHLY:
+                                long monthsToSkip = java.time.temporal.ChronoUnit.MONTHS.between(current, visibleStart) / interval;
+                                current = current.plusMonths(monthsToSkip * interval);
+                                break;
+                            case YEARLY:
+                                long yearsToSkip = java.time.temporal.ChronoUnit.YEARS.between(current, visibleStart) / interval;
+                                current = current.plusYears(yearsToSkip * interval);
+                                break;
+                        }
+                    }
+                }
+            }
+            
+            int maxOccurrences = 100; // Reduced limit since we're only expanding visible range
+            int count = 0;
+            int interval = recur.getInterval() > 0 ? recur.getInterval() : 1;
+            net.fortuna.ical4j.model.Recur.Frequency freq = recur.getFrequency();
+            java.util.List<net.fortuna.ical4j.model.WeekDay> byDay = recur.getDayList();
+            
+            // Expand occurrences only for visible range and respect UNTIL
+            while (current.isBefore(endExpansion) && count < maxOccurrences) {
+                // Only add if it's within visible range
+                if (current.isBefore(visibleEnd) && current.isAfter(visibleStart.minusDays(1))) {
+                    LocalDateTime currentEnd = current.plusMinutes(durationMinutes);
+                    occurrences.add(new BusyTime(current, currentEnd, title, description));
+                }
+                
+                // Calculate next occurrence based on RRULE frequency and BYDAY
+                if (freq == null) {
+                    break;
+                }
+                
+                if (freq == net.fortuna.ical4j.model.Recur.Frequency.WEEKLY) {
+                    // For weekly, just add one interval of weeks
+                    // BYDAY is already handled by using the first occurrence's day of week
+                    current = current.plusWeeks(interval);
+                } else {
+                    // For other frequencies
+                    switch (freq) {
+                        case DAILY:
+                            current = current.plusDays(interval);
+                            break;
+                        case WEEKLY:
+                            current = current.plusWeeks(interval);
+                            break;
+                        case MONTHLY:
+                            current = current.plusMonths(interval);
+                            break;
+                        case YEARLY:
+                            current = current.plusYears(interval);
+                            break;
+                        default:
+                            current = endExpansion;
+                            break;
+                    }
+                }
+                
+                count++;
+            }
+            
+            log.debug("Manually expanded recurring event '{}' to {} occurrences (visible: {} to {}, UNTIL: {})", 
+                title, occurrences.size(), visibleStart, visibleEnd, untilDateTime);
+            
+        } catch (Exception ex) {
+            log.warn("Manual expansion failed for '{}': {}", title, ex.getMessage(), ex);
+            // Return at least first occurrence if it's in visible range
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime visibleStart = now.minusMonths(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+            LocalDateTime visibleEnd = now.plusMonths(2).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).minusSeconds(1);
+            if (firstStart.isBefore(visibleEnd) && firstEnd.isAfter(visibleStart)) {
+                occurrences.add(new BusyTime(firstStart, firstEnd, title, description));
+            }
+        }
+        
+        return occurrences;
+    }
+    
+    // Fallback manual parsing method (keep existing logic)
+    private List<BusyTime> parseIcsManual(String icsContent) {
         String normalized = icsContent.replace("\r\n", "\n");
         List<String> unfolded = unfoldLines(normalized.split("\n"));
         List<BusyTime> result = new ArrayList<>();
@@ -510,7 +1058,7 @@ public class GoogleCalendarService {
             }
         }
 
-        log.info("Parsed iCal: found {} VEVENT blocks, successfully parsed {} busy times", eventCount, parsedCount);
+        log.info("Parsed iCal manually (fallback): found {} VEVENT blocks, successfully parsed {} busy times", eventCount, parsedCount);
         return result;
     }
 
@@ -565,23 +1113,98 @@ public class GoogleCalendarService {
         }
 
         try {
-            // Handle UTC time (ends with Z)
+            // 1. Handle UTC time (ends with Z) - Google Calendar and other formats
             if (value.endsWith("Z")) {
                 ZonedDateTime zdt = ZonedDateTime.parse(value, ICS_UTC);
                 return zdt.withZoneSameInstant(zoneId).toLocalDateTime();
             }
-            // Handle date-only format (YYYYMMDD) or VALUE=DATE
+            
+            // 2. Handle date-only format (YYYYMMDD) or VALUE=DATE
             if (isDateOnly || value.length() == 8) {
                 LocalDate date = LocalDate.parse(value, DateTimeFormatter.BASIC_ISO_DATE);
                 return date.atStartOfDay();
             }
-            // Handle local date-time format (YYYYMMDDTHHMMSS or YYYYMMDDTHHMM)
-            if (value.length() >= 8) {
-                return LocalDateTime.parse(value, ICS_LOCAL);
+            
+            // 3. Handle date-time formats - try multiple parsing strategies
+            if (value.length() >= 8 && value.contains("T")) {
+                log.debug("Attempting to parse date: '{}' (length: {}, contains T: {})", value, value.length(), value.contains("T"));
+                // 3a. Try manual parsing for USOS format: YYYYMMDDTHHMMSS (15 chars, no separators)
+                if (value.length() == 15) {
+                    log.debug("Value length is 15, attempting manual USOS parsing...");
+                    try {
+                        String yearStr = value.substring(0, 4);
+                        String monthStr = value.substring(4, 6);
+                        String dayStr = value.substring(6, 8);
+                        String hourStr = value.substring(9, 11);
+                        String minuteStr = value.substring(11, 13);
+                        String secondStr = value.substring(13, 15);
+                        log.info("Extracting from date '{}': year={}, month={}, day={}, hour={}, minute={}, second={}", 
+                                value, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr);
+                        int year = Integer.parseInt(yearStr);
+                        int month = Integer.parseInt(monthStr);
+                        int day = Integer.parseInt(dayStr);
+                        int hour = Integer.parseInt(hourStr);
+                        int minute = Integer.parseInt(minuteStr);
+                        int second = Integer.parseInt(secondStr);
+                        LocalDateTime result = LocalDateTime.of(year, month, day, hour, minute, second);
+                        log.info("✓ SUCCESS: Manually parsed USOS date {}: {}-{}-{} {}:{}:{}", value, year, month, day, hour, minute, second);
+                        return result;
+                    } catch (NumberFormatException ex) {
+                        log.warn("NumberFormatException parsing USOS date {}: {}", value, ex.getMessage());
+                        // Continue to try other formats
+                    } catch (Exception ex) {
+                        log.warn("Exception parsing USOS date {}: {} - {}", value, ex.getClass().getSimpleName(), ex.getMessage());
+                        // Continue to try other formats
+                    }
+                }
+                // 3b. Try manual parsing for format without seconds: YYYYMMDDTHHMM (13 chars)
+                if (value.length() == 13) {
+                    try {
+                        int year = Integer.parseInt(value.substring(0, 4));
+                        int month = Integer.parseInt(value.substring(4, 6));
+                        int day = Integer.parseInt(value.substring(6, 8));
+                        int hour = Integer.parseInt(value.substring(9, 11));
+                        int minute = Integer.parseInt(value.substring(11, 13));
+                        log.debug("Manually parsed date {} (no seconds): {}-{}-{} {}:{}", value, year, month, day, hour, minute);
+                        return LocalDateTime.of(year, month, day, hour, minute, 0);
+                    } catch (Exception ex) {
+                        // Continue to try other formats
+                    }
+                }
+                
+                // 3c. Try standard iCal format: yyyyMMdd'T'HHmmss (Google Calendar, standard iCal)
+                try {
+                    LocalDateTime result = LocalDateTime.parse(value, ICS_LOCAL);
+                    log.debug("Parsed date using standard iCal format: {}", value);
+                    return result;
+                } catch (DateTimeParseException e) {
+                    // Continue to try other formats
+                }
+                
+                // 3d. Try ISO format with separators: yyyy-MM-dd'T'HH:mm:ss (some calendars)
+                try {
+                    LocalDateTime result = LocalDateTime.parse(value);
+                    log.debug("Parsed date using ISO format: {}", value);
+                    return result;
+                } catch (DateTimeParseException e) {
+                    // Continue to try other formats
+                }
+                
+                // 3e. Try format with colons: yyyyMMdd'T'HH:mm:ss (some variations)
+                try {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HH:mm:ss");
+                    LocalDateTime result = LocalDateTime.parse(value, formatter);
+                    log.debug("Parsed date using colon format: {}", value);
+                    return result;
+                } catch (DateTimeParseException e) {
+                    // All parsing attempts failed
+                    log.warn("Failed to parse date {} after trying all formats. Property: {}", value, property);
+                }
             }
-            log.debug("Unknown date format: {} (property: {})", value, property);
+            
+            log.debug("Unknown date format: {} (property: {}, length: {})", value, property, value.length());
             return null;
-        } catch (DateTimeParseException ex) {
+        } catch (Exception ex) {
             log.warn("Failed to parse ICS date {} (property: {}): {}", value, property, ex.getMessage());
             return null;
         }
