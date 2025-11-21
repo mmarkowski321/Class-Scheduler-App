@@ -195,17 +195,24 @@ class GoogleCalendarServiceTest {
     void shouldCheckTimeSlotBusy() {
         String icsContent = "BEGIN:VCALENDAR\n" +
                 "BEGIN:VEVENT\n" +
-                "DTSTART;TZID=Europe/Warsaw:20241215T140000\n" +
-                "DTEND;TZID=Europe/Warsaw:20241215T150000\n" +
+                "DTSTART:20241215T140000Z\n" +
+                "DTEND:20241215T150000Z\n" +
                 "SUMMARY:Busy Event\n" +
                 "END:VEVENT\n" +
                 "END:VCALENDAR";
 
         when(restTemplate.getForObject(anyString(), eq(String.class))).thenReturn(icsContent);
 
-        // Use same timezone as ICS
-        LocalDateTime start = LocalDateTime.of(2024, 12, 15, 14, 15);
-        LocalDateTime end = LocalDateTime.of(2024, 12, 15, 14, 45);
+        // Convert UTC times to system default timezone for comparison
+        java.time.ZoneId systemZone = java.time.ZoneId.systemDefault();
+        java.time.ZonedDateTime utcStart = java.time.ZonedDateTime.of(2024, 12, 15, 14, 0, 0, 0, java.time.ZoneId.of("UTC"));
+        java.time.ZonedDateTime utcEnd = java.time.ZonedDateTime.of(2024, 12, 15, 15, 0, 0, 0, java.time.ZoneId.of("UTC"));
+        java.time.LocalDateTime busyStartInSystemZone = utcStart.withZoneSameInstant(systemZone).toLocalDateTime();
+        java.time.LocalDateTime busyEndInSystemZone = utcEnd.withZoneSameInstant(systemZone).toLocalDateTime();
+        
+        // Check slot that overlaps (15 minutes after start, 15 minutes before end)
+        LocalDateTime start = busyStartInSystemZone.plusMinutes(15);
+        LocalDateTime end = busyEndInSystemZone.minusMinutes(15);
 
         boolean isBusy = service.isTimeSlotBusy("https://calendar.example.com/feed.ics", start, end);
 
