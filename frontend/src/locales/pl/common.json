@@ -136,7 +136,8 @@
       "role": "Wybierz rolę",
       "ageStudent": "Aby zarejestrować się jako uczeń, musisz mieć co najmniej 13 lat.",
       "ageTutor": "Aby zarejestrować się jako korepetytor, musisz mieć co najmniej 18 lat.",
-      "server": "Błąd serwera. Spróbuj ponownie później."
+      "server": "Błąd serwera. Spróbuj ponownie później.",
+      "authenticationFailed": "Uwierzytelnianie nie powiodło się."
     },
     "hints": {
       "role": {
@@ -165,7 +166,8 @@
       "emailInvalid": "Nieprawidłowy adres e-mail",
       "password": "Hasło jest wymagane",
       "invalid": "Nieprawidłowy e-mail lub hasło",
-      "server": "Logowanie nie powiodło się. Sprawdź dane i spróbuj ponownie."
+      "server": "Logowanie nie powiodło się. Sprawdź dane i spróbuj ponownie.",
+      "authenticationFailed": "Uwierzytelnianie nie powiodło się."
     }
   },
   "verify": {
@@ -439,7 +441,15 @@
         "tutorUnknown": "Korepetytor"
       },
       "calendar": {
-        "title": "Kalendarz"
+        "title": "Kalendarz",
+        "descriptionTutor": "Zaznacz obszar, aby dodać <b>dostępność</b>. Lekcje są widoczne jako fioletowe bloki.",
+        "descriptionStudent": "Dodawaj <b>wolny czas</b> zaznaczeniem myszką. Potwierdzone lekcje są fioletowe.",
+        "busyTimesNote": "Zajęte terminy z Google Calendar są oznaczone na czerwono.",
+        "loading": "Ładowanie kalendarza...",
+        "save": "Zapisz",
+        "saved": "Zapisano (demo).",
+        "removeConfirm": "Usunąć ten blok?",
+        "busySlotAlert": "Ten termin jest zajęty w Twoim kalendarzu Google. Wybierz inny termin."
       },
       "lessons": {
         "title": "Zajęcia",
@@ -824,7 +834,42 @@
         "title": "Przegląd"
       },
       "calendar": {
-        "title": "Kalendarz"
+        "title": "Kalendarz",
+        "descriptionTutor": "Zaznacz obszar, aby dodać <b>dostępność</b>. Lekcje są widoczne jako fioletowe bloki.",
+        "descriptionStudent": "Dodawaj <b>wolny czas</b> zaznaczeniem myszką. Potwierdzone lekcje są fioletowe.",
+        "busyTimesNote": "Zajęte terminy z Google Calendar są oznaczone na czerwono.",
+        "loading": "Ładowanie kalendarza...",
+        "save": "Zapisz",
+        "saved": "Zapisano (demo).",
+        "removeConfirm": "Usunąć ten blok?",
+        "busySlotAlert": "Ten termin jest zajęty w Twoim kalendarzu Google. Wybierz inny termin.",
+        "days": {
+          "mon": "Pon",
+          "tue": "Wt",
+          "wed": "Śr",
+          "thu": "Czw",
+          "fri": "Pt",
+          "sat": "Sob",
+          "sun": "Nie"
+        },
+        "week": {
+          "editBlock": "Edytuj blok",
+          "addBlock": "Dodaj blok",
+          "type": "Rodzaj",
+          "day": "Dzień",
+          "from": "Od",
+          "to": "Do",
+          "title": "Tytuł/opis",
+          "cancel": "Anuluj",
+          "remove": "Usuń",
+          "save": "Zapisz",
+          "availability": "Dostępność",
+          "freeTime": "Wolny czas",
+          "lesson": "Lekcja",
+          "classes": "Zajęcia",
+          "titlePlaceholderTutor": "np. Matematyka – okienko / lekcja",
+          "titlePlaceholderStudent": "np. wolne popołudnie"
+        }
       },
       "availability": {
         "title": "Ustawienia dostępności",

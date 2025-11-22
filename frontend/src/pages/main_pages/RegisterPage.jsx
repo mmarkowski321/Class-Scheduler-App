@@ -125,7 +125,12 @@ function RegisterPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        setErrors({ form: errorData.message || t("register.errors.server") });
+        // Translate common error messages
+        let errorMessage = errorData.message || t("register.errors.server");
+        if (errorMessage === "Authentication failed" || errorMessage.toLowerCase().includes("authentication failed")) {
+          errorMessage = t("register.errors.authenticationFailed");
+        }
+        setErrors({ form: errorMessage });
         setSubmitting(false);
         return;
       }

@@ -136,7 +136,8 @@
       "role": "Please select a role",
       "ageStudent": "You must be at least 13 to register as a student.",
       "ageTutor": "You must be at least 18 to register as a tutor.",
-      "server": "Server error. Please try again later."
+      "server": "Server error. Please try again later.",
+      "authenticationFailed": "Authentication failed."
     },
     "hints": {
       "role": {
@@ -165,7 +166,8 @@
       "emailInvalid": "Invalid email address",
       "password": "Password is required",
       "invalid": "Invalid email or password",
-      "server": "Login failed. Please check your credentials and try again."
+      "server": "Login failed. Please check your credentials and try again.",
+      "authenticationFailed": "Authentication failed."
     }
   },
   "verify": {
@@ -427,7 +429,44 @@
     "tutor": {
       "title": "Tutor dashboard",
       "overview": { "title": "Overview" },
-      "calendar": { "title": "Calendar" },
+      "calendar": {
+        "title": "Calendar",
+        "descriptionTutor": "Select an area to add <b>availability</b>. Lessons are shown as purple blocks.",
+        "descriptionStudent": "Add <b>free time</b> by selecting with the mouse. Confirmed lessons are purple.",
+        "busyTimesNote": "Busy times from Google Calendar are marked in red.",
+        "loading": "Loading calendar...",
+        "save": "Save",
+        "saved": "Saved (demo).",
+        "removeConfirm": "Remove this block?",
+        "busySlotAlert": "This time slot is busy in your Google Calendar. Please select another time.",
+        "days": {
+          "mon": "Mon",
+          "tue": "Tue",
+          "wed": "Wed",
+          "thu": "Thu",
+          "fri": "Fri",
+          "sat": "Sat",
+          "sun": "Sun"
+        },
+        "week": {
+          "editBlock": "Edit block",
+          "addBlock": "Add block",
+          "type": "Type",
+          "day": "Day",
+          "from": "From",
+          "to": "To",
+          "title": "Title/description",
+          "cancel": "Cancel",
+          "remove": "Remove",
+          "save": "Save",
+          "availability": "Availability",
+          "freeTime": "Free time",
+          "lesson": "Lesson",
+          "classes": "Classes",
+          "titlePlaceholderTutor": "e.g. Math – slot / lesson",
+          "titlePlaceholderStudent": "e.g. free afternoon"
+        }
+      },
       "lessons": {
         "title": "Lessons",
         "requestsTitle": "Booking requests",
@@ -754,7 +793,17 @@
         },
         "tutorUnknown": "Tutor"
       },
-      "calendar": { "title": "Calendar" },
+      "calendar": {
+        "title": "Calendar",
+        "descriptionTutor": "Select an area to add <b>availability</b>. Lessons are shown as purple blocks.",
+        "descriptionStudent": "Add <b>free time</b> by selecting with the mouse. Confirmed lessons are purple.",
+        "busyTimesNote": "Busy times from Google Calendar are marked in red.",
+        "loading": "Loading calendar...",
+        "save": "Save",
+        "saved": "Saved (demo).",
+        "removeConfirm": "Remove this block?",
+        "busySlotAlert": "This time slot is busy in your Google Calendar. Please select another time."
+      },
       "lessons": { 
         "title": "Lessons",
         "joinMeeting": "Join meeting",

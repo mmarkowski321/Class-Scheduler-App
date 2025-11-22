@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import CalendarPro from "../../../components/ui/CalendarPro";
 
 export default function TutorCalendar() {
+  const { t, i18n } = useTranslation("common");
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
   
@@ -54,7 +56,7 @@ export default function TutorCalendar() {
             const busyEvents = busyData.busyTimes.map((bt, idx) => ({
               id: `busy-${idx}`,
               type: "busy",
-              title: bt.title || "Zajęte (Google Calendar)",
+              title: bt.title || (i18n.language === "pl" ? "Zajęte (Google Calendar)" : "Busy (Google Calendar)"),
               start: bt.start,
               end: bt.end,
               description: bt.description,
@@ -88,22 +90,23 @@ export default function TutorCalendar() {
     // TODO: API - save only non-busy items
     const itemsToSave = items.filter(item => item.type !== "busy");
     console.log("tutor.calendar.save", itemsToSave);
-    alert("Zapisano (demo).");
+    alert(t("app.tutor.calendar.saved"));
   };
 
   return (
     <div className="card">
-      <h3>Kalendarz</h3>
-      <p style={{margin:"0 0 8px", opacity:.9}}>
-        Zaznacz obszar, aby dodać <b>dostępność</b>. Lekcje są widoczne jako fioletowe bloki.
-        {busyTimes.length > 0 && <span style={{display:"block", marginTop:4, color:"#ef4444"}}>
-          Zajęte terminy z Google Calendar są oznaczone na czerwono.
-        </span>}
+      <h3>{t("app.tutor.calendar.title")}</h3>
+      <p style={{margin:"0 0 8px", opacity:.9}} dangerouslySetInnerHTML={{__html: t("app.tutor.calendar.descriptionTutor")}}>
       </p>
-      {loading && <p style={{margin:"0 0 8px", opacity:.7}}>Ładowanie kalendarza...</p>}
-      <CalendarPro role="tutor" locale="pl" events={allEvents} onChange={setItems} />
+      {busyTimes.length > 0 && (
+        <p style={{display:"block", margin:"4px 0 8px", color:"#ef4444", opacity:.9}}>
+          {t("app.tutor.calendar.busyTimesNote")}
+        </p>
+      )}
+      {loading && <p style={{margin:"0 0 8px", opacity:.7}}>{t("app.tutor.calendar.loading")}</p>}
+      <CalendarPro role="tutor" locale={i18n.language} events={allEvents} onChange={setItems} />
       <div style={{display:"flex", justifyContent:"flex-end", marginTop:10}}>
-        <button className="btn primary" onClick={save}>Zapisz</button>
+        <button className="btn primary" onClick={save}>{t("app.tutor.calendar.save")}</button>
       </div>
     </div>
   );

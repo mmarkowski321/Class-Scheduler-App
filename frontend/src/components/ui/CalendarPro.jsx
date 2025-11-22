@@ -4,6 +4,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import plLocale from "@fullcalendar/core/locales/pl";
+import enLocale from "@fullcalendar/core/locales/en-gb";
 import EventModal from "./EventModal";
 import "./calendar-pro.css";
 
@@ -119,6 +120,8 @@ function CalendarPro({
     });
     
     if (overlapsBusy) {
+      // Note: This alert is hardcoded since CalendarPro doesn't have access to i18n
+      // The translation key is handled in the parent component
       alert(locale === "pl" 
         ? "Ten termin jest zajęty w Twoim kalendarzu Google. Wybierz inny termin." 
         : "This time slot is busy in your Google Calendar. Please select another time.");
@@ -128,7 +131,9 @@ function CalendarPro({
     onChange?.([...events, {
       id: `tmp-${Date.now()}`,
       type: role === "tutor" ? "availability" : "free",
-      title: role === "tutor" ? "Dostępność" : "Wolny czas",
+      title: role === "tutor" 
+        ? (locale === "pl" ? "Dostępność" : "Availability")
+        : (locale === "pl" ? "Wolny czas" : "Free time"),
       start: sel.startStr,
       end: sel.endStr,
     }]);
@@ -140,6 +145,8 @@ function CalendarPro({
     }
     const ev = info.event.extendedProps;
     if (ev?.type === "availability" || ev?.type === "free") {
+      // Note: This confirm is hardcoded since CalendarPro doesn't have access to i18n
+      // The translation key is handled in the parent component
       if (confirm(locale === "pl" ? "Usunąć ten blok?" : "Remove this block?")) {
         onChange?.(events.filter(e => e.id !== info.event.id));
       }
@@ -165,12 +172,16 @@ function CalendarPro({
     }
   };
 
+  const calendarLocale = useMemo(() => {
+    return locale === "pl" ? plLocale : enLocale;
+  }, [locale]);
+
   return (
     <div className={`calpro calpro--${role}`}>
       <FullCalendar
         ref={calRef}
         plugins={[timeGridPlugin, interactionPlugin, dayGridPlugin]}
-        locales={[plLocale]}
+        locales={[plLocale, enLocale]}
         locale={locale}
         initialView="timeGridWeek"
         firstDay={weekStart}
