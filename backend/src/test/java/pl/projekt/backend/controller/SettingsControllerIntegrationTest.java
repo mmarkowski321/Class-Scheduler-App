@@ -28,7 +28,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -305,6 +305,169 @@ class SettingsControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Phone number can only be updated for students"));
+    }
+
+    @Test
+    void shouldDeactivateAccount() throws Exception {
+        mockMvc.perform(put("/api/settings/account/" + student.getId() + "/deactivate")
+                        .header("Authorization", "Bearer student-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Account deactivated successfully"));
+
+        User deactivated = userRepository.findById(student.getId()).orElseThrow();
+        assertThat(deactivated.getBanned()).isTrue();
+    }
+
+    @Test
+    void shouldRejectDeactivateAlreadyDeactivatedAccount() throws Exception {
+        student.setBanned(true);
+        userRepository.save(student);
+
+        mockMvc.perform(put("/api/settings/account/" + student.getId() + "/deactivate")
+                        .header("Authorization", "Bearer student-token"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Account already deactivated"));
+    }
+
+    @Test
+    void shouldActivateAccount() throws Exception {
+        student.setBanned(true);
+        userRepository.save(student);
+
+        mockMvc.perform(put("/api/settings/account/" + student.getId() + "/activate")
+                        .header("Authorization", "Bearer student-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Account reactivated successfully"));
+
+        User activated = userRepository.findById(student.getId()).orElseThrow();
+        assertThat(activated.getBanned()).isFalse();
+    }
+
+    @Test
+    void shouldRejectActivateAlreadyActiveAccount() throws Exception {
+        mockMvc.perform(put("/api/settings/account/" + student.getId() + "/activate")
+                        .header("Authorization", "Bearer student-token"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Account already active"));
+    }
+
+    @Test
+    void shouldUpdateEmailLanguage() throws Exception {
+        Map<String, String> request = new HashMap<>();
+        request.put("emailLanguage", "en");
+
+        mockMvc.perform(put("/api/settings/email-language/" + student.getId())
+                        .header("Authorization", "Bearer student-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").exists());
+
+        User updated = userRepository.findById(student.getId()).orElseThrow();
+        assertThat(updated.getEmailLanguage()).isEqualTo("en");
+    }
+
+    @Test
+    void shouldRejectUpdateEmailLanguageWithInvalidValue() throws Exception {
+        Map<String, String> request = new HashMap<>();
+        request.put("emailLanguage", "de");
+
+        mockMvc.perform(put("/api/settings/email-language/" + student.getId())
+                        .header("Authorization", "Bearer student-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Email language must be 'pl' or 'en'"));
+    }
+
+    @Test
+    void shouldDeleteAccount() throws Exception {
+        String originalEmail = student.getEmail();
+        String originalFirstName = student.getFirstName();
+        String originalLastName = student.getLastName();
+
+        mockMvc.perform(delete("/api/settings/account/" + student.getId())
+                        .header("Authorization", "Bearer student-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Account deleted (anonymized) successfully"));
+
+        User deleted = userRepository.findById(student.getId()).orElseThrow();
+        assertThat(deleted.getEmail()).isNotEqualTo(originalEmail);
+        assertThat(deleted.getEmail()).startsWith("deleted+");
+        assertThat(deleted.getFirstName()).isEqualTo("Deleted");
+        assertThat(deleted.getLastName()).isEqualTo("User");
+        assertThat(deleted.getEmailVerified()).isFalse();
+        assertThat(deleted.getVerificationToken()).isNull();
+        assertThat(deleted.getResetPasswordToken()).isNull();
+        assertThat(deleted.getBanned()).isTrue();
+    }
+
+    @Test
+    void shouldGetNotifications() throws Exception {
+        student.setEmailNotifications(true);
+        student.setBookingReminders(true);
+        student.setLessonReminders(false);
+        student.setChangeNotifications(true);
+        userRepository.save(student);
+
+        mockMvc.perform(get("/api/settings/notifications/" + student.getId())
+                        .header("Authorization", "Bearer student-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.emailNotifications").value(true))
+                .andExpect(jsonPath("$.bookingReminders").value(true))
+                .andExpect(jsonPath("$.lessonReminders").value(false))
+                .andExpect(jsonPath("$.changeNotifications").value(true))
+                .andExpect(jsonPath("$.autoAcceptBookings").value(false));
+    }
+
+    @Test
+    void shouldGetNotificationsForTutorWithAutoAccept() throws Exception {
+        tutor.setEmailNotifications(true);
+        tutor.setAutoAcceptBookings(true);
+        userRepository.save(tutor);
+
+        mockMvc.perform(get("/api/settings/notifications/" + tutor.getId())
+                        .header("Authorization", "Bearer tutor-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.autoAcceptBookings").value(true));
+    }
+
+    @Test
+    void shouldUpdateNotifications() throws Exception {
+        Map<String, Object> request = new HashMap<>();
+        request.put("emailNotifications", true);
+        request.put("bookingReminders", false);
+        request.put("lessonReminders", true);
+        request.put("changeNotifications", false);
+
+        mockMvc.perform(put("/api/settings/notifications/" + student.getId())
+                        .header("Authorization", "Bearer student-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Notification preferences updated"));
+
+        User updated = userRepository.findById(student.getId()).orElseThrow();
+        assertThat(updated.getEmailNotifications()).isTrue();
+        assertThat(updated.getBookingReminders()).isFalse();
+        assertThat(updated.getLessonReminders()).isTrue();
+        assertThat(updated.getChangeNotifications()).isFalse();
+    }
+
+    @Test
+    void shouldUpdateNotificationsForTutorWithAutoAccept() throws Exception {
+        Map<String, Object> request = new HashMap<>();
+        request.put("autoAcceptBookings", true);
+
+        mockMvc.perform(put("/api/settings/notifications/" + tutor.getId())
+                        .header("Authorization", "Bearer tutor-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Notification preferences updated"));
+
+        Tutor updated = (Tutor) userRepository.findById(tutor.getId()).orElseThrow();
+        assertThat(updated.getAutoAcceptBookings()).isTrue();
     }
 }
 

@@ -600,42 +600,42 @@ export default function TutorLessons() {
       <div className="card tutor-lessons-card">
         <h3>{t("app.tutor.lessons.section.inProgress")}</h3>
         {renderControls("inProgress")}
-        {!groups.inProgress.length && <Alert variant="info">{t("empty", { defaultValue: "Empty" })}</Alert>}
+        {!groups.inProgress.length && <Alert variant="info">{t("app.tutor.lessons.empty")}</Alert>}
         {applyView(groups.inProgress, "inProgress").map(renderConfirmed)}
       </div>
 
       <div className="card tutor-lessons-card">
         <h3>{t("app.tutor.lessons.section.scheduled")}</h3>
         {renderControls("scheduled")}
-        {!groups.scheduled.length && <Alert variant="info">{t("empty", { defaultValue: "Empty" })}</Alert>}
+        {!groups.scheduled.length && <Alert variant="info">{t("app.tutor.lessons.empty")}</Alert>}
         {applyView(groups.scheduled, "scheduled").map(renderConfirmed)}
       </div>
 
       <div className="card tutor-lessons-card">
         <h3>{t("app.tutor.lessons.section.rescheduled")}</h3>
         {renderControls("rescheduled")}
-        {!groups.rescheduled.length && <Alert variant="info">{t("empty", { defaultValue: "Empty" })}</Alert>}
+        {!groups.rescheduled.length && <Alert variant="info">{t("app.tutor.lessons.empty")}</Alert>}
         {applyView(groups.rescheduled, "rescheduled").map(renderConfirmed)}
       </div>
 
       <div className="card tutor-lessons-card">
         <h3>{t("app.tutor.lessons.section.completed")}</h3>
         {renderControls("completed")}
-        {!groups.completed.length && <Alert variant="info">{t("empty", { defaultValue: "Empty" })}</Alert>}
+        {!groups.completed.length && <Alert variant="info">{t("app.tutor.lessons.empty")}</Alert>}
         {applyView(groups.completed, "completed").map(renderConfirmed)}
       </div>
 
       <div className="card tutor-lessons-card">
         <h3>{t("app.tutor.lessons.section.reviewed")}</h3>
         {renderControls("reviewed")}
-        {!groups.completedReviewed.length && <Alert variant="info">{t("empty", { defaultValue: "Empty" })}</Alert>}
+        {!groups.completedReviewed.length && <Alert variant="info">{t("app.tutor.lessons.empty")}</Alert>}
         {applyView(groups.completedReviewed, "reviewed").map(renderConfirmed)}
       </div>
 
       <div className="card tutor-lessons-card">
         <h3>{t("app.tutor.lessons.section.cancelled")}</h3>
         {renderControls("cancelled")}
-        {!groups.cancelled.length && <Alert variant="info">{t("empty", { defaultValue: "Empty" })}</Alert>}
+        {!groups.cancelled.length && <Alert variant="info">{t("app.tutor.lessons.empty")}</Alert>}
         {applyView(groups.cancelled, "cancelled").map(renderConfirmed)}
       </div>
 

@@ -435,7 +435,9 @@ public class TutorController {
         List<Map<String, Object>> confirmed = lessons.stream()
                 .filter(lesson -> lesson.getStatus() == LessonStatus.SCHEDULED
                         || lesson.getStatus() == LessonStatus.RESCHEDULED
-                        || lesson.getStatus() == LessonStatus.IN_PROGRESS)
+                        || lesson.getStatus() == LessonStatus.IN_PROGRESS
+                        || lesson.getStatus() == LessonStatus.COMPLETED
+                        || lesson.getStatus() == LessonStatus.CANCELLED)
                 .sorted(byStart)
                 .map(this::toTutorLessonDto)
                 .collect(Collectors.toList());
@@ -771,6 +773,9 @@ public class TutorController {
     }
 
     private boolean overlaps(LocalDateTime aStart, LocalDateTime aEnd, LocalDateTime bStart, LocalDateTime bEnd) {
+        if (aStart == null || aEnd == null || bStart == null || bEnd == null) {
+            return false;
+        }
         return aStart.isBefore(bEnd) && bStart.isBefore(aEnd);
     }
 

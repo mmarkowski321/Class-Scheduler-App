@@ -58,7 +58,12 @@ function LoginPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        setErrors({ form: errorData.message || t("login.errors.invalid") });
+        // Translate common error messages
+        let errorMessage = errorData.message || t("login.errors.invalid");
+        if (errorMessage === "Authentication failed" || errorMessage.toLowerCase().includes("authentication failed")) {
+          errorMessage = t("login.errors.authenticationFailed");
+        }
+        setErrors({ form: errorMessage });
         setSubmitting(false);
         return;
       }
@@ -68,7 +73,11 @@ function LoginPage() {
       // Require token to proceed
       if (!data || !data.token) {
         clearAuthSession();
-        setErrors({ form: data?.message || t("login.errors.invalid") });
+        let errorMessage = data?.message || t("login.errors.invalid");
+        if (errorMessage === "Authentication failed" || errorMessage.toLowerCase().includes("authentication failed")) {
+          errorMessage = t("login.errors.authenticationFailed");
+        }
+        setErrors({ form: errorMessage });
         setSubmitting(false);
         return;
       }
